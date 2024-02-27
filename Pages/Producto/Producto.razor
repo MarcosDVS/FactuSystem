@@ -1,4 +1,5 @@
 @page "/producto"
+@inject IJSRuntime JSRuntime;
 @attribute [Authorize]
 
 <style>
@@ -154,15 +155,18 @@
     <div class="card col-12">
         <div class="card-body">
             <!-- Button trigger modal -->
-            <button class="btn btn-outline-success" @onclick="ShowCard">
+            <button class="btn btn-outline-success d-print-none" @onclick="ShowCard">
                 <span class="oi oi-plus"></span>
-                Nuevo producto
             </button>
-            
+            <button class="btn btn-outline-primary d-print-none" 
+                @onclick="async ()=>{await PrintPageAsync();}">
+                <span class="oi oi-print"></span>
+            </button>
+
             <div class="row">
                 <div class="col-8"></div>
                 <div class="col-4">
-                    <div class="input-group">
+                    <div class="input-group d-print-none">
                         <input type="text" class="form-control border-0 border-bottom" 
                         placeholder="Buscar por nombre" @bind="Filtro">
                         <button class="btn btn-outline input-group-text border-0 bg-white" 
@@ -184,7 +188,7 @@
                             <th>Proveedor</th>
                             <th>Precio/Compra</th>
                             <th>Precio/Venta</th>
-                            <th>...</th>
+                            <th class="d-print-none">...</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -198,7 +202,7 @@
                                 <td>@productoRow.NombreProveedortexto</td>
                                 <td>@productoRow.PrecioCompra.ToString("N2")</td>
                                 <td>@productoRow.Precio.ToString("N2")</td>
-                                <td>
+                                <td class="d-print-none">
                                     <button @onclick="()=>Seleccionar(productoRow.Id)"
                                         class="btn btn-outline-warning">
                                         <span class="oi oi-pencil"></span>
@@ -367,4 +371,9 @@
         productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * (30/100));
     }
 
+    private async Task PrintPageAsync()
+    {
+        // Llama a la función JavaScript para imprimir la página
+        await JSRuntime.InvokeVoidAsync("printPage");
+    }
 }

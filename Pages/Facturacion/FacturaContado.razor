@@ -2,15 +2,6 @@
 @using FactuSystem.Data.Response;
 @inject IJSRuntime JSRuntime
 @attribute [Authorize]
-<script>
-    function printPage() {
-    window.print();
-}
-</script>
-
-
-
-
 
 <PageTitle>Factura</PageTitle>
 
@@ -27,7 +18,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <button class="btn btn-outline-primary d-print-none" @onclick="PrintPageAsync">
+                <button class="btn btn-outline-primary d-print-none" @onclick="async ()=>{await PrintPageAsync();}">
                     <span class="oi oi-print"></span>
                 </button>
             </div>
@@ -286,18 +277,9 @@ else
     }
     private async Task PrintPageAsync()
     {
-        try
-        {
-            // Use InvokeAsync instead of InvokeVoidAsync
-            await JSRuntime.InvokeAsync<object>("imprimir.printPage");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error invoking JavaScript function: {ex.Message}");
-        }
+
+        await JSRuntime.InvokeVoidAsync("printPage");
     }
-
-
     
     //Codigo Para mostrar todos los pagos realizados por factura
     public List<PagoResponse> PagosFacturaSeleccionada { get; set; } = new List<PagoResponse>();
