@@ -1,0 +1,370 @@
+@page "/producto"
+@attribute [Authorize]
+
+<style>
+    /* Estilo para resaltar las filas al pasar el cursor */
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5; /* Cambia el color al pasar el cursor */
+    }
+
+    /* Estilo para el contenedor de la tabla */
+    .table-container {
+        margin-top: 20px;
+    }
+
+    /* Estilo para el cuerpo de la tarjeta */
+    .card-body {
+        padding: 20px;
+    }
+
+    /* Estilo para centrar el texto en las celdas de la tabla */
+    .table th, .table td {
+        text-align: center;
+    }
+
+    .titulo-proveedores {
+        background-color: rgb(0, 0, 53); /* Fondo oscuro */
+        color: #ffffff; /* Texto blanco */
+        text-align: center; /* Centrar texto */
+        padding: 10px; /* Añadir espacio alrededor del texto */
+    }
+</style>
+
+<h1 class="titulo-proveedores">Listado de Productos</h1>
+
+<div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>@TituloForm</b></h5>
+                <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseCard">
+                    <span aria-hidden="true" class="oi oi-x"></span>
+                </button>
+            </div>
+
+            <EditForm Model="productoRequest" OnValidSubmit="Send">
+                    @if (Message != null)
+                    {
+                        <div class="alert-danger">
+                            <span class="text-danger">@Message</span>
+                        </div>
+                    }
+                    <div class="modal-body">
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-code"></span>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Codigo" id="nombreCompleto" 
+                            @bind-value="productoRequest.Codigo" required />
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-infinity"></span>
+                                </span>
+                            </div>
+                            <input type="number" class="form-control" placeholder="Descripción" id="correo" 
+                                @bind-value="productoRequest.Stock" required min="0.01" step="0.01"/>
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-document"></span>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Descripción" id="correo" 
+                                @bind-value="productoRequest.Nombre" required/>
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white text-black border-0">
+                                        <span class="oi oi-spreadsheet"></span>
+                                    </span>
+                                </div>
+                                <input 
+                                    class="form-control"
+                                    placeholder="Categoría"
+                                    aria-label="Categoria"
+                                    aria-describedby="button-addon2" 
+                                    list="categorias"
+                                    @bind="Nombre"
+                                    @oninput="HandleCategorySelection"
+                                    required title="Debes seleccionar una Categoría"
+                                />
+                                <datalist id="categorias">
+                                    @foreach (var item in Categorias)
+                                    {
+                                        <option value="@item.Nombre" />
+                                    }
+                                </datalist>
+                                <button class="btn btn-outline-success" @onclick="GoCategory">
+                                    <span class="oi oi-plus"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-person"></span>
+                                </span>
+                            </div>
+                            <input 
+                                    class="form-control"
+                                    placeholder="Proveedor"
+                                    aria-label="Proveedor"
+                                    aria-describedby="button-addon2" 
+                                    list="productos"
+                                    @bind="NombreEmp"
+                                    @oninput="HandleProveedorSelection"
+                                    required title="Debes seleccionar un proveedor"
+                                />
+                                <datalist id="productos">
+                                    @foreach (var item in Proveedores)
+                                    {
+                                        <option value="@item.NombreEmp" />
+                                    }
+                                </datalist>
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-dollar"></span>
+                                </span>
+                            </div>
+                            <input class="form-control" placeholder="Precio/Compra" id="correo" 
+                            @bind-value="productoRequest.PrecioCompra" required min="0.01" step="0.01"/>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-outline-primary">Guardar</button>
+                        </div>
+                    </div>
+            </EditForm>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="card col-12">
+        <div class="card-body">
+            <!-- Button trigger modal -->
+            <button class="btn btn-outline-success" @onclick="ShowCard">
+                <span class="oi oi-plus"></span>
+                Nuevo producto
+            </button>
+            
+            <div class="row">
+                <div class="col-8"></div>
+                <div class="col-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-0 border-bottom" 
+                        placeholder="Buscar por nombre" @bind="Filtro">
+                        <button class="btn btn-outline input-group-text border-0 bg-white" 
+                            type="button" id="button-addon2" @onclick="()=>CargarContactos()">
+                            <span class="oi oi-magnifying-glass text-black"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-12 mt-2">
+                <table class="table table-hover">
+                    <thead style="background-color: rgb(0, 0, 53); color: #ffffff;">
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Stock</th>
+                            <th>Nombre</th>
+                            <th>Categoria</th>
+                            <th>Proveedor</th>
+                            <th>Precio/Compra</th>
+                            <th>Precio/Venta</th>
+                            <th>...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var productoRow in Productos)
+                        {
+                            <tr>
+                                <td>@productoRow.Codigo</td>
+                                <td>@productoRow.Stock</td>
+                                <td>@productoRow.Nombre</td>
+                                <td>@productoRow.NombreCategoriatexto</td>
+                                <td>@productoRow.NombreProveedortexto</td>
+                                <td>@productoRow.PrecioCompra.ToString("N2")</td>
+                                <td>@productoRow.Precio.ToString("N2")</td>
+                                <td>
+                                    <button @onclick="()=>Seleccionar(productoRow.Id)"
+                                        class="btn btn-outline-warning">
+                                        <span class="oi oi-pencil"></span>
+                                    </button>
+                                    <button @onclick="()=>Eliminar(productoRow)"
+                                        class="btn btn-outline-danger">
+                                        <span class="oi oi-trash"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+@code {
+    public string TituloForm => productoRequest.Id == 0 ? 
+    "Agregar producto" : "Modificar producto";
+    
+    public string Filtro { get; set; } = "";
+    public bool ShowForm { get; set; } = false;
+    public List<ProductoResponse> Productos { get; set; } = new();
+    public List<CategoriaResponse> Categorias { get; set; } = new();
+    public List<ProveedorResponse> Proveedores { get; set; } = new();
+    public ProductoRequest productoRequest { get; set; } = new();
+    public bool showCard { get; set; } = false;
+    public string Message { get; set; } = "";
+    public string Nombre { get; set; } = string.Empty;
+    public string NombreEmp { get; set; } = string.Empty;
+    void BuscarSeleccionarCategoria(string Categoria)
+    {
+        var c = Categorias.FirstOrDefault(p => p.Nombre == Categoria)!;
+        if (c != null) productoRequest.CategoriaID = c.Id;
+    }
+    void HandleCategorySelection(ChangeEventArgs args)
+    {
+        var selectedCategory = args.Value.ToString();
+        BuscarSeleccionarCategoria(selectedCategory);
+    }
+    void BuscarSeleccionarProveedor(string Proveedor)
+    {
+        var c = Proveedores.FirstOrDefault(p => p.NombreEmp == Proveedor)!;
+        if (c != null) productoRequest.ProveedorID = c.Id;
+    }
+    void HandleProveedorSelection(ChangeEventArgs args)
+    {
+        var selectedCategory = args.Value.ToString();
+        BuscarSeleccionarProveedor(selectedCategory);
+    }
+    void GoCategory()
+    {
+        urlHelper.NavigateTo("category",true);
+    }
+    void ShowCard()
+    {
+        showCard = true;
+    }
+
+    void CloseCard()
+    {
+        productoRequest  = new ProductoRequest();
+        showCard = false;
+    }
+
+    async Task CargarContactos()
+    {
+        var resultado =
+        await productoServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Productos = resultado.Data!;
+        }
+    }
+    async Task CargarProveedores()
+    {
+        var resultado =
+        await proveedorServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Proveedores = resultado.Data!;
+        }
+    }
+    async Task CargarCategorias()
+    {
+        var resultado =
+        await categoriaServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Categorias = resultado.Data!;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarContactos();
+        await CargarProveedores();
+        await CargarCategorias();
+    }
+
+    void Cancelar()
+    {
+        productoRequest  = new ProductoRequest();
+        showCard = false;
+    }
+    public async Task Send()
+    {
+        if (productoRequest.Id == 0)
+        {
+            BuscarSeleccionarCategoria(Nombre);
+            BuscarSeleccionarProveedor(NombreEmp);
+            productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * 0.3m);
+            var r = await productoServices.Crear(productoRequest);
+            if (r.Success)
+            {
+                Cancelar();
+                await CargarContactos();
+                StateHasChanged();
+            }
+            else{
+                Message = r.Message;
+            }
+        }
+        else
+        {
+            productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * 0.3m);
+            BuscarSeleccionarCategoria(Nombre);
+            BuscarSeleccionarProveedor(NombreEmp);
+            // Debo solicitar modificar el producto.
+            var r = await productoServices.Modificar(productoRequest);
+            if (r.Success)
+            {
+                Cancelar();
+                await CargarContactos();
+                StateHasChanged();
+            }
+            else{
+                Message = r.Message;
+            }
+        }
+    }
+
+    public void Seleccionar(int Id)
+    {
+        showCard = true;
+        productoRequest = Productos
+        .Where(c => c.Id == Id)
+        .Select(c => c.ToRequest())
+        .FirstOrDefault() ?? new ProductoRequest();
+    }
+    public async Task Eliminar(ProductoResponse item)
+    {
+        var resultado = await productoServices.Eliminar(item.ToRequest());
+        if (resultado.Success)
+        {
+            await CargarContactos();
+            StateHasChanged();
+        }
+    }
+
+    public void PrecioAum()
+    {
+        productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * (30/100));
+    }
+
+}

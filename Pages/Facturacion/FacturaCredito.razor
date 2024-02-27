@@ -1,0 +1,478 @@
+@page "/factura/cobrar"
+@using FactuSystem.Data.Response;
+@inject IJSRuntime JSRuntime;
+@attribute [Authorize]
+
+<script>
+    function printPage() {
+    window.print();
+}
+</script>
+
+@if(!ShowDetails)
+{
+    <form @onsubmit="BuscarFacturas">
+        <div class="row mb-3 d-print-none">
+            <div class="col-md-3 form-group">
+                <div class="input-group">
+                    <input type="date" class="form-control" @bind="fechaFiltro">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <span class="oi oi-magnifying-glass"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary d-print-none" @onclick="PrintPageAsync">
+                    <span class="oi oi-print"></span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="modal" style="display: @(formPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><b>@TituloFormPago</b></h5>
+                    <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseFormPago">
+                        <span aria-hidden="true" class="oi oi-x"></span>
+                    </button>
+                </div>
+
+                <EditForm Model="pagoRequest" OnValidSubmit="SendPago">
+                    <div class="alert alert-danger mt-3" role="alert" style="display: @(string.IsNullOrEmpty(ErrorMessage) ? "none" : "block")">
+                        @ErrorMessage 
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-code"></span>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Codigo"
+                             @bind-value="pagoRequest.FacturaID" readonly />
+                        </div>
+                        
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-dollar"></span>
+                                </span>
+                            </div>
+                            <input type="number" class="form-control" placeholder="Monto a Pagar" 
+                            @bind-value="pagoRequest.MontoPagado" required min="0.01" step="0.01"/>
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-align-left"></span>
+                                </span>
+                            </div>
+                            <select class="form-control" @bind="@pagoRequest.Observacion" required>
+                                <option disabled selected value="">Observación</option>
+                                <option value="Justo 😉">Justo 😉</option>
+                                <option value="Temprano 😎">Temprano 😎</option>
+                                <option value="Atrazado 😴">Atrazado 😴</option>
+                            </select>
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-calendar"></span>
+                                </span>
+                            </div>
+                            <input type="date" class="form-control" placeholder="Fecha" 
+                            @bind-value="pagoRequest.Fecha" readonly/>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-outline-success">Registrar Pago</button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-10">
+            <h3 class="card-title"><b>@TituloForm</b></h3>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-outline-danger d-print-none"
+                @onclick="Back">
+                <span class="oi oi-arrow-left"></span>
+            </button>
+            <button class="btn btn-outline-primary d-print-none" @onclick="PrintPageAsync">
+                <span class="oi oi-print"></span>
+            </button>
+        </div>
+    </div>
+}
+<hr>
+
+
+@if(!ShowDetails)
+{
+    <div class="container">
+        <h3 class="card-title"><b>@TituloForm</b></h3>
+    </div>
+}
+<div class="container">
+    @if(ShowDetails)
+    {
+        <h5><b>Fecha:</b> @SelectedFactura.Fecha.ToShortDateString()</h5>
+        <h5><b>Cliente:</b> @SelectedFactura.Cliente.Nombre @SelectedFactura.Cliente.Apellidos</h5>
+        <!-- Mostrar detalles de la factura seleccionada -->
+        <div class="table-responsive mt-2">
+            <table class="table table-bordered">
+                <thead class="table" style="background-color: rgb(0, 0, 53); color: #ffffff;">
+                    <tr>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Precio sin ITEBIS</th>
+                        <th scope="col">ITBIS</th>
+                        <th scope="col">Precio con ITEBIS</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Descuento</th>
+                        <th scope="col">Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in FacturaDetalles)
+                    {
+                        <tr>
+                            <td>@detalle.Cantidad</td>
+                            <td>@detalle.Producto.Nombre</td>
+                            <td>$@($"{(detalle.Precio - detalle.Precio * 0.18m):N2}")</td>
+                            <td>
+                                <span style="white-space: nowrap;">
+                                    $ @($"{(detalle.Precio * 0.18m):N2}")
+                                </span>
+                            </td>
+                            <td>$@detalle.Precio.ToString("N2")</td>
+                            <td>$@detalle.SubTotal.ToString("N2")</td>
+                            <td>$@detalle.TotalDesc.ToString("N2")</td>
+                            <td>$@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="6"></td>
+                        <td><b>ITBIS:</b></td>
+                        <td>$@FacturaDetalles.Sum(c => c.Precio * 0.18m).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"></td>
+                        <td><b>SubTotal:</b></td>
+                        <td>$@FacturaDetalles.Sum(c => c.Precio).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"></td>
+                        <td><b>Descuento:</b></td>
+                        <td>$@FacturaDetalles.Sum(c => c.TotalDesc).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"></td>
+                        <td><b>Total:</b></td>
+                        <td>$@FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"></td>
+                        <td><b>Pagado:</b></td>
+                        <td>$@SelectedFactura.SaldoPagado.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6"></td>
+                        <td><b>Pendiente:</b></td>
+                        <td>$@SelectedFactura.SaldoPendiente.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+    else if(Facturas != null)
+    {
+        <div class="modal" style="display: @(detailsPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><b>Detalles de los Pagos</b></h5>
+                        <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
+                            <span aria-hidden="true" class="oi oi-x"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @if(FacturaSinPagos)
+                        {
+                            <div class="alert alert-warning" role="alert">
+                                <h4 class="alert-heading">¡Aviso!</h4>
+                                <p>Este cliente aún no ha realizado pagos.</p>
+                                <hr>
+                                <p class="mb-0">Por favor, asegúrese de coordinar con el cliente para procesar los pagos pendientes. ¡Gracias!</p>
+                            </div>
+                        }
+                        else{
+                            <table class="table table-hover">
+                                <thead class="table" style="background-color: rgb(0, 0, 53); color: #ffffff;">
+                                    <tr>
+                                        <th>FacturaId</th>
+                                        <th>Monto/Pagado</th>
+                                        <th>Observación</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var pago in PagosFacturaSeleccionada)
+                                    {
+                                        <tr>
+                                            <td>@pago.FacturaID</td>
+                                            <td>$@pago.MontoPagado.ToString("N2")</td>
+                                            <td>@pago.Observacion</td>
+                                            <td>@pago.Fecha</td>
+                                        </tr>
+                                    } 
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-outline-primary" @onclick="FormPago">Agregar Pago</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mostrar la lista de facturas -->
+        <table class="table table-striped mt-2">
+            <thead class="table" style="background-color: rgb(0, 0, 53); color: #ffffff;">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">ITBIS</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Descuento</th>
+                    <th scope="col">Importe</th>
+                    <th scope="col">SaldoPendiente</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">...</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Facturas)
+                {
+                    
+                    @if(f.TypePayment == "2" && f.SaldoPendiente > 0)    
+                    {
+                        <tr>
+                            <th scope="row">@f.Id</th>
+                            <td>@f.Cliente.Nombre @f.Cliente.Apellidos</td>
+                            <td>
+                                <span style="white-space: nowrap;">
+                                    $@($"{(f.SubTotal * 0.18m):N2}")
+                                </span>
+                            </td>
+                            <td>$@f.SubTotal.ToString("N2")</td>
+                            <td>$@f.TotalDesc.ToString("N2")</td>
+                            <td>$@($"{(f.SubTotal - f.TotalDesc):N2}")</td>
+                            <td>$@f.SaldoPendiente.ToString("N2")</td>
+                            <td>@f.Fecha.ToShortDateString()</td>
+                            <td>
+                                <div class="button d-print-none">
+                                    <button @onclick="() => MostrarPagos(f)"
+                                        class="btn btn-outline-success">
+                                        <span class="oi oi-dollar"></span>
+                                    </button>
+                                    <button @onclick="() => MostrarDetalles(f)"
+                                        class="btn btn-outline-info">
+                                        <span class="oi oi-info"></span>
+                                    </button>
+                                    <button @onclick="() => Eliminar(f)" class="btn btn-outline-danger d-print-none" >
+                                        <span class="oi oi-trash"></span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code
+{
+    public DateTime? fechaFiltro { get; set; }
+    public string TituloForm => ShowDetails == false ?
+    "Módulo de facturas a crédito" : "Módulo de facturación";
+    public bool ShowDetails { get; set; } = false;
+    public bool ShowDetailPayment { get; set; } = false;
+    public List<FacturaResponse> Facturas { get; set; } = new();
+    public List<FacturaDetalleResponse> FacturaDetalles { get; set; } = new();
+    public FacturaResponse? SelectedFactura { get; set; } // Factura seleccionada
+    
+    public async Task BuscarFacturas()
+    {
+        var resultado = await facturaServices.BuscarFacturas(fechaFiltro);
+        if (resultado.Success)
+        {
+            Facturas = resultado.Data ?? new List<FacturaResponse>();
+        }
+        StateHasChanged();
+    }
+
+    void Back()
+    {
+        ShowDetails = false;
+    }
+     async Task Consultar()
+    {
+        var resultado = await facturaServices.Consultar();
+        if (resultado.Success)
+        {
+            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
+        }
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Consultar();
+        await CargarPagos();
+    }
+
+    public async Task Eliminar(FacturaResponse user)
+    {
+        var resultado = await facturaServices.Eliminar(user.ToRequest());
+        if (resultado.Success)
+        {
+            await Consultar();
+            StateHasChanged();
+        }
+    }
+    // Método para mostrar detalles de la factura seleccionada
+    void MostrarDetalles(FacturaResponse factura)
+    {
+        SelectedFactura = factura;
+        FacturaDetalles = factura.Detalles.ToList();
+        ShowDetails = true;
+    }
+    private async Task PrintPageAsync()
+    {
+        // Llama a la función JavaScript para imprimir la página
+        await JSRuntime.InvokeVoidAsync("printPage");
+    }
+
+    //Codigo para el formulario de pago
+   public string TituloFormPago => pagoRequest.Id == 0 ? 
+    "Agregar Pago" : "Modificar Pago";
+    public string Filtro { get; set; } = "";
+    public bool formPago { get; set; } = false;
+    public List<PagoResponse> Pagos { get; set; } = new();
+    public PagoRequest pagoRequest { get; set; } = new();
+    public FacturaRequest facturaRequest { get; set; } = new();
+    async Task CargarPagos()
+    {
+        var resultado =
+        await pagoServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Pagos = resultado.Data!;
+        }
+    }
+    bool MostrarErrorSeleccion { get; set; } = false;
+    public string? ErrorMessage { get; set; } = null;
+
+    void FormPago()
+    {
+        formPago = true;
+        detailsPago = false;
+        //pagoRequest.FacturaID = SelectedFactura.Id;
+    }
+    void CloseFormPago()
+    {
+        pagoRequest  = new PagoRequest();
+        detailsPago = true;
+        formPago = false;
+    } 
+    void Cancelar()
+    {
+        pagoRequest  = new PagoRequest();
+        formPago = false;
+    }
+    public void SeleccionarPago(int Id)
+    {
+        formPago = true;
+        pagoRequest = Pagos
+        .Where(c => c.Id == Id)
+        .Select(c => c.ToRequest())
+        .FirstOrDefault() ?? new PagoRequest();
+    }
+    public async Task EliminarPago(PagoResponse item)
+    {
+        var resultado = await pagoServices.Eliminar(item.ToRequest());
+        if (resultado.Success)
+        {
+            await CargarPagos();
+            StateHasChanged();
+        }
+    }
+    public async Task SendPago()
+    {
+        if (Convert.ToDecimal(pagoRequest.MontoPagado) > SelectedFactura.SaldoPendiente)
+        {
+            ErrorMessage = "El monto a pagar no puede ser mayor al saldo pendiente $" + SelectedFactura.SaldoPendiente.ToString("N2");
+            return;
+        }
+        if (pagoRequest.Id == 0)
+        {
+            // Debo registrar el contacto..
+            var r = await pagoServices.Crear(pagoRequest);
+            if (r.Success)
+            {
+                
+
+                // Actualizar SaldoPendiente al realizar el pago
+                // SelectedFactura.SaldoPendiente = SelectedFactura.SaldoPendiente -
+                //     Convert.ToDecimal(pagoRequest.MontoPagado);
+                // Limpiar el formulario y cargar los pagos nuevamente
+                Cancelar();
+                await CargarPagos();
+                await Consultar();
+                StateHasChanged();
+            }
+        }
+    }
+
+    //Codigo Para mostrar todos los pagos realizados por factura
+    public bool detailsPago { get; set; } = false;
+    void DetailsPago()
+    {
+        detailsPago = true;
+    }
+    void CloseDetailsPago()
+    {
+        detailsPago = false;
+    } 
+
+    public List<PagoResponse> PagosFacturaSeleccionada { get; set; } = new List<PagoResponse>();
+    public bool FacturaSinPagos => PagosFacturaSeleccionada.Count == 0;
+    public bool MostrarMensajeSinPagos { get; set; } = false;
+
+    void MostrarPagos(FacturaResponse factura)
+    {
+        SelectedFactura = factura;
+        FacturaDetalles = factura.Detalles.ToList();
+        PagosFacturaSeleccionada = Pagos.Where(p => p.FacturaID == factura.Id).ToList();
+        detailsPago = true;
+        StateHasChanged(); // Asegúrate de llamar a StateHasChanged para actualizar la interfaz de usuario.
+
+        // Establecer FacturaID en pagoRequest con el Id de la factura seleccionada
+        pagoRequest.FacturaID = SelectedFactura.Id;
+    }
+
+}

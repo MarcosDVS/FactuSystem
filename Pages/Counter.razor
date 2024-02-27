@@ -1,0 +1,32 @@
+﻿@page "/counter"
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card rounded border border-secondary">
+          <div class="card-body ">
+            <h5 class="card-title">Card con Esquinas Curvas</h5>
+            <p class="card-text">Este es un ejemplo de una card con esquinas curvas utilizando Bootstrap.</p>
+            <a href="#" class="btn btn-primary">Ver más</a>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

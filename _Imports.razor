@@ -1,0 +1,19 @@
+﻿@using System.Net.Http
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using FactuSystem
+@using FactuSystem.Shared
+@using FactuSystem.Data.Services
+@using FactuSystem.Data.Services.Interfaces
+
+
+@inject NavigationManager urlHelper;
+@inject IProductoServices productoServices;
+@inject ICategoriaServices categoriaServices;
+@inject IClienteServices clienteServices;
+@inject IUsuarioServices usuarioServices;

@@ -1,0 +1,33 @@
+@page "/test"
+@using FactuSystem.Data.Response;
+@inject IFacturaServices facturaServices;
+
+<div class="card">
+    <img src="3.jpeg" alt="" class="card-img-top" style="height: 200px; object-fit: cover;">
+    <div class="card-body">
+        <h2 class="card-title text-success">
+            <i class="fas fa-chart-bar"></i> Estadísticas de Ventas
+        </h2>
+        <p>Ventas del día: (@Facturas.Count())</p>
+        <p>Contado: (@Facturas.Where(c=> c.TypePayment=="1" || c.SaldoPendiente == 0).Count())</p>
+        <p>Credito: (@Facturas.Where(c=> c.TypePayment=="2" && c.SaldoPendiente > 0).Count())</p>
+    </div>
+</div>
+
+@code
+{
+    public List<FacturaResponse> Facturas { get; set; } = new();
+    async Task Consultar()
+    {
+        var resultado = await facturaServices.Consultar();
+        if (resultado.Success)
+        {
+            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
+        }
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Consultar();
+    }
+}

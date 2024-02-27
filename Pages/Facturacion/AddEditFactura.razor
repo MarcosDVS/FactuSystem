@@ -1,0 +1,482 @@
+@page "/factura/vender"
+@using FactuSystem.Data.Request;
+@using FactuSystem.Data.Response;
+@inject IJSRuntime JSRuntime;
+<script>
+    function printPage() {
+    window.print();
+}
+</script>
+
+<EditForm Model="facturaRequest" OnValidSubmit="Send">
+    @*Disenar el espacio para el cliente o contacto a facturarle*@
+    <div class="input-group mb-3">
+        <input 
+               class="form-control"
+               placeholder="Cliente"
+               aria-label="Cliente"
+               aria-describedby="button-addon2" list="contactos"
+               @bind="Nombre"
+               required title="Debes seleccionar un cliente"/>
+        <datalist id="contactos">
+          @foreach (var contacto in Contactos)
+            {
+                <option value="@contacto.Nombre @contacto.Apellidos" @onclick="()=>BuscarSeleccionarCliente(contacto.Nombre + contacto.Apellidos)" />
+            }
+        </datalist>
+        
+        <button 
+            class="btn btn-outline-success d-print-none"
+            type="button" id="button-addon2"
+            @onclick="async()=>{
+            await CargarContacto(); }">
+            <span class="oi oi-reload"></span>
+        </button>
+    </div>
+    @*Disenar el espacio para los productos a facturar*@
+    <div class="card p-2 d-print-none">
+        <div class="card-header card-title" style="background-color: rgb(0, 0, 53); color: #ffffff;">
+            <h5>¿Que desea el cliente?</h5>
+        </div>
+        <div class="input-group mb-3 mt-2">
+            <input class="form-control"
+                   placeholder="Producto"
+                   aria-label="Producto"
+                   aria-describedby="button-addon2" list="productos"
+                   @onchange="(value)=>{
+                    var r = Productos.FirstOrDefault(p=>p.CodigoDescripcion == value.Value!.ToString());
+                    if(r!=null)
+                    BuscarPercio(r.Id);
+                    }"
+                    />
+            <datalist id="productos">
+                @foreach (var producto in Productos)
+                {
+                    <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)" />
+                }
+            </datalist>
+            
+            <button class="btn btn-outline-success d-print-none"
+                type="button" id="button-addon2"
+                @onclick="async()=>{
+                await CargarProducto(); }">
+                <span class="oi oi-reload"></span>
+            </button>
+            
+        </div>
+        <div class="input-group mb-3">
+            <span class="form-control w-50">
+                $@Precio.ToString("N2")
+            </span>
+            <input class="form-control w-25" type="number" @bind="@Cantidad" />
+            <button class="btn btn-success d-print-none"
+                type="button" id="button-addon2"
+                @onclick="AgregarAlDetalle">
+                <span class="oi oi-collapse-down"></span>
+            </button>
+        </div>
+        <div class="input-group mb-3">
+            <label for="Descuento" class="input-group-text">Descuento:</label>
+            <input @bind="detalleFacturaRequest.Descuento" type="number" 
+            id="Descuento" placeholder="Descuento" class="form-control" />
+        </div>
+        @if (Message != null)
+        {
+            <div class="alert-warning">
+                <span class="text-dark">@Message</span>
+            </div>
+        }
+    </div>
+    @*Disenar los elementos que se cargan a la factura*@
+    <h5><b>Detalle de la factura N°:</b> @ultimoIdFactura</h5>
+    <table class="table table-hover">
+        <thead style="background-color: rgb(0, 0, 53); color: #ffffff;">
+            <tr>
+                <th class="col w-25">
+                    Cantidad
+                </th>
+                <th>Descripcion</th>
+                <th>Costo</th>
+                <th>ITBIS</th>
+                <th>Precio</th>
+                <th>Total</th>
+                <th>Descuento</th>
+                <th>Importe</th>
+                <th>...</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var detalle in facturaRequest.Detalles)
+            {
+                <tr>
+                    <td class="col w-25 text-center">
+                        <InputNumber 
+                            class="form-control" 
+                            @bind-Value="@detalle.Cantidad" />
+                    </td>
+                    <td class="col w-25">
+                        @detalle.Descripcion
+                     </td>
+                    <td class="col w-25">
+                        @($"{(detalle.Precio - detalle.Precio * 0.18m):N2}")
+                    </td>
+                    <td>
+                        <span style="white-space: nowrap;">
+                            @($"{(detalle.SubTotal * 0.18m):N2}")
+                        </span>
+                    </td>
+                    <td>
+                        <span style="white-space: nowrap;">
+                            @($"{(detalle.Precio):N2}")
+                        </span>
+                    </td>
+                    <td>
+                        <span style="white-space: nowrap;">
+                            @($"{(detalle.SubTotal):N2}")
+                        </span>
+                    </td>
+                    <td class="col w-25">
+                        <span style="white-space: nowrap;">
+                            @($"{(detalle.SubTotal * (detalle.Descuento / 100)):N2}")
+                        </span>
+                    </td>
+
+                    <td class="col text-center">
+                        @detalle.SubTotal.ToString("N2")
+                    </td>
+                    <td>
+                        <button 
+                            type="button"
+                            class="btn btn-outline-danger"
+                        @onclick="()=>EliminarDetalle(detalle.ProductoId)">
+                    <span 
+                        class="oi oi-trash">
+
+                    </span>
+                    </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col">
+            <div class="card mb-3 p-3">
+                <div class="row card-header">
+                    <div class="col-4">
+                        <h5><b>Resumen:</b></h5>
+                    </div>
+                    <div class="col-4">
+                        <div class="input-group">
+                            <select class="form-control" required @bind="@facturaRequest.TypePayment">
+                                <option disabled selected value="">Tipo de Venta</option>
+                                <option value="1">Contado 💲</option>
+                                <option value="2">Crédito 💳</option>
+                            </select>
+                            
+                            <button class="btn btn-warning d-print-none" @onclick="UpdatePage">
+                                <span class="oi oi-loop"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="input-group d-print-none">
+                            <input type="number" @bind="@facturaRequest.SaldoPagado" id="montoPagado" 
+                            class="form-control"/>
+                            <button 
+                                class="btn btn-success rounded" 
+                                type="button"
+                                @onclick="CalcularCambio">
+                                Pagar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <label><b>SubTotal: </b></label>
+                    @facturaRequest.SubTotal.ToString("N2")
+                    <br>
+
+                    <label for=""><b>ITBIS: </b></label>
+                    @($"{(facturaRequest.SubTotal * 0.18m):N2}")
+                    <br>
+                    <label for=""><b>Descuento: </b></label>
+                    @facturaRequest.TotalDesc.ToString("N2")
+                    <br>
+
+
+                    <label for=""><b>Total: </b></label>
+                    @($"{(facturaRequest.SubTotal - facturaRequest.TotalDesc):N2}")
+
+
+                    <div class="mb-3">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Chance )
+        {
+                <div class="col-3">
+                    <div class="card mb-3 p-3">
+                        <h5 class="card-header"><b>Cambio:</b> @Cambio.ToString("N2")</h5>
+                        <div class="card-body"> 
+                            <div class="mb-3">
+                                <button 
+                                    class="btn btn-danger d-print-none" 
+                                    type="button"
+                                    @onclick="CancelarPago">
+                                    <span class="oi oi-x"></span>
+                                </button>
+                                <button 
+                                    class="btn btn-success d-print-none" 
+                                    type="submit" @onclick="PrintPageAsync">
+                                    <span class="oi oi-check"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        }
+    </div>
+</EditForm>
+
+@code {
+    public bool Chance { get; set; } = false;
+    public string? Message { get; set; } = null;
+    public string Nombre { get; set; } = string.Empty;
+    public string ItemName { get; set; } = string.Empty;
+    public List<ClienteResponse> Contactos { get; set; } = new();
+    public List<FacturaResponse> Facturas { get; set; } = new();
+    public List<ProductoResponse> Productos { get; set; } = new List<ProductoResponse>();
+    public FacturaRequest facturaRequest { get; set; } = new();
+    public FacturaDetalleRequest detalleFacturaRequest { get; set; } = new();
+    public decimal Precio { get; set; } = 0;
+    public int Cantidad { get; set; } = 1;
+    public int IdProducto { get; set; } = 0;
+    void UpdatePage()
+    {
+        urlHelper.NavigateTo(urlHelper.Uri, forceLoad: true);
+    }
+    void BuscarPercio(int idProducto)
+    {
+        Precio = Productos.FirstOrDefault(p => p.Id == idProducto)!.Precio;
+        IdProducto = idProducto;
+    }
+    void BuscarSeleccionarCliente(string Contacto)
+    {
+        var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
+        if (c != null) facturaRequest.ClienteId = c.Id;
+    }
+    void EliminarDetalle(int Id)
+    {
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        if (detalle != null)
+        {
+            facturaRequest.Detalles.Remove(detalle);
+        }
+    }
+    void AgregarAlDetalle()
+    {
+        var producto = Productos.FirstOrDefault(p => p.Id == IdProducto);
+
+        if (producto != null)
+        {
+            var detalleExistente = facturaRequest.Detalles.FirstOrDefault(d => d.ProductoId == IdProducto);
+
+            if (detalleExistente != null)
+            {
+                int nuevaCantidad = detalleExistente.Cantidad + Cantidad;
+
+                if (nuevaCantidad <= producto.Stock)
+                {
+                    detalleExistente.Cantidad = nuevaCantidad;
+                }
+                else
+                {
+                    Message = "No hay suficientes artículos en el stock. 😥";
+                    return;
+                }
+            }
+            else
+            {
+                if (Cantidad <= producto.Stock)
+                {
+                    facturaRequest.Detalles.Add(new FacturaDetalleRequest
+                    {
+                        ProductoId = IdProducto,
+                        Descripcion = producto.Nombre,
+                        Precio = producto.Precio,
+                        Cantidad = Cantidad,
+                        Descuento = detalleFacturaRequest.Descuento
+                    });
+                    Cantidad = 1;
+                }
+                else
+                {
+                    Message = "No hay suficientes artículos en el stock. 😥";
+                    return;
+                }
+            }
+
+            Message = null;
+        }
+    }
+   async Task CargarContacto()
+    { 
+        //Llenar la lista de contactos para mostrar al usuario...
+        var r = await clienteServices.Consultar("");
+        if (r.Success)
+        {
+            Contactos = r.Data!;
+        }
+    }
+    async Task CargarProducto()
+    { 
+        //Llenar la lista de contactos para mostrar al usuario...
+        var r = await productoServices.Consultar("");
+        if (r.Success)
+        {
+            Productos = r.Data!;
+        }
+    }
+
+    //Esto es para mostrar el Numero de la factura a registrar
+    int ultimoIdFactura = 0;
+    async Task Consultar()
+    {
+        var resultado = await facturaServices.Consultar();
+        if (resultado.Success)
+        {
+            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
+
+            // Obtener el Id de la última factura registrada + 1
+            ultimoIdFactura = Facturas.FirstOrDefault()?.Id + 1 ?? 1;
+        }
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarContacto();
+        await CargarProducto();
+        await Consultar();
+
+    }
+    public string TypePayment {get; set;} = string.Empty;
+    async Task Send()
+{
+    if (facturaRequest.SaldoPagado > facturaRequest.SaldoPagado - facturaRequest.TotalDesc 
+        && facturaRequest.TypePayment == "2")
+    {
+        Pendiente();
+
+        return;
+    }
+    
+    BuscarSeleccionarCliente(Nombre);
+
+    // Convertir ICollection a List antes de llamar a la función ActualizarStock
+    var detallesList = facturaRequest.Detalles.ToList();
+
+    // Llamada a la función para actualizar el stock
+    await productoServices.ActualizarStock(
+        detallesList.Select(d => d.ProductoId).ToList(), detallesList);
+
+    var result = await facturaServices.Crear(facturaRequest);
+    Message = null;
+
+    if (!result.Success)
+    {
+        Message = "Estoy cansado de trabajar 😥";
+        return;
+    }
+}
+
+    void CancelarPago()
+    {
+        Chance = false;
+        Total = 0;
+        MontoPagado = 0;
+        Cambio = 0;
+    }
+
+    public decimal Cambio = 0;
+    public decimal MontoPagado = 0;
+    public decimal SaldoPendiente = 0;
+    public decimal Total = 0;
+    void CalcularCambio()
+    {
+        if (facturaRequest.Detalles.Count == 0)
+        {
+            Message = "😒 Debes agregar al menos un producto al detalle. 🛒";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Nombre))
+        {
+            Message = "😒 Debes seleccionar un cliente. 🙍‍♂️";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(facturaRequest.TypePayment))
+        {
+            Message = "😒 Debes seleccionar el tipo de venta. 💰";
+            return;
+        }
+
+        
+        var clienteSeleccionado = Contactos.FirstOrDefault(c => c.Nombre + " " + c.Apellidos == Nombre);
+        if (facturaRequest.TypePayment == "2" && LimiteCreditoExcedido())
+        {
+            Message = "😥 El límite de crédito del cliente ha sido excedido. $"
+            + clienteSeleccionado.Limitecredito.ToString("N2");
+            return;
+        }
+
+        Chance = true;
+        MontoPagado = facturaRequest.SaldoPagado;
+        Total = facturaRequest.SubTotal - facturaRequest.TotalDesc;
+        Cambio = MontoPagado - Total;
+        Message = null;
+    }
+    bool LimiteCreditoExcedido()
+    {
+        // Aquí deberías obtener el límite de crédito del cliente seleccionado
+        // Puedes acceder a la información del cliente desde la lista de contactos
+        var clienteSeleccionado = Contactos.FirstOrDefault(c => c.Nombre + " " + c.Apellidos == Nombre);
+        
+        if (clienteSeleccionado != null && clienteSeleccionado.Limitecredito < 
+            facturaRequest.SubTotal - facturaRequest.TotalDesc)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    void Pendiente()
+    {
+        if(facturaRequest.TypePayment=="2")
+        {
+            if(MontoPagado >= Total){
+                Message = "El monto pagado no puede ser mayor o igual al total 😢";
+                return;
+            }
+        }
+        Chance = true;
+        MontoPagado = facturaRequest.SaldoPagado;
+        Total = facturaRequest.SubTotal - facturaRequest.TotalDesc;
+        Cambio = MontoPagado - Total;
+        SaldoPendiente = Total - MontoPagado;
+        Message = null;
+    }
+    private async Task PrintPageAsync()
+    {
+        // Llama a la función JavaScript para imprimir la página
+        await JSRuntime.InvokeVoidAsync("printPage");
+        UpdatePage();
+    }
+}

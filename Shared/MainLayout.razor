@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+@using System.Security.Claims
+
+<PageTitle>FactuSystem</PageTitle>
+
+<div class="page">
+    <AuthorizeView>
+        <Authorized>
+            <div class="sidebar d-print-none" style="background-color: darkblue;">
+                <NavMenu />
+            </div>
+        </Authorized>
+    </AuthorizeView>
+
+    <main>
+        <AuthorizeView>
+                <Authorized>
+                    <div class="top-row px-4">
+                        <a class="nav-link active text-link" target="_blank">
+                            @context.User.FindFirstValue(ClaimTypes.GivenName)
+                        </a>
+                        <a href="https://docs.microsoft.com/aspnet/" target="_blank" class="d-print-none">About</a>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
