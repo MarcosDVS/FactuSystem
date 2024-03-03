@@ -5,24 +5,22 @@
 
 @if(!ShowDetails)
 {
-    <form @onsubmit="BuscarFacturas">
-        <div class="row mb-3 d-print-none">
-            <div class="col-md-3 form-group">
-                <div class="input-group">
-                    <input type="date" class="form-control" @bind="fechaFiltro">
-                    <button type="submit" class="btn btn-outline-primary">
-                        <span class="oi oi-magnifying-glass"></span>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <button class="btn btn-outline-primary d-print-none" 
-                    @onclick="async ()=>{await PrintPageAsync();}">
-                    <span class="oi oi-print"></span>
+    <div class="row mb-3 d-print-none">
+        <div class="col-md-3 form-group">
+            <div class="input-group">
+                <input type="date" class="form-control" @bind="fechaFiltro">
+                <button @onclick="async ()=>{await BuscarFacturas();}" class="btn btn-outline-primary">
+                    <span class="oi oi-magnifying-glass"></span>
                 </button>
             </div>
         </div>
-    </form>
+        <div class="col-md-3">
+            <button class="btn btn-outline-primary d-print-none" 
+                @onclick="async ()=>{await PrintPageAsync();}">
+                <span class="oi oi-print"></span>
+            </button>
+        </div>
+    </div>
 
     <div class="modal" style="display: @(formPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -179,7 +177,7 @@ else
                     <tr>
                         <td colspan="6"></td>
                         <td><b>Pagado:</b></td>
-                        <td>$@SelectedFactura.SaldoPagado.ToString("N2")</td>
+                        <td>$@SelectedFactura.DineroPagado.ToString("N2")</td>
                     </tr>
                     <tr>
                         <td colspan="6"></td>
@@ -311,15 +309,30 @@ else
     public List<FacturaDetalleResponse> FacturaDetalles { get; set; } = new();
     public FacturaResponse? SelectedFactura { get; set; } // Factura seleccionada
     
-    public async Task BuscarFacturas()
+    private async Task BuscarFacturas()
     {
-        var resultado = await facturaServices.BuscarFacturas(fechaFiltro);
-        if (resultado.Success)
+        try
         {
-            Facturas = resultado.Data ?? new List<FacturaResponse>();
+            var resultado = await facturaServices.BuscarFacturas(fechaFiltro);
+            if (resultado.Success)
+            {
+                Facturas = resultado.Data ?? new List<FacturaResponse>();
+            }
+            else
+            {
+                // Log the error or display an error message
+                Console.WriteLine($"Error: {resultado.Message}");
+            }
+
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+            // Log the exception or display an error message
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
     }
+
 
     void Back()
     {
