@@ -145,15 +145,12 @@
                         @detalle.SubTotal.ToString("N2")
                     </td>
                     <td>
-                        <button 
-                            type="button"
-                            class="btn btn-outline-danger"
-                        @onclick="()=>EliminarDetalle(detalle.ProductoId)">
-                    <span 
-                        class="oi oi-trash">
-
-                    </span>
-                    </button>
+                        <button type="button" class="btn btn-outline-danger d-print-none"
+                            @onclick="()=>EliminarDetalle(detalle.ProductoId)">
+                            <span 
+                                class="oi oi-trash">
+                            </span>
+                        </button>
                     </td>
                 </tr>
             }
