@@ -17,7 +17,9 @@
         <datalist id="contactos">
           @foreach (var contacto in Contactos)
             {
-                <option value="@contacto.Nombre @contacto.Apellidos" @onclick="()=>BuscarSeleccionarCliente(contacto.Nombre + contacto.Apellidos)" />
+                <option value="@contacto.Nombre @contacto.Apellidos" @onclick="()=>BuscarSeleccionarCliente(contacto.Nombre + contacto.Apellidos)" >
+                    @contacto.Limitecredito.ToString("N2")
+                </option>
             }
         </datalist>
         

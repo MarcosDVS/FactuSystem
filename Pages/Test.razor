@@ -1,6 +1,7 @@
 @page "/test"
 @using FactuSystem.Data.Response;
 @inject IFacturaServices facturaServices;
+@inject IPagoServices pagoServices;
 
 <div class="card">
     <img src="3.jpeg" alt="" class="card-img-top" style="height: 200px; object-fit: cover;">
@@ -11,12 +12,36 @@
         <p>Ventas del día: (@Facturas.Count())</p>
         <p>Contado: (@Facturas.Where(c=> c.TypePayment=="1" || c.SaldoPendiente == 0).Count())</p>
         <p>Credito: (@Facturas.Where(c=> c.TypePayment=="2" && c.SaldoPendiente > 0).Count())</p>
+        <p>Dinero en Caja: (@DineroEnCaja.ToString("N2"))</p>
     </div>
 </div>
 
 @code
 {
     public List<FacturaResponse> Facturas { get; set; } = new();
+    public List<PagoResponse> Pagos { get; set; } = new();
+    public string Filtro { get; set; } = "";
+    public decimal DineroEnCaja = 0;
+
+    void CashInBox()
+    {
+        DateTime today = DateTime.Today;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Sum(c => c.SaldoPendiente);
+
+        var Pago = (decimal)Pagos
+            .Where(c => c.Fecha.Date == today)
+            .Sum(c => c.MontoPagado);
+
+        DineroEnCaja = Contado + Credito;
+    }
+
     async Task Consultar()
     {
         var resultado = await facturaServices.Consultar();
@@ -26,8 +51,19 @@
         }
         StateHasChanged();
     }
+    async Task CargarPagos()
+    {
+        var resultado =
+        await pagoServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Pagos = resultado.Data!;
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await Consultar();
+        await CargarPagos();
+        CashInBox();
     }
 }
