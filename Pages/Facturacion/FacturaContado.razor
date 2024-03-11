@@ -64,8 +64,6 @@ else
                         <th scope="col">Descripción</th>
                         <th scope="col">Precio sin ITEBIS</th>
                         <th scope="col">ITBIS</th>
-                        <th scope="col">Precio con ITEBIS</th>
-                        <th scope="col">Total</th>
                         <th scope="col">Descuento</th>
                         <th scope="col">Importe</th>
                     </tr>
@@ -76,37 +74,35 @@ else
                         <tr>
                             <td>@detalle.Cantidad</td>
                             <td>@detalle.Producto.Nombre</td>
-                            <td>$ @($"{(detalle.Precio - detalle.Precio * 0.18m):N2}")</td>
+                            <td>$@($"{(detalle.Precio - detalle.ITBIS):N2}")</td>
                             <td>
                                 <span style="white-space: nowrap;">
-                                    $ @($"{(detalle.Precio * 0.18m):N2}")
+                                    $@($"{(detalle.ITBIS):N2}")
                                 </span>
                             </td>
-                            <td>$ @detalle.Precio.ToString("N2")</td>
-                            <td>$ @detalle.SubTotal.ToString("N2")</td>
-                            <td>$ @detalle.TotalDesc.ToString("N2")</td>
-                            <td>$ @($"{(detalle.SubTotal - detalle.TotalDesc):N2}")</td>
+                            <td>$@detalle.TotalDesc.ToString("N2")</td>
+                            <td>$@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")</td>
                         </tr>
                     }
                     <tr>
-                        <td colspan="6"></td>
-                        <td><b>ITBIS:</b></td>
-                        <td>$ @FacturaDetalles.Sum(c => c.Precio * 0.18m).ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <td colspan="6"></td>
+                        <td colspan="4"></td>
                         <td><b>SubTotal:</b></td>
-                        <td>$ @FacturaDetalles.Sum(c => c.Precio).ToString("N2")</td>
+                        <td>$@FacturaDetalles.Sum(c => c.Precio - c.ITBIS).ToString("N2")</td>
                     </tr>
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="4"></td>
+                        <td><b>ITBIS:</b></td>
+                        <td>$@FacturaDetalles.Sum(c => c.ITBIS).ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"></td>
                         <td><b>Descuento:</b></td>
-                        <td>$ @FacturaDetalles.Sum(c => c.TotalDesc).ToString("N2")</td>
+                        <td>$@FacturaDetalles.Sum(c => c.TotalDesc).ToString("N2")</td>
                     </tr>
                     <tr>
-                        <td colspan="6"></td>
+                        <td colspan="4"></td>
                         <td><b>Total:</b></td>
-                        <td>$ @FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</td>
+                        <td>$@FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</td>
                     </tr>
                 </tbody>
             </table>
@@ -170,8 +166,8 @@ else
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Cliente</th>
-                    <th scope="col">ITBIS</th>
                     <th scope="col">Total</th>
+                    <th scope="col">ITBIS</th>
                     <th scope="col">Descuento</th>
                     <th scope="col">Importe</th>
                     <th scope="col">Fecha</th>
@@ -186,14 +182,14 @@ else
                         <tr>
                             <th scope="row">@f.Id</th>
                             <td>@f.Cliente.Nombre @f.Cliente.Apellidos</td>
+                            <td>$@($"{(f.SubTotal - f.ITBIS):N2}")</td>
                             <td>
                                 <span style="white-space: nowrap;">
-                                    @($"{(f.SubTotal * 0.18m):N2}")
+                                    $@($"{(f.ITBIS):N2}")
                                 </span>
                             </td>
-                            <td>@f.SubTotal.ToString("N2")</td>
-                            <td>@f.TotalDesc.ToString("N2")</td>
-                            <td>@($"{(f.SubTotal - f.TotalDesc):N2}")</td>
+                            <td>$@f.TotalDesc.ToString("N2")</td>
+                            <td>$@($"{(f.SubTotal - f.TotalDesc):N2}")</td>
                             <td>@f.Fecha.ToShortDateString()</td>
                             <td>
                                 <div class="button d-print-none">

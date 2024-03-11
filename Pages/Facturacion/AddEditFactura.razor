@@ -198,11 +198,11 @@
                         <ul class="list-unstyled">
                             <li class="mb-2">
                                 <strong>Amount:</strong>
-                                <span class="float-end">$@facturaRequest.SubTotal.ToString("N2")</span>
+                                <span class="float-end">$@($"{(facturaRequest.SubTotal - facturaRequest.ITBIS):N2}")</span>
                             </li>
                             <li class="mb-2">
                                 <strong>Taxes:</strong>
-                                <span class="float-end">$@($"{(facturaRequest.SubTotal * 0.18m):N2}")</span>
+                                <span class="float-end">$@($"{(facturaRequest.ITBIS):N2}")</span>
                             </li>
                             <li class="mb-2">
                                 <strong>Discount:</strong>
@@ -284,6 +284,18 @@
     }
     void AgregarAlDetalle()
     {
+        if (string.IsNullOrEmpty(Nombre))
+        {
+            Message = "😒 Debes seleccionar un cliente. 🙍‍♂️";
+            return;
+        }
+        if (detalleFacturaRequest.Descuento > 30)
+        {
+            Message = "😒 El decuento no puede ser mayor a 30%. 💰";
+            return;
+        }
+
+        Message = null;
         var producto = Productos.FirstOrDefault(p => p.Id == IdProducto);
 
         if (producto != null)
@@ -413,11 +425,6 @@
     public decimal Total = 0;
     void CalcularCambio()
     {
-        if (string.IsNullOrEmpty(Nombre))
-        {
-            Message = "😒 Debes seleccionar un cliente. 🙍‍♂️";
-            return;
-        }
         if (facturaRequest.Detalles.Count == 0)
         {
             Message = "😒 Debes agregar al menos un producto al detalle. 🛒";

@@ -35,6 +35,8 @@ public class FacturaResponse
     ? SaldoPagado + (decimal)Pagos.Sum(p => p.MontoPagado)
     : SaldoPagado;
 
+    public decimal ITBIS => SubTotal * 0.18m;
+    
     public FacturaRequest ToRequest()
     {
         // Cambiar TypePayment a "1" si SaldoPendiente es igual a 0

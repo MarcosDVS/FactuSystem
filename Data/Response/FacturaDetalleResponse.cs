@@ -15,4 +15,5 @@ public class FacturaDetalleResponse
     public decimal SubTotal => Cantidad * Precio;
     [NotMapped]
     public decimal TotalDesc => SubTotal * (Descuento / 100 );
+    public decimal ITBIS => SubTotal * 0.18m;
 }
