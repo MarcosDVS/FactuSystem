@@ -438,12 +438,8 @@ else
             var r = await pagoServices.Crear(pagoRequest);
             if (r.Success)
             {
+                var invoice = await facturaServices.UpdateInvoice(pagoRequest.FacturaID);
                 
-
-                // Actualizar SaldoPendiente al realizar el pago
-                // SelectedFactura.SaldoPendiente = SelectedFactura.SaldoPendiente -
-                //     Convert.ToDecimal(pagoRequest.MontoPagado);
-                // Limpiar el formulario y cargar los pagos nuevamente
                 Cancelar();
                 await CargarPagos();
                 await Consultar();
