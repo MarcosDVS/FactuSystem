@@ -121,14 +121,19 @@ else
     {
         <h5><b>Fecha:</b> @SelectedFactura.Fecha.ToShortDateString()</h5>
         <h5><b>Cliente:</b> @SelectedFactura.Cliente.Nombre @SelectedFactura.Cliente.Apellidos</h5>
+        <details class="d-print-none">
+            <small><strong>Cedula:</strong>@FormatCustomerId(SelectedFactura.Cliente.Cedula)</small>
+            <small><strong>Celular:</strong>@FormatPhoneNumber(SelectedFactura.Cliente.Telefono)</small>
+            <small><strong>Dirección:</strong>@SelectedFactura.Cliente.Direccion</small>
+        </details>
         <!-- Mostrar detalles de la factura seleccionada -->
-        <div class="table-responsive mt-2">
+        <div>
             <table class="table table-bordered">
                 <thead class="table" style="background-color: rgb(0, 0, 53); color: #ffffff;">
                     <tr>
                         <th scope="col">Cantidad</th>
                         <th scope="col">Descripción</th>
-                        <th scope="col">Precio sin ITEBIS</th>
+                        <th scope="col">Precio</th>
                         <th scope="col">ITBIS</th>
                         <th scope="col">Descuento</th>
                         <th scope="col">Importe</th>
@@ -178,7 +183,7 @@ else
                     <tr>
                         <td colspan="4"></td>
                         <td><b>Pendiente:</b></td>
-                        <td>$@SelectedFactura.SaldoPendiente.ToString("N2")</td>
+                        <td><strong>$@SelectedFactura.SaldoPendiente.ToString("N2")</strong></td>
                     </tr>
                 </tbody>
             </table>
@@ -269,7 +274,7 @@ else
                             </td>
                             <td>$@f.TotalDesc.ToString("N2")</td>
                             <td>$@($"{(f.SubTotal - f.TotalDesc):N2}")</td>
-                            <td>$@f.SaldoPendiente.ToString("N2")</td>
+                            <td><strong>$@f.SaldoPendiente.ToString("N2")</strong></td>
                             <td>@f.Fecha.ToShortDateString()</td>
                             <td>
                                 <div class="button d-print-none">
@@ -329,6 +334,34 @@ else
         }
     }
 
+    private string FormatPhoneNumber(string phoneNumber)
+    {
+        // Verifica si el número telefónico tiene la longitud esperada
+        if (phoneNumber.Length == 10)
+        {
+            // Formatea el número telefónico
+            return $"({phoneNumber.Substring(0, 3)}) {phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+        }
+        else
+        {
+            // Devuelve el número telefónico sin cambios si no tiene la longitud esperada
+            return phoneNumber;
+        }
+    }
+    private string FormatCustomerId(string customerId)
+    {
+        // Verifica si el número telefónico tiene la longitud esperada
+        if (customerId.Length == 11)
+        {
+            // Formatea el número telefónico
+            return $"{customerId.Substring(0, 3)}-{customerId.Substring(3, 7)}-{customerId.Substring(10)}";
+        }
+        else
+        {
+            // Devuelve el número telefónico sin cambios si no tiene la longitud esperada
+            return customerId;
+        }
+    }
 
     void Back()
     {

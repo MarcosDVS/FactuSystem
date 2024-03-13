@@ -15,7 +15,7 @@
     <main>
         <AuthorizeView>
                 <Authorized>
-                    <div class="top-row px-4">
+                    <div class="top-row px-4 d-print-none">
                         <a class="nav-link active text-link" target="_blank">
                             @context.User.FindFirstValue(ClaimTypes.GivenName)
                         </a>

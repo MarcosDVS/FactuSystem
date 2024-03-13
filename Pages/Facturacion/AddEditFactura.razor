@@ -98,10 +98,8 @@
                 <th>Descripcion</th>
                 <th>Costo</th>
                 <th>ITBIS</th>
-                <th>Precio</th>
-                <th>Total</th>
                 <th>Descuento</th>
-                <th>Importe</th>
+                <th>Total</th>
                 <th>...</th>
             </tr>
         </thead>
@@ -118,31 +116,21 @@
                         @detalle.Descripcion
                      </td>
                     <td class="col w-25">
-                        @($"{(detalle.Precio - detalle.Precio * 0.18m):N2}")
+                        $@($"{(detalle.Precio - detalle.ITBIS):N2}")
                     </td>
                     <td>
                         <span style="white-space: nowrap;">
-                            @($"{(detalle.SubTotal * 0.18m):N2}")
-                        </span>
-                    </td>
-                    <td>
-                        <span style="white-space: nowrap;">
-                            @($"{(detalle.Precio):N2}")
-                        </span>
-                    </td>
-                    <td>
-                        <span style="white-space: nowrap;">
-                            @($"{(detalle.SubTotal):N2}")
+                            $@($"{(detalle.ITBIS):N2}")
                         </span>
                     </td>
                     <td class="col w-25">
                         <span style="white-space: nowrap;">
-                            @($"{(detalle.SubTotal * (detalle.Descuento / 100)):N2}")
+                            $@($"{(detalle.SubTotal * (detalle.Descuento / 100)):N2}")
                         </span>
                     </td>
 
                     <td class="col text-center">
-                        @detalle.SubTotal.ToString("N2")
+                        $@detalle.SubTotal.ToString("N2")
                     </td>
                     <td>
                         <button type="button" class="btn btn-outline-danger d-print-none"
@@ -190,32 +178,34 @@
                 </div>
             </div>
 
-            <!-- Cuerpo de la tarjeta -->
-            <div class="card-body text-center">
+            <div class="card-body text-left">
                 <div class="row">
                     <div class="col">
                         <!-- Lista de resumen -->
                         <ul class="list-unstyled">
                             <li class="mb-2">
-                                <strong>Amount:</strong>
-                                <span class="float-end">$@($"{(facturaRequest.SubTotal - facturaRequest.ITBIS):N2}")</span>
+                                <strong>SubTotal: </strong>
+                                <span class="text-primary">$@($"{(facturaRequest.SubTotal - facturaRequest.ITBIS):N2}")</span>
                             </li>
                             <li class="mb-2">
-                                <strong>Taxes:</strong>
-                                <span class="float-end">$@($"{(facturaRequest.ITBIS):N2}")</span>
+                                <strong>ITBIS:</strong>
+                                <span class="text-danger">$@($"{(facturaRequest.ITBIS):N2}")</span>
                             </li>
                             <li class="mb-2">
-                                <strong>Discount:</strong>
-                                <span class="float-end">$@facturaRequest.TotalDesc.ToString("N2")</span>
+                                <strong>Descuento: </strong>
+                                <span class="text-success">$@facturaRequest.TotalDesc.ToString("N2")</span>
                             </li>
                             <li>
-                                <strong>Total Amount:</strong>
-                                <span class="float-end">$@($"{(facturaRequest.SubTotal - facturaRequest.TotalDesc):N2}")</span>
+                                <strong>Importe: </strong>
+                                <span class="text-dark">
+                                    <strong>$@($"{(facturaRequest.SubTotal - facturaRequest.TotalDesc):N2}")</strong>
+                                </span>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
+
         </div>
 
         @if (Chance )
