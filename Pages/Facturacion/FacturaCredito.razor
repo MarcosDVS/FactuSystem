@@ -471,8 +471,10 @@ else
             var r = await pagoServices.Crear(pagoRequest);
             if (r.Success)
             {
-                var invoice = await facturaServices.UpdateInvoice(pagoRequest.FacturaID);
-                
+                if (Convert.ToDecimal(pagoRequest.MontoPagado) == SelectedFactura.SaldoPendiente)
+                {
+                    var invoice = await facturaServices.UpdateInvoice(pagoRequest.FacturaID);
+                }
                 Cancelar();
                 await CargarPagos();
                 await Consultar();
