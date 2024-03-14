@@ -17,9 +17,12 @@
                 <Authorized>
                     <div class="top-row px-4 d-print-none">
                         <a class="nav-link active text-link" target="_blank">
-                            @context.User.FindFirstValue(ClaimTypes.GivenName)
+                            <strong>@context.User.FindFirstValue(ClaimTypes.GivenName)</strong>
                         </a>
-                        <a href="https://docs.microsoft.com/aspnet/" target="_blank" class="d-print-none">About</a>
+                        <a href="about" class="d-print-none">
+                            <span class="oi oi-info"></span>
+                            About
+                        </a>
                     </div>
                 </Authorized>
             </AuthorizeView>

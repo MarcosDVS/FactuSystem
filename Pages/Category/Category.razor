@@ -78,11 +78,12 @@
                     <!-- Button trigger modal -->
                     <button class="btn btn-outline-success" @onclick="ShowCard">
                         <span class="oi oi-plus"></span>
-                        Nueva categoría
                     </button>
                 </div>
                 <div class="col-1">
-                    <button class="btn btn-danger" @onclick="Producto">Back</button>
+                    <button class="btn btn-outline-danger" @onclick="Producto">
+                        <span class="oi oi-arrow-thick-left"></span>
+                    </button>
                 </div>
             </div>
             
@@ -101,7 +102,7 @@
             </div>
 
             <div class="row-12 mt-2">
-                <table class="table table-hover">
+                <table class="table table-hover table-striped">
                     <thead style="background-color: rgb(0, 0, 53); color: #ffffff;">
                         <tr>
                             <th>#</th>
