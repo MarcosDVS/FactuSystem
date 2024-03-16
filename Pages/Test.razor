@@ -39,12 +39,39 @@
 </h3>
 
 <div class="container mt-4">
+    <hr>
     <div class="row">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <span class="img-container"><img class="rounded-circle" src="logo2.jpeg" alt=""></span>
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ingresos del Mes</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@IngresoMensual.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ingresos del Año</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@IngresoAnual.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="img-container"></span>
                         <strong>Ventas al Contado</strong>
                     </h5>
                     <p class="card-text">Cantidad: $@VentaContado.ToString("N2")</p>
@@ -89,30 +116,7 @@
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <span class="oi oi-dollar oi mr-2"></span>
-                        <strong>Ingresos del Mes</strong>
-                    </h5>
-                    <p class="card-text">Monto: $@IngresoMensual.ToString("N2")</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <span class="oi oi-dollar oi mr-2"></span>
-                        <strong>Ingresos del Año</strong>
-                    </h5>
-                    <p class="card-text">Monto: $@IngresoAnual.ToString("N2")</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 </div>
 
 

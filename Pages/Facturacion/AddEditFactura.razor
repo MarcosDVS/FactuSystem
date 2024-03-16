@@ -116,11 +116,11 @@
                         @detalle.Descripcion
                      </td>
                     <td class="col w-25">
-                        $@($"{(detalle.Precio - detalle.ITBIS):N2}")
+                        $@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")
                     </td>
                     <td>
                         <span style="white-space: nowrap;">
-                            $@($"{(detalle.ITBIS):N2}")
+                            $@($"{(detalle.PrecioITBIS):N2}")
                         </span>
                     </td>
                     <td class="col w-25">
@@ -201,6 +201,19 @@
                                     <strong>$@($"{(facturaRequest.SubTotal - facturaRequest.TotalDesc):N2}")</strong>
                                 </span>
                             </li>
+                            @if(Info)
+                            {
+                                <li class="mb-2">
+                                    <strong>Pagado: </strong>
+                                    <span class="text-success">$@($"{(facturaRequest.SaldoPagado):N2}")</span>
+                                </li>
+                                <li>
+                                    <strong>Pendiente: </strong>
+                                    <span class="text-danger">
+                                        <strong>$@Cambio.ToString("N2")</strong>
+                                    </span>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -208,9 +221,37 @@
 
         </div>
 
-        @if (Chance )
+        @*Cambio del efectivo*@
+        <div class="modal d-print-none" style="display: @(Chance ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><b>Devuelta para el cliente</b></h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <h5><b>Cambio:</b> @Cambio.ToString("N2")</h5>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button 
+                            class="btn btn-danger d-print-none" 
+                            type="button"
+                            @onclick="CancelarPago">
+                            <span class="oi oi-x"></span>
+                        </button>
+                        <button 
+                            class="btn btn-success d-print-none" 
+                            type="submit" @onclick="async ()=>{await PrintPageAsync();}">
+                            <span class="oi oi-check"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*@if (Chance )
         {
-            @*Cambio del efectivo*@
             <div class="col-3">
                 <div class="card mb-3 p-3">
                     <h5 class="card-header"><b>Cambio:</b> @Cambio.ToString("N2")</h5>
@@ -231,13 +272,14 @@
                     </div>
                 </div>
             </div>
-        }
+        }*@
     </div>
 
 </EditForm>
 
 @code {
     public bool Chance { get; set; } = false;
+    public bool Info { get; set; } = false;
     public string? Message { get; set; } = null;
     public string Nombre { get; set; } = string.Empty;
     public string ItemName { get; set; } = string.Empty;
@@ -415,6 +457,11 @@
     public decimal Total = 0;
     void CalcularCambio()
     {
+        if(facturaRequest.SaldoPagado < facturaRequest.SubTotal - facturaRequest.TotalDesc &&  facturaRequest.TypePayment == "1")
+        {
+            Message = "😒 El monto pagado no puede ser menor al importe de la factura 💰";
+            return;
+        }
         if (facturaRequest.Detalles.Count == 0)
         {
             Message = "😒 Debes agregar al menos un producto al detalle. 🛒";
@@ -433,6 +480,11 @@
             Message = "😥 El límite de crédito del cliente ha sido excedido. $"
             + clienteSeleccionado.Limitecredito.ToString("N2");
             return;
+        }
+
+        if (facturaRequest.TypePayment == "2")
+        {
+            Info = true;
         }
 
         Chance = true;

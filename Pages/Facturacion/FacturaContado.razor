@@ -62,7 +62,7 @@ else
         </details>
         <!-- Mostrar detalles de la factura seleccionada -->
         <div>
-            <table class="table table-bordered">
+            <table class="table table-bordered table-striped">
                 <thead class="table" style="background-color: rgb(0, 0, 53); color: #ffffff;">
                     <tr>
                         <th scope="col">Cantidad</th>
@@ -79,10 +79,10 @@ else
                         <tr>
                             <td>@detalle.Cantidad</td>
                             <td>@detalle.Producto.Nombre</td>
-                            <td>$@($"{(detalle.Precio - detalle.ITBIS):N2}")</td>
+                            <td>$@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")</td>
                             <td>
                                 <span style="white-space: nowrap;">
-                                    $@($"{(detalle.ITBIS):N2}")
+                                    $@($"{(detalle.PrecioITBIS):N2}")
                                 </span>
                             </td>
                             <td>$@detalle.TotalDesc.ToString("N2")</td>
@@ -92,7 +92,7 @@ else
                     <tr>
                         <td colspan="4"></td>
                         <td><b>SubTotal:</b></td>
-                        <td>$@FacturaDetalles.Sum(c => c.Precio - c.ITBIS).ToString("N2")</td>
+                        <td>$@FacturaDetalles.Sum(c => c.SubTotal - c.ITBIS).ToString("N2")</td>
                     </tr>
                     <tr>
                         <td colspan="4"></td>

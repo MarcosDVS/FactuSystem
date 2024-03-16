@@ -1,113 +1,253 @@
 ﻿@page "/inicio"
 @using FactuSystem.Data.Response;
 @inject IFacturaServices facturaServices;
+@inject IPagoServices pagoServices;
 @attribute [Authorize]
-
 
 <PageTitle>Inicio</PageTitle>
 
-<div class="container ">
-    <h1 class="display-4 text-center text-white" style="background-color: rgb(0, 0, 61); padding: 20px;">
-        <i class="fas fa-store-alt"></i> Bienvenido a Mueblería XYZ
-    </h1>
+<style>
+    /* Estilos CSS */
+    body{
+     background-color: #e0eadc; /* Gris claro */
+    /* Opciones adicionales:
+       background-color: #f0f8ff;  Azul claro
+       background-color: #e0eadc;  Verde claro
+    */
+    }
+    .img-container {
+        max-width: 100px; /* Ajusta el ancho máximo según tus necesidades */
+        display: inline-block; /* Alinea las imágenes en línea */
+    }
 
-    <div class="row mt-5">
-        <div class="col-md-6 ">
-            <!-- Sección de Estadísticas -->
-            <div class="card rounded border border-secondary">
-                <img src="3.jpeg" alt="" class="card-img-top" style="height: 200px; object-fit: cover;">
+    .img-container img {
+        width: 100%; /* Hace que la imagen ocupe el 100% del contenedor */
+        height: auto; /* Mantiene la proporción de aspecto */
+    }
+
+    .oi {
+        font-size: 1.2em;
+    }
+
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<h3 class="mt-4">
+    <span class="oi oi-dashboard oi mr-2"></span>
+    <strong>FactuSystem Dashboard</strong> 
+</h3>
+
+<div class="container mt-4">
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
                 <div class="card-body">
-                    <h2 class="card-title text-success">
-                        <i class="fas fa-chart-bar"></i> Estadísticas de Ventas
-                    </h2>
-                    <p>
-                        <b>
-                            (@Facturas.Count()) 
-                            Ventas del día: ($@Facturas.Sum(c=> c.SubTotal - c.TotalDesc).ToString("N2"))
-                        </b>
-                    </p>
-                    <hr>
-                    <p>Contado: (@Facturas.Where(c=> c.TypePayment=="1" || c.SaldoPendiente == 0).Count())</p>
-                    <p>Crédito: (@Facturas.Where(c=> c.TypePayment=="2" && c.SaldoPendiente > 0).Count())</p>
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ingresos del Mes</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@IngresoMensual.ToString("N2")</p>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <!-- Últimas Facturas -->
-            <div class="card rounded border border-secondary">
+            <div class="card">
                 <div class="card-body">
-                    <div class="card-title text-muted">
-                        <h2>
-                            <i class="fas fa-file-invoice-dollar"></i> Últimas Facturas 
-                        </h2> 
-                    </div>
-                    <ul class="list-group">
-                        @foreach (var factura in Facturas)
-                        {
-                            <li class="list-group-item list-group-item-action bg-dark text-white border-light mb-2">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-user"></i> @factura.Cliente.Nombre @factura.Cliente.Apellidos
-                                    </div>
-                                    <div>
-                                        <strong>Total:</strong> $@factura.SubTotal.ToString("N2")
-                                    </div>
-                                </div>
-                            </li>
-                        }
-                    </ul>
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ingresos del Año</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@IngresoAnual.ToString("N2")</p>
                 </div>
             </div>
         </div>
     </div>
+    <hr>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ventas al Contado</strong>
+                    </h5>
+                    <p class="card-text">Cantidad: $@VentaContado.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ventas a Credito</strong>
+                    </h5>
+                    <p class="card-text">Cantidad: $@VentaCredito.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Dinero en caja</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@DineroEnCaja.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Ingreso Total</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@IngresoTotal.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
 </div>
 
-@code {
-    
+
+@code
+{
     public List<FacturaResponse> Facturas { get; set; } = new();
-    // Puedes incluir lógica para obtener y mostrar datos relevantes
-    public class FacturaTest
+    public List<PagoResponse> Pagos { get; set; } = new();
+    public string Filtro { get; set; } = "";
+    public decimal DineroEnCaja = 0;
+    public decimal VentaContado = 0;
+    public decimal VentaCredito = 0;
+    public decimal IngresoTotal = 0;
+    public decimal IngresoAnual = 0;
+    public decimal IngresoMensual = 0;
+    void MonthlySell()
     {
-        public string Cliente {get; set;}
-        public decimal Total {get; set;}
+        DateTime today = DateTime.Today;
+        int currentYear = today.Year;
+        int currentMonth = today.Month;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Year == currentYear && c.Fecha.Month == currentMonth)
+            .Sum(c => c.SubTotal);
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Year == currentYear && c.Fecha.Month == currentMonth)
+            .Sum(c => c.SaldoPendiente);
+
+        IngresoMensual = Contado + Credito;
     }
-    List<FacturaTest> UltimasFacturas { get; set; }
+
+    void OneYearIncome()
+    {
+        DateTime today = DateTime.Today;
+        int currentYear = today.Year;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Year == currentYear)
+            .Sum(c => c.SubTotal);
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Year == currentYear)
+            .Sum(c => c.SaldoPendiente);
+
+        IngresoAnual = Contado + Credito;
+    }
+    void AllSell()
+    {
+        DateTime today = DateTime.Today;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Sum(c => c.SaldoPendiente);
+
+        IngresoTotal = Contado + Credito;
+    }
+
+    void CashInBox()
+    {
+        DateTime today = DateTime.Today;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Sum(c => c.SaldoPendiente);
+
+        var Pago = (decimal)Pagos
+            .Where(c => c.Fecha.Date == today)
+            .Sum(c => c.MontoPagado);
+
+        DineroEnCaja = Contado + Pago;
+    }
+
+    void SellToCash()
+    {
+        DateTime today = DateTime.Today;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
+
+        VentaContado = Contado;
+    }
+
+    void SellToCredit()
+    {
+        DateTime today = DateTime.Today;
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Sum(c => c.SaldoPendiente);
+
+        VentaCredito = Credito;
+    }
+
     async Task Consultar()
     {
-        DateTime fechaActual = DateTime.Now.Date; // Obtiene la fecha actual sin la parte de tiempo
-
         var resultado = await facturaServices.Consultar();
         if (resultado.Success)
         {
-            Facturas = resultado.Data?
-                .Where(f => f.Fecha.Date == fechaActual) // Filtra por la fecha actual
-                .OrderByDescending(f => f.Fecha)
-                .ToList() ?? new List<FacturaResponse>();
+            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
         }
         StateHasChanged();
     }
-    //protected override void OnInitialized()
+    async Task CargarPagos()
+    {
+        var resultado =
+        await pagoServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Pagos = resultado.Data!;
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await Consultar();
-        // Simulación de datos de ejemplo
-        //UltimasFacturas = ObtenerUltimasFacturas();
+        await CargarPagos();
+        CashInBox();
+        SellToCash();
+        SellToCredit();
+        AllSell();
+        OneYearIncome();
+        MonthlySell();
     }
 
-    List<FacturaTest> ObtenerUltimasFacturas()
-    {
-        // Lógica para obtener las últimas facturas desde tu servicio o base de datos
-        // Aquí puedes hacer llamadas a tu servicio de facturación
-        // Ejemplo:
-        return new List<FacturaTest>
-        {
-            new FacturaTest { Cliente = "Cliente1", Total = 500 },
-            new FacturaTest { Cliente = "Cliente2", Total = 750 },
-            new FacturaTest { Cliente = "Cliente3", Total = 1200 },
-            new FacturaTest { Cliente = "Cliente4", Total = 1200 },
-            new FacturaTest { Cliente = "Cliente5", Total = 1200 },
-            new FacturaTest { Cliente = "Cliente6", Total = 1200 },
-            new FacturaTest { Cliente = "Cliente7", Total = 1200 },
-        };
-    }
 }

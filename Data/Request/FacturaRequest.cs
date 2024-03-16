@@ -37,4 +37,5 @@ public class FacturaDetalleRequest
     public decimal SubTotal => Cantidad * Precio;
     public decimal TotalDesc => SubTotal * (Descuento / 100 );
     public decimal ITBIS => SubTotal * 0.18m;
+    public decimal PrecioITBIS => Precio * 0.18m;
 }
