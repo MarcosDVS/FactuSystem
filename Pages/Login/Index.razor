@@ -91,7 +91,8 @@
     {
         // Llamada a CrearUsuarioAdmin antes de intentar autenticar
         await usuarioServices.CrearUsuarioAdmin();
-        
         // Resto de tu código OnInitializedAsync
+
+        await clienteServices.CrearCliente();
     }
 }

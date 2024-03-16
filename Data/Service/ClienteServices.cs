@@ -120,7 +120,26 @@ namespace FactuSystem.Data.Services
             }
         }
 
-        
+        public async Task CrearCliente()
+        {
+            var cliente = await dbContext.Clientes.FirstOrDefaultAsync(u => u.Nombre == "Cliente");
+
+            if (cliente == null)
+            {
+                cliente = new Cliente
+                {
+                    Nombre = "Cliente",
+                    Apellidos = "Frecuente",
+                    Cedula = "Desconocida",
+                    Direccion = "Desconocida",
+                    Telefono = "Desconocido",
+                    Limitecredito = 0, // Asigna un valor para el límite de crédito según tus requisitos
+                };
+
+                dbContext.Clientes.Add(cliente);
+                await dbContext.SaveChangesAsync();
+            }
+        }
 
       
     }

@@ -195,7 +195,7 @@
                                 <strong>Descuento: </strong>
                                 <span class="text-success">$@facturaRequest.TotalDesc.ToString("N2")</span>
                             </li>
-                            <li>
+                            <li class="mb-2">
                                 <strong>Importe: </strong>
                                 <span class="text-dark">
                                     <strong>$@($"{(facturaRequest.SubTotal - facturaRequest.TotalDesc):N2}")</strong>
@@ -207,10 +207,19 @@
                                     <strong>Pagado: </strong>
                                     <span class="text-success">$@($"{(facturaRequest.SaldoPagado):N2}")</span>
                                 </li>
-                                <li>
+                                <li >
                                     <strong>Pendiente: </strong>
                                     <span class="text-danger">
                                         <strong>$@Cambio.ToString("N2")</strong>
+                                    </span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    <strong>Devuelta: </strong>
+                                    <span class="text-dark">
+                                        $@Cambio.ToString("N2")
                                     </span>
                                 </li>
                             }
@@ -242,7 +251,7 @@
                         </button>
                         <button 
                             class="btn btn-success d-print-none" 
-                            type="submit" @onclick="async ()=>{await PrintPageAsync();}">
+                            type="submit" @onclick="async ()=>{await PrintPageAsync(); Info=false;}">
                             <span class="oi oi-check"></span>
                         </button>
                     </div>
@@ -411,6 +420,7 @@
         await CargarContacto();
         await CargarProducto();
         await Consultar();
+        
 
     }
     public string TypePayment {get; set;} = string.Empty;

@@ -11,5 +11,6 @@ namespace FactuSystem.Data.Services.Interfaces
         Task<Result> Crear(ClienteRequest request);
         Task<Result> Eliminar(ClienteRequest request);
         Task<Result> Modificar(ClienteRequest request);
+        Task CrearCliente();
     }
 }
