@@ -35,12 +35,12 @@
 <h1 class="titulo-proveedores">Listado de Clientes</h1>
 
 
-<div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+<div class="modal" style="display: @(showCard ? "block" : "none"); background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title"><b>@TituloForm</b></h5>
-                <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseCard">
+                <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseCard">
                     <span aria-hidden="true" class="oi oi-x"></span>
                 </button>
             </div>
@@ -119,11 +119,10 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer  bg-dark text-white">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-outline-primary">
-                                <span class="oi oi-check"></span> Guardar
-                            </button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseCard">Cerrar</button>
                         </div>
                     </div>
                 </EditForm>

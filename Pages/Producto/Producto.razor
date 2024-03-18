@@ -33,12 +33,12 @@
 
 <h1 class="titulo-proveedores">Listado de Productos</h1>
 
-<div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+<div class="modal" style="display: @(showCard ? "block" : "none"); background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title"><b>@TituloForm</b></h5>
-                <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseCard">
+                <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseCard">
                     <span aria-hidden="true" class="oi oi-x"></span>
                 </button>
             </div>
@@ -85,22 +85,22 @@
                                         <span class="oi oi-spreadsheet"></span>
                                     </span>
                                 </div>
-                                <input 
-                                    class="form-control"
-                                    placeholder="Categoría"
-                                    aria-label="Categoria"
-                                    aria-describedby="button-addon2" 
-                                    list="categorias"
-                                    @bind="Nombre"
-                                    @oninput="HandleCategorySelection"
-                                    required title="Debes seleccionar una Categoría"
-                                />
-                                <datalist id="categorias">
-                                    @foreach (var item in Categorias)
+                                <select class="form-control" required @bind="productoRequest.CategoriaID">
+                                    @if (Categorias.Any())
                                     {
-                                        <option value="@item.Nombre" />
+                                        <option disabled selected>Selecciona una categoría</option>
+                                        @foreach (var item in Categorias)
+                                        {
+                                            <option value="@item.Id">
+                                                @item.Nombre
+                                            </option>
+                                        }
                                     }
-                                </datalist>
+                                    else
+                                    {
+                                        <option disabled selected>No hay categorías disponibles</option>
+                                    }
+                                </select>
                                 <button class="btn btn-outline-success" @onclick="GoCategory">
                                     <span class="oi oi-plus"></span>
                                 </button>
@@ -112,22 +112,22 @@
                                     <span class="oi oi-person"></span>
                                 </span>
                             </div>
-                            <input 
-                                    class="form-control"
-                                    placeholder="Proveedor"
-                                    aria-label="Proveedor"
-                                    aria-describedby="button-addon2" 
-                                    list="productos"
-                                    @bind="NombreEmp"
-                                    @oninput="HandleProveedorSelection"
-                                    required title="Debes seleccionar un proveedor"
-                                />
-                                <datalist id="productos">
+                            <select class="form-control" required @bind="productoRequest.ProveedorID">
+                                @if (Proveedores.Any())
+                                {
+                                    <option disabled selected>Selecciona un proveedor</option>
                                     @foreach (var item in Proveedores)
                                     {
-                                        <option value="@item.NombreEmp" />
+                                        <option value="@item.Id">
+                                            @item.NombreEmp
+                                        </option>
                                     }
-                                </datalist>
+                                }
+                                else
+                                {
+                                    <option disabled selected>No hay proveedores disponibles</option>
+                                }
+                            </select>
                         </div>
                         <div class="form-group input-group mb-3">
                             <div class="input-group-prepend">
@@ -135,14 +135,25 @@
                                     <span class="oi oi-dollar"></span>
                                 </span>
                             </div>
-                            <input class="form-control" placeholder="Precio/Compra" id="correo" 
-                            @bind-value="productoRequest.PrecioCompra" required min="0.01" step="0.01"/>
+                            <input class="form-control" placeholder="Precio/Compra" id="costo" 
+                            @bind-value="productoRequest.PrecioCompra" required min="0.01" step="0.01"
+                            @oninput="ActualizarPrecioVenta" />
+                        </div>
+                        <div class="form-group input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white text-black border-0">
+                                    <span class="oi oi-dollar"></span>
+                                </span>
+                            </div>
+                            <input class="form-control" placeholder="Precio/Venta" id="precio" 
+                            @bind-value="productoRequest.Precio" required min="0.01" step="0.01"/>
                         </div>
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer bg-dark text-white">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-outline-primary">Guardar</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseCard">Cerrar</button>
                         </div>
                     </div>
             </EditForm>
@@ -178,7 +189,7 @@
             </div>
 
             <div class="row-12 mt-2">
-                <table class="table table-hover table-striped">
+                <table class="table table-striped">
                     <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
                         <tr>
                             <th>Codigo</th>
@@ -236,26 +247,6 @@
     public string Message { get; set; } = "";
     public string Nombre { get; set; } = string.Empty;
     public string NombreEmp { get; set; } = string.Empty;
-    void BuscarSeleccionarCategoria(string Categoria)
-    {
-        var c = Categorias.FirstOrDefault(p => p.Nombre == Categoria)!;
-        if (c != null) productoRequest.CategoriaID = c.Id;
-    }
-    void HandleCategorySelection(ChangeEventArgs args)
-    {
-        var selectedCategory = args.Value.ToString();
-        BuscarSeleccionarCategoria(selectedCategory);
-    }
-    void BuscarSeleccionarProveedor(string Proveedor)
-    {
-        var c = Proveedores.FirstOrDefault(p => p.NombreEmp == Proveedor)!;
-        if (c != null) productoRequest.ProveedorID = c.Id;
-    }
-    void HandleProveedorSelection(ChangeEventArgs args)
-    {
-        var selectedCategory = args.Value.ToString();
-        BuscarSeleccionarProveedor(selectedCategory);
-    }
     void GoCategory()
     {
         urlHelper.NavigateTo("category",true);
@@ -311,13 +302,11 @@
         productoRequest  = new ProductoRequest();
         showCard = false;
     }
+    
     public async Task Send()
     {
         if (productoRequest.Id == 0)
         {
-            BuscarSeleccionarCategoria(Nombre);
-            BuscarSeleccionarProveedor(NombreEmp);
-            productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * 0.3m);
             var r = await productoServices.Crear(productoRequest);
             if (r.Success)
             {
@@ -331,9 +320,6 @@
         }
         else
         {
-            productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * 0.3m);
-            BuscarSeleccionarCategoria(Nombre);
-            BuscarSeleccionarProveedor(NombreEmp);
             // Debo solicitar modificar el producto.
             var r = await productoServices.Modificar(productoRequest);
             if (r.Success)
@@ -347,7 +333,6 @@
             }
         }
     }
-
     public void Seleccionar(int Id)
     {
         showCard = true;
@@ -365,15 +350,22 @@
             StateHasChanged();
         }
     }
-
     public void PrecioAum()
     {
         productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * (30/100));
     }
-
     private async Task PrintPageAsync()
     {
         // Llama a la función JavaScript para imprimir la página
         await JSRuntime.InvokeVoidAsync("printPage");
     }
+    void ActualizarPrecioVenta(ChangeEventArgs args)
+    {
+        if (decimal.TryParse(args.Value.ToString(), out decimal precioCompra))
+        {
+            // Calcula el precio de venta sumando un 30% al precio de compra
+            productoRequest.Precio = precioCompra * 1.3m; // Aumento del 30%
+        }
+    }
+
 }

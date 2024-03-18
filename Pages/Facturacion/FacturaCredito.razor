@@ -25,9 +25,9 @@
     <div class="modal" style="display: @(formPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-dark text-white d-print-none">
                     <h5 class="modal-title"><b>@TituloFormPago</b></h5>
-                    <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseFormPago">
+                    <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseFormPago">
                         <span aria-hidden="true" class="oi oi-x"></span>
                     </button>
                 </div>
@@ -65,7 +65,7 @@
                             <select class="form-control" @bind="@pagoRequest.Observacion" required>
                                 <option disabled selected value="">Observación</option>
                                 <option value="Justo 😉">Justo 😉</option>
-                                <option value="Temprano 😎">Temprano 😎</option>
+                                <option value="Antes 😎">Antes 😎</option>
                                 <option value="Atrazado 😴">Atrazado 😴</option>
                             </select>
                         </div>
@@ -80,9 +80,10 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer bg-dark text-white d-print-none">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-outline-success">Registrar Pago</button>
+                            <button type="submit" class="btn btn-success">Pagar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseFormPago">Cerrar</button>
                         </div>
                     </div>
                 </EditForm>
@@ -194,9 +195,9 @@ else
         <div class="modal" style="display: @(detailsPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-dark text-white">
                         <h5 class="modal-title"><b>Detalles de los Pagos</b></h5>
-                        <button type="button" class="close btn btn-outline-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
+                        <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
                             <span aria-hidden="true" class="oi oi-x"></span>
                         </button>
                     </div>
@@ -234,9 +235,9 @@ else
                             </table>
                         }
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer bg-dark text-white d-print-none">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-outline-primary" @onclick="FormPago">Agregar Pago</button>
+                            <button type="submit" class="btn btn-primary" @onclick="FormPago">Agregar Pago</button>
                         </div>
                     </div>
                 </div>

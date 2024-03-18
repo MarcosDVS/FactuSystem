@@ -1,4 +1,4 @@
-@page "/category"
+@page "/user"
 @attribute [Authorize]
 
 <style>
@@ -34,12 +34,11 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="titulo-proveedores">Listado de categorías</h1>
+        <h1 class="titulo-proveedores">Listado de usuarios</h1>
     </div>
-
 </div>
 
-<div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+<div class="modal" style="display: @(showCard ? "block" : "none"); background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
@@ -49,11 +48,35 @@
                 </button>
             </div>
 
-            <EditForm Model="categoriaRequest" OnValidSubmit="Send">
+            <EditForm Model="request" OnValidSubmit="Send">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="nombreCompleto">Nombre completo</label>
-                        <input type="text" class="form-control" id="nombreCompleto" @bind-value="categoriaRequest.Nombre" required />
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" 
+                        @bind-value="request.Nombre" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos</label>
+                        <input type="text" class="form-control" id="apellidos" 
+                        @bind-value="request.Apellidos" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" 
+                        @bind-value="request.Email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="text" class="form-control" id="password" 
+                        @bind-value="request.Password" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select class="form-control" required @bind="@request.Role">
+                            <option disabled selected>Seleccione un role</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="User">User</option>
+                        </select>
                     </div>
                 </div>
 
@@ -64,12 +87,10 @@
                     </div>
                 </div>
             </EditForm>
-
-            
-
         </div>
     </div>
 </div>
+
 
 <div class="table-container">
     <div class="card col-12">
@@ -103,20 +124,26 @@
             </div>
 
             <div class="row-12 mt-2">
-                <table class="table table-hover table-striped">
+                <table class="table table-striped">
                     <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
                         <tr>
                             <th>#</th>
                             <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Email</th>
+                            <th>Role</th>
                             <th>...</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Categorias)
+                        @foreach (var item in Usuarios)
                         {
                             <tr>
                                 <td>@item.Id</td>
                                 <td>@item.Nombre</td>
+                                <td>@item.Apellidos</td>
+                                <td>@item.Email</td>
+                                <td>@item.Role</td>
                                 <td>
                                     <button @onclick="()=>Seleccionar(item.Id)"
                                         class="btn btn-outline-warning">
@@ -138,13 +165,13 @@
 </div>
 
 @code {
-    public string TituloForm => categoriaRequest.Id == 0 ? 
-    "Agregar categoría" : "Modificar categoría";
+    public string TituloForm => request.Id == 0 ? 
+    "Agregar usuario" : "Modificar usuario";
     
     public string Filtro { get; set; } = "";
     public bool ShowForm { get; set; } = false;
-    public List<CategoriaResponse> Categorias { get; set; } = new();
-    public CategoriaRequest categoriaRequest { get; set; } = new();
+    public List<UsuarioResponse> Usuarios { get; set; } = new();
+    public UsuarioRequest request { get; set; } = new();
     public bool showCard { get; set; } = false;
 
     void Producto()
@@ -158,17 +185,17 @@
 
     void CloseCard()
     {
-        categoriaRequest  = new CategoriaRequest();
+        request  = new UsuarioRequest();
         showCard = false;
     }
 
     async Task CargarContactos()
     {
         var resultado =
-        await categoriaServices.Consultar(Filtro);
+        await usuarioServices.Consultar(Filtro);
         if (resultado.Success)
         {
-            Categorias = resultado.Data!;
+            Usuarios = resultado.Data!;
         }
     }
 
@@ -179,15 +206,15 @@
 
     void Cancelar()
     {
-        categoriaRequest  = new CategoriaRequest();
+        request  = new UsuarioRequest();
         showCard = false;
     }
     public async Task Send()
     {
-        if(categoriaRequest.Id == 0)
+        if(request.Id == 0)
         {
             //Debo registrar el contacto..
-            var r = await categoriaServices.Crear(categoriaRequest);
+            var r = await usuarioServices.Crear(request);
             if (r.Success)
             {
                 Cancelar();
@@ -198,7 +225,7 @@
         else
         {
             //Debo solicitar modificar el contacto...
-            var r = await categoriaServices.Modificar(categoriaRequest);
+            var r = await usuarioServices.Modificar(request);
             if (r.Success)
             {
                 Cancelar();
@@ -211,14 +238,14 @@
     public void Seleccionar(int Id)
     {
         showCard = true;
-        categoriaRequest = Categorias
+        request = Usuarios
         .Where(c => c.Id == Id)
         .Select(c => c.ToRequest())
-        .FirstOrDefault() ?? new CategoriaRequest();
+        .FirstOrDefault() ?? new UsuarioRequest();
     }
-    public async Task Eliminar(CategoriaResponse item)
+    public async Task Eliminar(UsuarioResponse item)
     {
-        var resultado = await categoriaServices.Eliminar(item.ToRequest());
+        var resultado = await usuarioServices.Eliminar(item.ToRequest());
         if (resultado.Success)
         {
             await CargarContactos();

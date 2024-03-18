@@ -1,5 +1,7 @@
 ﻿using FactuSystem.Data.Model;
 using System.ComponentModel.DataAnnotations.Schema;
+using FactuSystem.Data.Response;
+
 
 namespace FactuSystem.Data.Request;
 
@@ -13,4 +15,5 @@ public class ProductoRequest
     public int CategoriaID { get; set; }
     public decimal PrecioCompra { get; set; }
     public decimal Precio { get; set; }
+    
 }
