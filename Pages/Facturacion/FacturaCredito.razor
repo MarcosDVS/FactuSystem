@@ -137,7 +137,7 @@ else
                         <th scope="col">Precio</th>
                         <th scope="col">ITBIS</th>
                         <th scope="col">Descuento</th>
-                        <th scope="col">Importe</th>
+                        <th scope="col">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,7 +173,7 @@ else
                     </tr>
                     <tr>
                         <td colspan="4"></td>
-                        <td><b>Total:</b></td>
+                        <td><b>Importe:</b></td>
                         <td><strong>$@FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</strong></td>
                     </tr>
                     <tr>

@@ -50,6 +50,12 @@
 
             <EditForm Model="request" OnValidSubmit="Send">
                 <div class="modal-body">
+                    @if (Message != null)
+                    {
+                        <div class="alert-warning text-center">
+                            <label class="text-dark"><strong>@Message</strong></label>
+                        </div>
+                    }
                     <div class="form-group">
                         <label for="nombre">Nombre</label>
                         <input type="text" class="form-control" id="nombre" 
@@ -173,6 +179,7 @@
     public List<UsuarioResponse> Usuarios { get; set; } = new();
     public UsuarioRequest request { get; set; } = new();
     public bool showCard { get; set; } = false;
+    public string? Message { get; set; } = null;
 
     void Producto()
     {
@@ -187,6 +194,7 @@
     {
         request  = new UsuarioRequest();
         showCard = false;
+        Message = null;
     }
 
     async Task CargarContactos()
@@ -211,8 +219,19 @@
     }
     public async Task Send()
     {
+        if (request.Password.Length < 4 || request.Password.Length > 8)
+        {
+            Message = "😒 La contraseña debe tener entre 4 y 8 caracteres. 🔑";
+            return;
+        }
         if(request.Id == 0)
         {
+            var existingUser = Usuarios.FirstOrDefault(u => u.Email.ToLower().Equals(request.Email.ToLower(), StringComparison.OrdinalIgnoreCase));
+            if (existingUser != null)
+            {
+                Message = "Este correo ya existe 🤨";
+                return;
+            }
             //Debo registrar el contacto..
             var r = await usuarioServices.Crear(request);
             if (r.Success)
@@ -233,6 +252,7 @@
                 StateHasChanged();
             }
         }
+        Message = null;
     }
 
     public void Seleccionar(int Id)
