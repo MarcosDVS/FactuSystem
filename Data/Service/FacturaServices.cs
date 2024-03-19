@@ -14,11 +14,16 @@ public class FacturaServices : IFacturaServices
     {
         this.dbContext = dbContext;
     }
-    public async Task<Result<List<FacturaResponse>>> Consultar()
+    public async Task<Result<List<FacturaResponse>>> Consultar(string filtro)
     {
         try
         {
             var facturas = await dbContext.Facturas
+                .Where(c =>
+                        (c.Cliente.Nombre + " " + c.Cliente.Apellidos)
+                        .ToLower()
+                        .Contains(filtro.ToLower())
+                )
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
                 .Include(f => f.Cliente)
@@ -92,17 +97,20 @@ public class FacturaServices : IFacturaServices
     {
         try
         {
-            var query = dbContext.Facturas
+            var facturasQuery = dbContext.Facturas
                 .Include(f => f.Detalles)
                 .ThenInclude(d => d.Producto)
                 .AsQueryable();
 
             if (fecha.HasValue)
             {
-                query = query.Where(f => EF.Functions.DateDiffDay(f.Fecha, fecha.Value) == 0);
+                // Filtrar por fecha
+                facturasQuery = facturasQuery.Where(f => f.Fecha.Date == fecha.Value.Date);
             }
 
-            var facturas = await query.Select(f => f.ToResponse()).ToListAsync();
+            var facturas = await facturasQuery
+                .Select(f => f.ToResponse())
+                .ToListAsync();
 
             return new Result<List<FacturaResponse>>()
             {
@@ -195,7 +203,7 @@ public class FacturaServices : IFacturaServices
 
 public interface IFacturaServices
 {
-    Task<Result<List<FacturaResponse>>> Consultar();
+    Task<Result<List<FacturaResponse>>> Consultar(string filtro);
     Task<Result<FacturaResponse>> Crear(FacturaRequest request);
     Task<Result> Eliminar(FacturaRequest request);
     Task<Result<List<FacturaResponse>>> BuscarFacturas(DateTime? fecha);

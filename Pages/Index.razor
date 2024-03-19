@@ -220,7 +220,7 @@
 
     async Task Consultar()
     {
-        var resultado = await facturaServices.Consultar();
+        var resultado = await facturaServices.Consultar(Filtro);
         if (resultado.Success)
         {
             Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();

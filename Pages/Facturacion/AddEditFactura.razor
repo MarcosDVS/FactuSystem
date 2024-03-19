@@ -292,6 +292,7 @@
     public string? Message { get; set; } = null;
     public string Nombre { get; set; } = string.Empty;
     public string ItemName { get; set; } = string.Empty;
+    public string Filtro { get; set; } = "";
     public List<ClienteResponse> Contactos { get; set; } = new();
     public List<FacturaResponse> Facturas { get; set; } = new();
     public List<ProductoResponse> Productos { get; set; } = new List<ProductoResponse>();
@@ -404,7 +405,7 @@
     int ultimoIdFactura = 0;
     async Task Consultar()
     {
-        var resultado = await facturaServices.Consultar();
+        var resultado = await facturaServices.Consultar(Filtro);
         if (resultado.Success)
         {
             Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();

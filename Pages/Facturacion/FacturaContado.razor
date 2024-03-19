@@ -5,253 +5,267 @@
 
 <PageTitle>Factura</PageTitle>
 
-@if(!ShowDetails)
-{
-    <div class="row mb-3 d-print-none">
-        <div class="col-md-3 form-group">
-            <div class="input-group">
-                <input type="date" class="form-control" @bind="fechaFiltro">
-                <button @onclick="async ()=>{await BuscarFacturas();}" class="btn btn-outline-primary">
-                    <span class="oi oi-magnifying-glass"></span>
-                </button>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <button class="btn btn-outline-primary d-print-none" @onclick="async ()=>{await PrintPageAsync();}">
-                <span class="oi oi-print"></span>
-            </button>
-        </div>
-        <div class="col-md-1">
-                
-        </div>
-    </div>
-}
-else
+<style>
+    /* Estilo para el contenedor de la tabla */
+    .table-container {
+        margin-top: 20px;
+    }
+    /* Estilo para el cuerpo de la tarjeta */
+    .card-body {
+        padding: 20px;
+    }
+
+    /* Estilo para centrar el texto en las celdas de la tabla */
+    .table th, .table td {
+        text-align: center;
+    }
+
+    .titulo {
+        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);
+        color: #ffffff; /* Texto blanco */
+        text-align: center; /* Centrar texto */
+        padding: 10px; /* Añadir espacio alrededor del texto */
+    }
+</style>
+
+@if(ShowDetails)
 {
     <div class="row">
-        <div class="col-10">
-            <h3 class="card-title"><b>@TituloForm</b></h3>
-        </div>
-        <div class="col-2">
-            <button class="btn btn-outline-danger d-print-none"
-                @onclick="Back">
-                <span class="oi oi-arrow-left"></span>
-            </button>
-            <button class="btn btn-outline-primary d-print-none" @onclick="PrintPageAsync">
-                <span class="oi oi-print"></span>
-            </button>
+        <div class="col-12">
+            <h1 class="titulo">@TituloForm</h1>
         </div>
     </div>
-}
-<hr>
-@if(!ShowDetails)
-{
-    <div class="container">
-        <h3 class="card-title"><b>@TituloForm</b></h3>
-    </div>
-}
-<div class="container">
-    @if(ShowDetails)
-    {
-        <h5><b>Fecha:</b> @SelectedFactura.Fecha.ToShortDateString()</h5>
-        <h5><b>Cliente:</b> @SelectedFactura.Cliente.Nombre @SelectedFactura.Cliente.Apellidos</h5>
-        <details class="d-print-none">
-            <small><strong>Cedula:</strong>@FormatCustomerId(SelectedFactura.Cliente.Cedula)</small>
-            <small><strong>Celular:</strong>@FormatPhoneNumber(SelectedFactura.Cliente.Telefono)</small>
-            <small><strong>Dirección:</strong>@SelectedFactura.Cliente.Direccion</small>
-        </details>
-        <!-- Mostrar detalles de la factura seleccionada -->
-        <div>
-            <table class="table table-bordered table-striped">
-                <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-                    <tr>
-                        <th scope="col">Cantidad</th>
-                        <th scope="col">Descripción</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">ITBIS</th>
-                        <th scope="col">Descuento</th>
-                        <th scope="col">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var detalle in FacturaDetalles)
-                    {
-                        <tr>
-                            <td>@detalle.Cantidad</td>
-                            <td>@detalle.Producto.Nombre</td>
-                            <td>$@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")</td>
-                            <td>
-                                <span style="white-space: nowrap;">
-                                    $@($"{(detalle.PrecioITBIS):N2}")
-                                </span>
-                            </td>
-                            <td>$@detalle.TotalDesc.ToString("N2")</td>
-                            <td>$@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")</td>
-                        </tr>
-                    }
-                    <tr>
-                        <td colspan="4"></td>
-                        <td><b>SubTotal:</b></td>
-                        <td>$@FacturaDetalles.Sum(c => c.SubTotal - c.ITBIS).ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"></td>
-                        <td><b>ITBIS:</b></td>
-                        <td>$@FacturaDetalles.Sum(c => c.ITBIS).ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"></td>
-                        <td><b>Descuento:</b></td>
-                        <td>$@FacturaDetalles.Sum(c => c.TotalDesc).ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4"></td>
-                        <td><b>Importe:</b></td>
-                        <td><strong>$@FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    }
-    else if(Facturas != null)
-    {
-        <div class="modal" style="display: @(detailsPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-dark text-white">
-                        <h5 class="modal-title"><b>Detalles de los Pagos</b></h5>
-                        <button type="button" class="close btn btn-danger d-print-none" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
-                            <span aria-hidden="true" class="oi oi-x"></span>
+
+    <!-- Mostrar los detalles de la factura seleccionada -->
+    <div class="table-container">
+        <div class="card col-12">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-10">
+                        <h5><b>Fecha:</b> @SelectedFactura.Fecha.ToShortDateString()</h5>
+                        <h5><b>Cliente:</b> @SelectedFactura.Cliente.Nombre @SelectedFactura.Cliente.Apellidos</h5>
+                        <details class="d-print-none">
+                            <small><strong>Cedula:</strong>@FormatCustomerId(SelectedFactura.Cliente.Cedula)</small>
+                            <small><strong>Celular:</strong>@FormatPhoneNumber(SelectedFactura.Cliente.Telefono)</small>
+                            <small><strong>Dirección:</strong>@SelectedFactura.Cliente.Direccion</small>
+                        </details>
+                    </div>
+                    <div class="col text-end">
+                        <button class="btn btn-outline-danger d-print-none"
+                            @onclick="Back">
+                            <span class="oi oi-arrow-left"></span>
+                        </button>
+                        <button class="btn btn-outline-primary d-print-none" @onclick="PrintPageAsync">
+                            <span class="oi oi-print"></span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        @if(FacturaSinPagos)
-                        {
-                            <div class="alert alert-success" role="alert">
-                                <h4 class="alert-heading">¡Aviso!</h4>
-                                <p>Este cliente pago al contado 😎.</p>
-                                <hr>
-                                <p class="mb-0">Por favor, asegúrese de conservar este cliente. ¡Gracias!
-                                </p>
-                            </div>
-                        }
-                        else{
-                            <table class="table table-hover">
-                                <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                </div>
+                <!-- Mostrar detalles de la factura seleccionada -->
+                <div class="row-12 mt-2">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                            <tr>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col">ITBIS</th>
+                                <th scope="col">Descuento</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detalle in FacturaDetalles)
+                            {
+                                <tr>
+                                    <td>@detalle.Cantidad</td>
+                                    <td>@detalle.Producto.Nombre</td>
+                                    <td>$@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")</td>
+                                    <td>
+                                        <span style="white-space: nowrap;">
+                                            $@($"{(detalle.PrecioITBIS):N2}")
+                                        </span>
+                                    </td>
+                                    <td>$@detalle.TotalDesc.ToString("N2")</td>
+                                    <td>$@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="4"></td>
+                                <td><b>SubTotal:</b></td>
+                                <td>$@FacturaDetalles.Sum(c => c.SubTotal - c.ITBIS).ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                                <td><b>ITBIS:</b></td>
+                                <td>$@FacturaDetalles.Sum(c => c.ITBIS).ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                                <td><b>Descuento:</b></td>
+                                <td>$@FacturaDetalles.Sum(c => c.TotalDesc).ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                                <td><b>Importe:</b></td>
+                                <td><strong>$@FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+else if(Facturas != null)
+{
+    <div class="row">
+        <div class="col-12">
+            <h1 class="titulo">@TituloForm</h1>
+        </div>
+    </div>
+
+    <div class="modal" style="display: @(detailsPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><b>Detalles de los Pagos</b></h5>
+                    <button type="button" class="close btn btn-danger d-print-none" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
+                        <span aria-hidden="true" class="oi oi-x"></span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if(FacturaSinPagos)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading">¡Aviso!</h4>
+                            <p>Este cliente pago al contado 😎.</p>
+                            <hr>
+                            <p class="mb-0">Por favor, asegúrese de conservar este cliente. ¡Gracias!
+                            </p>
+                        </div>
+                    }
+                    else{
+                        <table class="table table-hover">
+                            <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                                <tr>
+                                    <th>FacturaId</th>
+                                    <th>Monto/Pagado</th>
+                                    <th>Observación</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pago in PagosFacturaSeleccionada)
+                                {
                                     <tr>
-                                        <th>FacturaId</th>
-                                        <th>Monto/Pagado</th>
-                                        <th>Observación</th>
-                                        <th>Fecha</th>
+                                        <td>@pago.FacturaID</td>
+                                        <td>$@pago.MontoPagado.ToString("N2")</td>
+                                        <td>@pago.Observacion</td>
+                                        <td>@pago.Fecha.ToShortDateString()</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var pago in PagosFacturaSeleccionada)
-                                    {
-                                        <tr>
-                                            <td>@pago.FacturaID</td>
-                                            <td>$ @pago.MontoPagado.ToString("N2")</td>
-                                            <td>@pago.Observacion</td>
-                                            <td>@pago.Fecha</td>
-                                        </tr>
-                                    } 
-                                </tbody>
-                            </table>
-                        }
-                    </div>
-                    <div class="modal-footer bg-dark text-white d-print-none">
-                        
-                    </div>
+                                } 
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                <div class="modal-footer bg-dark text-white d-print-none">
+                    
                 </div>
             </div>
         </div>
-        <!-- Mostrar la lista de facturas -->
-        <table class="table table-striped">
-            <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Cliente</th>
-                    <th scope="col">Total</th>
-                    <th scope="col">ITBIS</th>
-                    <th scope="col">Descuento</th>
-                    <th scope="col">Importe</th>
-                    <th scope="col">Fecha</th>
-                    <th scope="col">...</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var f in Facturas)
-                {
-                    @if(f.TypePayment == "1" || f.SaldoPendiente == 0)    
-                    {
-                        <tr>
-                            <th scope="row">@f.Id</th>
-                            <td>@f.Cliente.Nombre @f.Cliente.Apellidos</td>
-                            <td>$@($"{(f.SubTotal - f.ITBIS):N2}")</td>
-                            <td>
-                                <span style="white-space: nowrap;">
-                                    $@($"{(f.ITBIS):N2}")
-                                </span>
-                            </td>
-                            <td>$@f.TotalDesc.ToString("N2")</td>
-                            <td><strong>$@($"{(f.SubTotal - f.TotalDesc):N2}")</strong></td>
-                            <td>@f.Fecha.ToShortDateString()</td>
-                            <td>
-                                <div class="button d-print-none">
-                                    <button @onclick="() => MostrarPagos(f)"
-                                        class="btn btn-outline-success">
-                                        <span class="oi oi-dollar"></span>
-                                    </button>
-                                    <button @onclick="() => MostrarDetalles(f)"
-                                        class="btn btn-outline-info">
-                                        <span class="oi oi-info"></span>
-                                    </button>
-                                    <button @onclick="() => Eliminar(f)" class="btn btn-outline-danger d-print-none" >
-                                        <span class="oi oi-trash"></span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    }
-</div>
+    </div>
+
+    <!-- Mostrar la lista de facturas -->
+    <div class="table-container">
+        <div class="card col-12">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-11">
+                        <button class="btn btn-outline-primary d-print-none" 
+                            @onclick="async ()=>{await PrintPageAsync();}">
+                            <span class="oi oi-print"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-8"></div>
+                    <div class="col-4">
+                        <div class="input-group d-print-none">
+                            <input type="text" class="form-control border-0 border-bottom" 
+                                placeholder="Buscar por nombre" @bind="FiltroInvoice">
+                            <button class="btn btn-outline input-group-text border-0 bg-white" 
+                                type="button" id="button-addon2" @onclick="()=>Consultar()">
+                                <span class="oi oi-magnifying-glass text-black"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-12 mt-2">
+                    <table class="table table-striped">
+                        <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Cliente</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">ITBIS</th>
+                                <th scope="col">Descuento</th>
+                                <th scope="col">Importe</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col" class="d-print-none">...</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var f in Facturas)
+                            {
+                                @if(f.TypePayment == "1" || f.SaldoPendiente == 0)    
+                                {
+                                    <tr>
+                                        <th scope="row">@f.Id</th>
+                                        <td>@f.Cliente.Nombre @f.Cliente.Apellidos</td>
+                                        <td>$@($"{(f.SubTotal - f.ITBIS):N2}")</td>
+                                        <td>
+                                            <span style="white-space: nowrap;">
+                                                $@($"{(f.ITBIS):N2}")
+                                            </span>
+                                        </td>
+                                        <td>$@f.TotalDesc.ToString("N2")</td>
+                                        <td><strong>$@($"{(f.SubTotal - f.TotalDesc):N2}")</strong></td>
+                                        <td>@f.Fecha.ToShortDateString()</td>
+                                        <td>
+                                            <div class="button d-print-none">
+                                                <button @onclick="() => MostrarPagos(f)"
+                                                    class="btn btn-outline-success">
+                                                    <span class="oi oi-dollar"></span>
+                                                </button>
+                                                <button @onclick="() => MostrarDetalles(f)"
+                                                    class="btn btn-outline-info">
+                                                    <span class="oi oi-info"></span>
+                                                </button>
+                                                <button @onclick="() => Eliminar(f)" class="btn btn-outline-danger d-print-none" >
+                                                    <span class="oi oi-trash"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code
 {
-    public DateTime? fechaFiltro { get; set; }
     public string TituloForm => ShowDetails == false ?
     "Módulo de facturas al contado" : "Módulo de facturación";
     public bool ShowDetails { get; set; } = false;
     public List<FacturaResponse> Facturas { get; set; } = new();
     public List<FacturaDetalleResponse> FacturaDetalles { get; set; } = new();
     public FacturaResponse? SelectedFactura { get; set; } // Factura seleccionada
-    
-    private async Task BuscarFacturas()
-    {
-        try
-        {
-            var resultado = await facturaServices.BuscarFacturas(fechaFiltro);
-            if (resultado.Success)
-            {
-                Facturas = resultado.Data ?? new List<FacturaResponse>();
-            }
-            else
-            {
-                // Log the error or display an error message
-                Console.WriteLine($"Error: {resultado.Message}");
-            }
-
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            // Log the exception or display an error message
-            Console.WriteLine($"Exception: {ex.Message}");
-        }
-    }
 
     private string FormatPhoneNumber(string phoneNumber)
     {
@@ -288,7 +302,7 @@ else
     }
     async Task Consultar()
     {
-        var resultado = await facturaServices.Consultar();
+        var resultado = await facturaServices.Consultar(FiltroInvoice);
         if (resultado.Success)
         {
             Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
@@ -331,6 +345,7 @@ else
     public List<PagoResponse> Pagos { get; set; } = new();
     public FacturaResponse FacturaEnConfirmacion { get; set; } = new();
     public string Filtro { get; set; } = "";
+    public string FiltroInvoice { get; set; } = "";
     async Task CargarPagos()
     {
         var resultado =
