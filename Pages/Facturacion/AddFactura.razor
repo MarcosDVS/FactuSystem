@@ -258,30 +258,6 @@
                 </div>
             </div>
         </div>
-
-        @*@if (Chance )
-        {
-            <div class="col-3">
-                <div class="card mb-3 p-3">
-                    <h5 class="card-header"><b>Cambio:</b> @Cambio.ToString("N2")</h5>
-                    <div class="card-body"> 
-                        <div class="mb-3">
-                            <button 
-                                class="btn btn-danger d-print-none" 
-                                type="button"
-                                @onclick="CancelarPago">
-                                <span class="oi oi-x"></span>
-                            </button>
-                            <button 
-                                class="btn btn-success d-print-none" 
-                                type="submit" @onclick="async ()=>{await PrintPageAsync();}">
-                                <span class="oi oi-check"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }*@
     </div>
 
 </EditForm>
@@ -441,7 +417,7 @@
         var detallesList = facturaRequest.Detalles.ToList();
 
         // Llamada a la función para actualizar el stock
-        await productoServices.ActualizarStock(
+        await productoServices.StokVendido(
             detallesList.Select(d => d.ProductoId).ToList(), detallesList);
 
         var result = await facturaServices.Crear(facturaRequest);

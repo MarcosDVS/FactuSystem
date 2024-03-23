@@ -186,8 +186,8 @@ else if(Facturas != null)
     </div>
     
     <div class="modal" style="display: @(formPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
+        <div class="modal-dialog " role="document">
+            <div class="modal-content" style="width: 600px;">
                 <div class="modal-header bg-dark text-white d-print-none">
                     <h5 class="modal-title"><b>@TituloFormPago</b></h5>
                     <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseFormPago">
@@ -196,12 +196,13 @@ else if(Facturas != null)
                 </div>
 
                 <EditForm Model="pagoRequest" OnValidSubmit="SendPago">
-                    <div class="alert alert-danger mt-3" role="alert" style="display: @(string.IsNullOrEmpty(ErrorMessage) ? "none" : "block")">
-                        @ErrorMessage 
-                    </div>
                     <div class="modal-body">
+                        <div class="alert alert-warning text-dark mt-2" role="alert" style="display: @(string.IsNullOrEmpty(ErrorMessage) ? "none" : "block")">
+                            <strong>@ErrorMessage</strong> 
+                        </div>
+
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
+                            <div class="input-group-prepend d-print-none">
                                 <span class="input-group-text bg-white text-black border-0">
                                     <span class="oi oi-calendar"></span>
                                 </span>
@@ -210,27 +211,31 @@ else if(Facturas != null)
                             @bind-value="pagoRequest.Fecha" readonly/>
                         </div>
                         
-                        <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-code"></span>
-                                </span>
+                        @if(!DetallesPago)
+                        {
+                            <div class="form-group input-group mb-3 d-print-none">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white text-black border-0">
+                                        <span class="oi oi-code"></span>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="Codigo"
+                                @bind-value="pagoRequest.FacturaID" readonly />
                             </div>
-                            <input type="text" class="form-control" placeholder="Codigo"
-                             @bind-value="pagoRequest.FacturaID" readonly />
-                        </div>
-                        
-                        <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-dollar"></span>
-                                </span>
+                            
+                            <div class="form-group input-group mb-3 d-print-none">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white text-black border-0">
+                                        <span class="oi oi-dollar"></span>
+                                    </span>
+                                </div>
+                                <input type="number" class="form-control" placeholder="Monto a Pagar" 
+                                @bind-value="pagoRequest.MontoPagado" required min="0.01" step="0.01"/>
                             </div>
-                            <input type="number" class="form-control" placeholder="Monto a Pagar" 
-                            @bind-value="pagoRequest.MontoPagado" required min="0.01" step="0.01"/>
-                        </div>
 
-                        <div class="form-group input-group mb-3">
+                        }
+
+                        <div class="form-group input-group mb-3 d-print-none">
                             <div class="input-group-prepend">
                                 <span class="input-group-text bg-white text-black border-0">
                                     <span class="oi oi-align-left"></span>
@@ -244,12 +249,79 @@ else if(Facturas != null)
                             </select>
                         </div>
 
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="col-8">
+                                    <h5><b>Pago de la factura Nº: @InvoiceId</b></h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col input-group">
+                                        <label class="form-control">
+                                            <strong>Cliente</strong>
+                                        </label>
+                                        <label class="form-control">
+                                            <strong>Observación</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col input-group">
+                                        <span class="form-control">
+                                            @CustomerName
+                                        </span>
+                                        <span class="form-control">
+                                            @pagoRequest.Observacion
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col input-group">
+                                        <label class="form-control">
+                                            <strong>Pagado</strong>
+                                        </label>
+                                        <label class="form-control">
+                                            <strong>Pendiente</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col input-group">
+                                        <span class="form-control">
+                                            $@pagoRequest.MontoPagado.ToString("N2")
+                                        </span>
+                                            @if(Pending > 0)
+                                            {
+                                                <span class="form-control">
+                                                    -$@Pending.ToString("N2")
+                                                </span>  
+                                            }
+                                            else
+                                            {
+                                               <span class="form-control">
+                                                    $@Pending.ToString("N2")
+                                                </span>  
+                                            }
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
                     </div>
 
                     <div class="modal-footer bg-dark text-white d-print-none">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-success">Pagar</button>
-                            <button type="button" class="btn btn-secondary" @onclick="CloseFormPago">Cerrar</button>
+                            @if(!DetallesPago)
+                            {
+                                <button class="btn btn-success" @onclick="Money">Imprimir</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseFormPago">Cerrar</button>
+                            }
+                            else{
+                                <button type="submit" class="btn btn-success" @onclick="async ()=>{await PrintPageAsync();}">Pagar</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseMoney">Cancelar</button>
+                            }
                         </div>
                     </div>
                 </EditForm>
@@ -326,6 +398,9 @@ else if(Facturas != null)
                                                     class="btn btn-outline-info">
                                                     <span class="oi oi-info"></span>
                                                 </button>
+                                                <button @onclick="() => EditarFactura(f)" class="btn btn-outline-warning">
+                                                    <span class="oi oi-pencil"></span>
+                                                </button>
                                                 <button @onclick="() => Eliminar(f)" class="btn btn-outline-danger d-print-none" >
                                                     <span class="oi oi-trash"></span>
                                                 </button>
@@ -352,30 +427,6 @@ else if(Facturas != null)
     public List<FacturaResponse> Facturas { get; set; } = new();
     public List<FacturaDetalleResponse> FacturaDetalles { get; set; } = new();
     public FacturaResponse? SelectedFactura { get; set; } // Factura seleccionada
-    
-    private async Task BuscarFacturas()
-    {
-        try
-        {
-            var resultado = await facturaServices.BuscarFacturas(fechaFiltro);
-            if (resultado.Success)
-            {
-                Facturas = resultado.Data ?? new List<FacturaResponse>();
-            }
-            else
-            {
-                // Log the error or display an error message
-                Console.WriteLine($"Error: {resultado.Message}");
-            }
-
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            // Log the exception or display an error message
-            Console.WriteLine($"Exception: {ex.Message}");
-        }
-    }
 
     private string FormatPhoneNumber(string phoneNumber)
     {
@@ -425,6 +476,12 @@ else if(Facturas != null)
         await CargarPagos();
     }
 
+    void EditarFactura(FacturaResponse factura)
+    {
+        // Redireccionar a la página de edición de factura con los datos de la factura seleccionada
+        urlHelper.NavigateTo($"/factura/vender2?id={factura.Id}");
+    }
+
     public async Task Eliminar(FacturaResponse user)
     {
         var resultado = await facturaServices.Eliminar(user.ToRequest());
@@ -472,13 +529,15 @@ else if(Facturas != null)
     {
         formPago = true;
         detailsPago = false;
-        //pagoRequest.FacturaID = SelectedFactura.Id;
+        pagoRequest.FacturaID = InvoiceId;
     }
     void CloseFormPago()
     {
         pagoRequest  = new PagoRequest();
         detailsPago = true;
         formPago = false;
+        DetallesPago = false;
+        CloseMoney();
     } 
     void Cancelar()
     {
@@ -493,22 +552,8 @@ else if(Facturas != null)
         .Select(c => c.ToRequest())
         .FirstOrDefault() ?? new PagoRequest();
     }
-    public async Task EliminarPago(PagoResponse item)
-    {
-        var resultado = await pagoServices.Eliminar(item.ToRequest());
-        if (resultado.Success)
-        {
-            await CargarPagos();
-            StateHasChanged();
-        }
-    }
     public async Task SendPago()
     {
-        if (Convert.ToDecimal(pagoRequest.MontoPagado) > SelectedFactura.SaldoPendiente)
-        {
-            ErrorMessage = "El monto a pagar no puede ser mayor al saldo pendiente $" + SelectedFactura.SaldoPendiente.ToString("N2");
-            return;
-        }
         if (pagoRequest.Id == 0)
         {
             // Debo registrar el contacto..
@@ -520,6 +565,7 @@ else if(Facturas != null)
                     var invoice = await facturaServices.UpdateInvoice(pagoRequest.FacturaID);
                 }
                 Cancelar();
+                CloseMoney();
                 await CargarPagos();
                 await Consultar();
                 StateHasChanged();
@@ -541,7 +587,37 @@ else if(Facturas != null)
     public List<PagoResponse> PagosFacturaSeleccionada { get; set; } = new List<PagoResponse>();
     public bool FacturaSinPagos => PagosFacturaSeleccionada.Count == 0;
     public bool MostrarMensajeSinPagos { get; set; } = false;
+    public bool DetallesPago { get; set; } = false;
+    string CustomerName = "";
+    int InvoiceId = 0;
+    public static decimal PendingMoney = 0;
+    public decimal PaiedMoney = 0;
+    public decimal Pending = 0;
 
+    void Money()
+    {
+        if (Convert.ToDecimal(pagoRequest.MontoPagado) > SelectedFactura.SaldoPendiente)
+        {
+            ErrorMessage = "El monto a pagar no puede ser mayor al saldo pendiente $" + SelectedFactura.SaldoPendiente.ToString("N2");
+            return;
+        }
+        if (pagoRequest.MontoPagado < 1)
+        {
+            ErrorMessage = "El pago debe ser mayor a $0";
+            return;
+        }
+        ErrorMessage = null;
+        DetallesPago = true;
+        PaiedMoney = Convert.ToDecimal(pagoRequest.MontoPagado);
+        Pending = PendingMoney - PaiedMoney;
+    }
+    void CloseMoney()
+    {
+        ErrorMessage = null;
+        DetallesPago = false;
+        PaiedMoney = 0;
+        Pending = 0;
+    }
     void MostrarPagos(FacturaResponse factura)
     {
         SelectedFactura = factura;
@@ -551,7 +627,9 @@ else if(Facturas != null)
         StateHasChanged(); // Asegúrate de llamar a StateHasChanged para actualizar la interfaz de usuario.
 
         // Establecer FacturaID en pagoRequest con el Id de la factura seleccionada
-        pagoRequest.FacturaID = SelectedFactura.Id;
+        PendingMoney = SelectedFactura.SaldoPendiente;
+        CustomerName = SelectedFactura.Cliente.Nombre +" "+ SelectedFactura.Cliente.Apellidos;
+        InvoiceId = SelectedFactura.Id;
     }
 
 }

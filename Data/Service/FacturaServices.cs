@@ -20,7 +20,7 @@ public class FacturaServices : IFacturaServices
         {
             var facturas = await dbContext.Facturas
                 .Where(c =>
-                        (c.Cliente.Nombre + " " + c.Cliente.Apellidos)
+                        (c.Id + " " + c.Cliente.Nombre + " " + c.Cliente.Apellidos)
                         .ToLower()
                         .Contains(filtro.ToLower())
                 )
@@ -93,43 +93,7 @@ public class FacturaServices : IFacturaServices
             return new Result() { Message = E.Message, Success = false };
         }
     }
-    public async Task<Result<List<FacturaResponse>>> BuscarFacturas(DateTime? fecha)
-    {
-        try
-        {
-            var facturasQuery = dbContext.Facturas
-                .Include(f => f.Detalles)
-                .ThenInclude(d => d.Producto)
-                .AsQueryable();
-
-            if (fecha.HasValue)
-            {
-                // Filtrar por fecha
-                facturasQuery = facturasQuery.Where(f => f.Fecha.Date == fecha.Value.Date);
-            }
-
-            var facturas = await facturasQuery
-                .Select(f => f.ToResponse())
-                .ToListAsync();
-
-            return new Result<List<FacturaResponse>>()
-            {
-                Data = facturas,
-                Success = true,
-                Message = "Búsqueda exitosa"
-            };
-        }
-        catch (Exception ex)
-        {
-            return new Result<List<FacturaResponse>>()
-            {
-                Data = null,
-                Success = false,
-                Message = ex.Message
-            };
-        }
-    }
-
+   
     public async Task<Result<FacturaResponse>> Modificar(FacturaRequest request)
     {
         try
@@ -199,6 +163,30 @@ public class FacturaServices : IFacturaServices
             return false;
         }
     }
+
+    public async Task<bool> StokDevuelto(int itemId, ProductoRequest detalle)
+    {
+        try
+        {
+            var factura = await dbContext.FacturaDetalles
+                .FirstOrDefaultAsync(p => p.ProductoId == itemId);
+
+            if (factura != null)
+            {
+                // Resta la cantidad del detalle al stock del producto
+                factura.Cantidad += detalle.Stock;
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+
+            return false; // No se encontró el producto con el ID especificado
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
 }
 
 public interface IFacturaServices
@@ -206,7 +194,7 @@ public interface IFacturaServices
     Task<Result<List<FacturaResponse>>> Consultar(string filtro);
     Task<Result<FacturaResponse>> Crear(FacturaRequest request);
     Task<Result> Eliminar(FacturaRequest request);
-    Task<Result<List<FacturaResponse>>> BuscarFacturas(DateTime? fecha);
     Task<Result<FacturaResponse>> Modificar(FacturaRequest request);
     Task<bool> UpdateInvoice(int invoiveId);
+    Task<bool> StokDevuelto(int itemId, ProductoRequest detalle);
 }

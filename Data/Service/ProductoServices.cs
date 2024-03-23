@@ -101,7 +101,7 @@ public class ProductoServices : IProductoServices
         }
     }
 
-    public async Task<bool> ActualizarStock(List<int> itemIds, List<FacturaDetalleRequest> detalles)
+    public async Task<bool> StokVendido(List<int> itemIds, List<FacturaDetalleRequest> detalles)
     {
         try
         {
@@ -136,5 +136,5 @@ public interface IProductoServices
     Task<Result> Crear(ProductoRequest request);
     Task<Result> Modificar(ProductoRequest request);
     Task<Result> Eliminar(ProductoRequest request);
-    Task<bool> ActualizarStock(List<int> itemIds, List<FacturaDetalleRequest> detalles);
+    Task<bool> StokVendido(List<int> itemIds, List<FacturaDetalleRequest> detalles);
 }

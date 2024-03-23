@@ -103,10 +103,35 @@ public class CategoriaServices : ICategoriaServices
         }
     }
 
+    public async Task<Result<CategoriaResponse>> ObtenerPorId(int id)
+    {
+        try
+        {
+            var categoria = await dbContext.Categorias.FindAsync(id);
+            if (categoria == null)
+                return new Result<CategoriaResponse>() { Message = "No se encontró la categoría", Success = false };
+
+            return new Result<CategoriaResponse>()
+            {
+                Message = "Ok",
+                Success = true,
+                Data = categoria.ToResponse()
+            };
+        }
+        catch (Exception E)
+        {
+            return new Result<CategoriaResponse>()
+            {
+                Message = E.Message,
+                Success = false
+            };
+        }
+    }
 }
 public interface ICategoriaServices
 {
     Task<Result<List<CategoriaResponse>>> Consultar(string filtro);
+    Task<Result<CategoriaResponse>> ObtenerPorId(int id); 
     Task<Result> Crear(CategoriaRequest request);
     Task<Result> Modificar(CategoriaRequest request);
     Task<Result> Eliminar(CategoriaRequest request);
