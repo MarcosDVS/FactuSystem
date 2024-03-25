@@ -51,7 +51,6 @@ public class FacturaResponse
             ClienteId = ClienteId,
             TypePayment = TypePayment,
             SaldoPagado = SaldoPagado,
-            SaldoPendiente = SaldoPendiente,
             Fecha = Fecha,
             Detalles = Detalles.Select(d => new FacturaDetalleRequest
             {

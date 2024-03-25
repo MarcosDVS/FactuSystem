@@ -1,4 +1,6 @@
-﻿namespace FactuSystem.Data.Request;
+﻿using FactuSystem.Data.Response;
+
+namespace FactuSystem.Data.Request;
 
 public class FacturaRequest
 {
@@ -23,7 +25,12 @@ public class FacturaRequest
 
     public string TypePayment  { get; set; } = null!;
     public decimal SaldoPagado { get; set; }
-    public decimal SaldoPendiente { get; set; }
+    public virtual ICollection<PagoResponse> Pagos { get; set; } = new List<PagoResponse>(); // Inicializamos la colección aquí
+    public decimal SaldoPendiente => Pagos != null && Pagos.Any()
+        ? SubTotal - (decimal)Pagos.Sum(p => p.MontoPagado) - SaldoPagado - TotalDesc
+        : SubTotal - TotalDesc - SaldoPagado;
+
+    public decimal DineroPagado { get; set; }
 }
 
 public class FacturaDetalleRequest

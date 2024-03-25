@@ -101,6 +101,7 @@ public class FacturaServices : IFacturaServices
             var factura = await dbContext.Facturas
                 .Include(f => f.Detalles)
                 .ThenInclude(d => d.Producto)
+                .Include(f => f.Pagos)
                 .FirstOrDefaultAsync(c => c.Id == request.Id);
 
             if (factura == null)
