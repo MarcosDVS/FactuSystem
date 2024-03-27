@@ -256,106 +256,7 @@
 }
 else
 {
-    @if(ShowDetails)
-    {
-        <div class="row">
-            <div class="col-12">
-                <h1 class="titulo">@TituloForm</h1>
-            </div>
-        </div>
-
-        <!-- Mostrar los detalles de la factura seleccionada -->
-        <div class="table-container">
-            <div class="card col-12">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-10">
-                            <h5><b>Fecha:</b> @SelectedFactura.Fecha.ToShortDateString()</h5>
-                            <h5><b>Cliente:</b> @SelectedFactura.Cliente.Nombre @SelectedFactura.Cliente.Apellidos</h5>
-                            <details class="d-print-none">
-                                <small><strong>Cedula:</strong>@FormatCustomerId(SelectedFactura.Cliente.Cedula)</small>
-                                <small><strong>Celular:</strong>@FormatPhoneNumber(SelectedFactura.Cliente.Telefono)</small>
-                                <small><strong>Dirección:</strong>@SelectedFactura.Cliente.Direccion</small>
-                            </details>
-                        </div>
-                        <div class="col text-end">
-                            <button class="btn btn-outline-danger d-print-none"
-                                @onclick="Back">
-                                <span class="oi oi-arrow-left"></span>
-                            </button>
-                            <button class="btn btn-outline-primary d-print-none" @onclick="PrintPageAsync">
-                                <span class="oi oi-print"></span>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- Mostrar detalles de la factura seleccionada -->
-                    <div class="row-12 mt-2">
-                        <table class="table table-bordered table-striped">
-                            <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-                                <tr>
-                                    <th scope="col">Cantidad</th>
-                                    <th scope="col">Descripción</th>
-                                    <th scope="col">Precio</th>
-                                    <th scope="col">ITBIS</th>
-                                    <th scope="col">Descuento</th>
-                                    <th scope="col">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var detalle in FacturaDetalles)
-                                {
-                                    <tr>
-                                        <td>@detalle.Cantidad</td>
-                                        <td>@detalle.Producto.Nombre</td>
-                                        <td>$@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")</td>
-                                        <td>
-                                            <span style="white-space: nowrap;">
-                                                $@($"{(detalle.PrecioITBIS):N2}")
-                                            </span>
-                                        </td>
-                                        <td>$@detalle.TotalDesc.ToString("N2")</td>
-                                        <td>$@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")</td>
-                                    </tr>
-                                }
-                                <tr>
-                                    <td colspan="4"></td>
-                                    <td><b>SubTotal:</b></td>
-                                    <td>$@FacturaDetalles.Sum(c => c.SubTotal - c.ITBIS).ToString("N2")</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"></td>
-                                    <td><b>ITBIS:</b></td>
-                                    <td>$@FacturaDetalles.Sum(c => c.ITBIS).ToString("N2")</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"></td>
-                                    <td><b>Descuento:</b></td>
-                                    <td>$@FacturaDetalles.Sum(c => c.TotalDesc).ToString("N2")</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"></td>
-                                    <td><b>Importe:</b></td>
-                                    <td><strong>$@FacturaDetalles.Sum(c => c.SubTotal - c.TotalDesc).ToString("N2")</strong></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"></td>
-                                    <td><b>Pagado:</b></td>
-                                    <td>$@SelectedFactura.DineroPagado.ToString("N2")</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"></td>
-                                    <td><b>Pendiente:</b></td>
-                                    <td><strong>-$@SelectedFactura.SaldoPendiente.ToString("N2")</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-    }
-    else if(Facturas != null)
+    @if(Facturas != null)
     {
         <div class="row">
             <div class="col-12">
@@ -612,10 +513,6 @@ else
                                                         class="btn btn-outline-success">
                                                         <span class="oi oi-dollar"></span>
                                                     </button>
-                                                    <button @onclick="() => MostrarDetalles(f)"
-                                                        class="btn btn-outline-info">
-                                                        <span class="oi oi-info"></span>
-                                                    </button>
                                                     <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-warning">
                                                         <span class="oi oi-pencil"></span>
                                                     </button>
@@ -676,11 +573,6 @@ else
             return customerId;
         }
     }
-
-    void Back()
-    {
-        ShowDetails = false;
-    }
     void Back2()
     {
         Form = false;
@@ -727,13 +619,6 @@ else
             await Consultar();
             StateHasChanged();
         }
-    }
-    // Método para mostrar detalles de la factura seleccionada
-    void MostrarDetalles(FacturaResponse factura)
-    {
-        SelectedFactura = factura;
-        FacturaDetalles = factura.Detalles.ToList();
-        ShowDetails = true;
     }
     private async Task PrintPageAsync()
     {
