@@ -26,10 +26,8 @@ public class FacturaRequest
     public string TypePayment  { get; set; } = null!;
     public decimal SaldoPagado { get; set; }
     public virtual ICollection<PagoResponse> Pagos { get; set; } = new List<PagoResponse>(); // Inicializamos la colección aquí
-    public decimal SaldoPendiente => Pagos != null && Pagos.Any()
-        ? SubTotal - (decimal)Pagos.Sum(p => p.MontoPagado) - SaldoPagado - TotalDesc
-        : SubTotal - TotalDesc - SaldoPagado;
-
+    public decimal SaldoPendiente => SubTotal - DineroPagado - TotalDesc;
+    public decimal Cambio => SaldoPagado - SubTotal - TotalDesc;
     public decimal DineroPagado { get; set; }
 }
 

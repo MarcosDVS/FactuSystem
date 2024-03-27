@@ -27,6 +27,7 @@ public class FacturaResponse
         0;//Falso
     public string TypePayment  { get; set; } = null!;
     public decimal SaldoPagado { get; set; }
+    public decimal Cambio => SaldoPagado - SubTotal - TotalDesc;
     public decimal SaldoPendiente => Pagos != null && Pagos.Any()
     ? SubTotal - (decimal)Pagos.Sum(p => p.MontoPagado) - SaldoPagado - TotalDesc
     : SubTotal - TotalDesc - SaldoPagado;
@@ -38,13 +39,7 @@ public class FacturaResponse
     public decimal ITBIS => SubTotal * 0.18m;
     
     public FacturaRequest ToRequest()
-    {
-        // Cambiar TypePayment a "1" si SaldoPendiente es igual a 0
-        if (SaldoPendiente == 0)
-        {
-            TypePayment = "1";
-        }
-        
+    {   
         return new FacturaRequest
         {
             Id = Id,

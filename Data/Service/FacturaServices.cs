@@ -137,34 +137,6 @@ public class FacturaServices : IFacturaServices
         }
     }
 
-    public async Task<bool> UpdateInvoice(int invoiveId)
-    {
-        try
-        {
-            var invoive = await dbContext.Facturas
-                .FirstOrDefaultAsync(a => a.Id == invoiveId);
-
-            if (invoive != null)
-            {
-                if(invoive.TypePayment == "2" && invoive.SaldoPendiente == 0)
-                {
-                    invoive.TypePayment = "1"; // Alternar el estado (credito/a contado)
-                    await dbContext.SaveChangesAsync();
-                }
-                
-                return true;
-            }
-            else
-            {
-                return false; // La factura con el ID especificado no se encontró
-            }
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
     public async Task<bool> StokDevuelto(int itemId, ProductoRequest detalle)
     {
         try
@@ -196,6 +168,5 @@ public interface IFacturaServices
     Task<Result<FacturaResponse>> Crear(FacturaRequest request);
     Task<Result> Eliminar(FacturaRequest request);
     Task<Result<FacturaResponse>> Modificar(FacturaRequest request);
-    Task<bool> UpdateInvoice(int invoiveId);
     Task<bool> StokDevuelto(int itemId, ProductoRequest detalle);
 }

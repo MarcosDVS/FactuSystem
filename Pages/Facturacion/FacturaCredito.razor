@@ -72,11 +72,9 @@
                     }
                 </datalist>
                 
-                <button class="btn btn-outline-success d-print-none"
-                    type="button" id="button-addon2"
-                    @onclick="async()=>{
-                    await CargarProducto(); }">
-                    <span class="oi oi-reload"></span>
+                <button class="btn btn-outline-primary d-print-none" 
+                    @onclick="PrintPageAsync">
+                    <span class="oi oi-print"></span>
                 </button>
                 
             </div>
@@ -125,7 +123,9 @@
                 {
                     <tr>
                         <td class="col w-25 text-center">
-                            @detalle.Cantidad
+                            <InputNumber 
+                                class="form-control" 
+                                @bind-Value="@detalle.Cantidad" />
                         </td>
                         <td class="col w-25">
                             @detalle.Descripcion
@@ -211,7 +211,7 @@
                                 <li >
                                     <strong>Pendiente: </strong>
                                     <span class="text-danger">
-                                        <strong>$@($"{(facturaRequest.SaldoPendiente - facturaRequest.DineroPagado):N2}")</strong>
+                                        <strong>$@($"{(facturaRequest.SaldoPendiente):N2}")</strong>
                                     </span>
                                 </li>
 
@@ -713,7 +713,10 @@ else
         .FirstOrDefault() ?? new FacturaRequest();
 
         PagosFacturaSeleccionada = Pagos.Where(p => p.FacturaID == factura.Id).ToList();
-        facturaRequest.DineroPagado = PagosFacturaSeleccionada.Sum(c => (decimal)c.MontoPagado);
+        facturaRequest.DineroPagado = 
+        facturaRequest.SaldoPagado +
+        PagosFacturaSeleccionada
+        .Sum(c => (decimal)c.MontoPagado);
     }
 
     public async Task Eliminar(FacturaResponse user)
@@ -793,10 +796,6 @@ else
             var r = await pagoServices.Crear(pagoRequest);
             if (r.Success)
             {
-                if (Convert.ToDecimal(pagoRequest.MontoPagado) == SelectedFactura.SaldoPendiente)
-                {
-                    var invoice = await facturaServices.UpdateInvoice(pagoRequest.FacturaID);
-                }
                 Cancelar();
                 CloseMoney();
                 await CargarPagos();
