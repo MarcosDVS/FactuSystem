@@ -73,7 +73,7 @@
                 </datalist>
                 
                 <button class="btn btn-outline-primary d-print-none" 
-                    @onclick="PrintPageAsync">
+                    @onclick="async ()=>{await PrintPageAsync();}">
                     <span class="oi oi-print"></span>
                 </button>
                 
@@ -116,6 +116,7 @@
                     <th>ITBIS</th>
                     <th>Descuento</th>
                     <th>Total</th>
+                    <th class="d-print-none">...</th>
                 </tr>
             </thead>
             <tbody>
@@ -125,7 +126,7 @@
                         <td class="col w-25 text-center">
                             <InputNumber 
                                 class="form-control" 
-                                @bind-Value="@detalle.Cantidad" />
+                                @bind-Value="@detalle.Cantidad" readonly/>
                         </td>
                         <td class="col w-25">
                             @detalle.Descripcion
@@ -146,6 +147,14 @@
 
                         <td class="col text-center">
                             $@detalle.SubTotal.ToString("N2")
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger d-print-none"
+                                @onclick="()=>EliminarDetalle(detalle.ProductoId)">
+                                <span 
+                                    class="oi oi-trash">
+                                </span>
+                            </button>
                         </td>
                     </tr>
                 }
@@ -773,6 +782,17 @@ else
         var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
         if (c != null) facturaRequest.ClienteId = c.Id;
     }
+    void EliminarDetalle(int Id)
+    {
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        // Actualizar el stock del producto en la base de datos
+        productoServices.StockDevuelto(detalle.ProductoId, detalle.Cantidad);
+        if (detalle != null)
+        {
+            facturaRequest.Detalles.Remove(detalle);
+        }
+    }
     async Task AgregarAlDetalle()
     {
         if (detalleFacturaRequest.Descuento > 30)
@@ -822,6 +842,9 @@ else
                     return;
                 }
             }
+
+            // Actualizar el stock del producto en la base de datos
+            await productoServices.ActualizarStock(IdProducto, Cantidad);
 
             Message = null;
         }

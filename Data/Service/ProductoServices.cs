@@ -127,6 +127,43 @@ public class ProductoServices : IProductoServices
             return false;
         }
     }
+
+    public async Task<bool> ActualizarStock(int productoId, int cantidad)
+    {
+        try
+        {
+            var producto = await dbContext.Productos.FirstOrDefaultAsync(p => p.Id == productoId);
+            if (producto != null)
+            {
+                producto.Stock -= cantidad;
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+    public async Task<bool> StockDevuelto(int productoId, int cantidad)
+    {
+        try
+        {
+            var producto = await dbContext.Productos.FirstOrDefaultAsync(p => p.Id == productoId);
+            if (producto != null)
+            {
+                producto.Stock += cantidad;
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }
 
 public interface IProductoServices
@@ -136,4 +173,6 @@ public interface IProductoServices
     Task<Result> Modificar(ProductoRequest request);
     Task<Result> Eliminar(ProductoRequest request);
     Task<bool> StokVendido(List<int> itemIds, List<FacturaDetalleRequest> detalles);
+    Task<bool> ActualizarStock(int productoId, int cantidad);
+    Task<bool> StockDevuelto(int productoId, int cantidad);
 }
