@@ -28,6 +28,7 @@
 </style>
 @if(Form)
 {
+    <PageTitle>Yoja's Drinks & Heladeria Los Paso</PageTitle>
     <EditForm Model="facturaRequest" OnValidSubmit="Send">
         @*Disenar el espacio para el cliente o contacto a facturarle*@
         <div class="input-group mb-3">
@@ -124,9 +125,23 @@
                 {
                     <tr>
                         <td class="col w-25 text-center">
-                            <InputNumber 
-                                class="form-control" 
-                                @bind-Value="@detalle.Cantidad" readonly/>
+                            <div class="input-group">
+                                <InputNumber 
+                                    class="col form-control" 
+                                    @bind-Value="@detalle.Cantidad" readonly/>
+                                <div class="col d-print-none">
+                                    <div class="form-group">
+                                        <span @onclick="()=>Add(detalle.ProductoId)" 
+                                            class="oi oi-caret-top">
+                                        </span>
+                                    </div>
+                                    <div class="form-group">
+                                        <span @onclick="()=>Remove(detalle.ProductoId)" 
+                                            class="oi oi-caret-bottom">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                         <td class="col w-25">
                             @detalle.Descripcion
@@ -166,7 +181,7 @@
             <div class="col card mt-1">
                 <div class="row card-header">
                     <!-- Encabezado de la tarjeta -->
-                    <div class="col-4">
+                    <div class="col-8">
                         <h5><b>Resumen:</b></h5>
                     </div>
                     <div class="col-4">
@@ -179,15 +194,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <!-- Sección de pago -->
-                        <div class="input-group d-print-none">
-                            <input type="number" @bind="@facturaRequest.SaldoPagado" id="montoPagado" class="form-control"/>
-                            <button class="btn btn-success rounded" type="button" @onclick="CalcularCambio">
-                                Pagar
-                            </button>
-                        </div>
-                    </div>
+                    
                 </div>
 
                 <div class="card-body text-left">
@@ -229,35 +236,6 @@
                     </div>
                 </div>
 
-            </div>
-
-            @*Cambio del efectivo*@
-            <div class="modal d-print-none" style="display: @(Chance ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title"><b>Devuelta para el cliente</b></h5>
-                        </div>
-
-                        <div class="modal-body">
-                            <h5><b>Cambio:</b> @Cambio.ToString("N2")</h5>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button 
-                                class="btn btn-danger d-print-none" 
-                                type="button"
-                                @onclick="CancelarPago">
-                                <span class="oi oi-x"></span>
-                            </button>
-                            <button 
-                                class="btn btn-success d-print-none" 
-                                type="submit" @onclick="async ()=>{await PrintPageAsync(); Form=false; Chance=false;}">
-                                <span class="oi oi-check"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -758,7 +736,7 @@ else
         InvoiceId = SelectedFactura.Id;
     }
 
-
+    //De aqui en adelante es para controlar la ediccion de la factura
     public bool Chance { get; set; } = false;
     public bool Info { get; set; } = false;
     public bool Form { get; set; } = false;
@@ -781,6 +759,22 @@ else
     {
         var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
         if (c != null) facturaRequest.ClienteId = c.Id;
+    }
+    void Add(int Id){
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        var Cant = 1;
+        detalle.Cantidad += Cant;
+        productoServices.ActualizarStock(detalle.ProductoId, Cant);
+        Send();
+    }
+    void Remove(int Id){
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        var Cant = 1;
+        detalle.Cantidad -= Cant;
+        productoServices.StockDevuelto(detalle.ProductoId, Cant);
+        Send();
     }
     void EliminarDetalle(int Id)
     {
@@ -846,6 +840,7 @@ else
             // Actualizar el stock del producto en la base de datos
             await productoServices.ActualizarStock(IdProducto, Cantidad);
 
+            Send();
             Message = null;
         }
     }
@@ -903,19 +898,7 @@ else
 
         await Consultar();
         Precio = 0;
-        if (!result.Success)
-        {
-            Message = "Estoy cansado de trabajar 😥";
-            return;
-        }
-    }
-
-    void CancelarPago()
-    {
-        Chance = false;
-        Total = 0;
-        MontoPagado = 0;
-        Cambio = 0;
+        
     }
 
     public decimal Cambio = 0;
