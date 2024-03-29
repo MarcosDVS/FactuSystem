@@ -53,8 +53,8 @@
 
         @*Disenar el espacio para los productos a facturar*@
         <div class="card p-2 d-print-none">
-            <div class="card-header card-title" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-                <h5>¿Que desea el cliente?</h5>
+            <div class="card-header card-title">
+                <strong>¿Que desea el cliente?</strong>
             </div>
             <div class="input-group mb-3 mt-2">
                 <input class="form-control"
@@ -126,9 +126,23 @@
                 {
                     <tr>
                         <td class="col w-25 text-center">
-                            <InputNumber 
-                                class="form-control" 
-                                @bind-Value="@detalle.Cantidad" readonly/>
+                            <div class="input-group">
+                                <InputNumber 
+                                    class="col form-control" 
+                                    @bind-Value="@detalle.Cantidad" readonly/>
+                                <div class="col d-print-none">
+                                    <div class="form-group">
+                                        <span @onclick="async()=>{await Add(detalle.ProductoId);}" 
+                                            class="oi oi-caret-top">
+                                        </span>
+                                    </div>
+                                    <div class="form-group">
+                                        <span @onclick="async()=>{await Remove(detalle.ProductoId);}" 
+                                            class="oi oi-caret-bottom">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                         <td class="col w-25">
                             @detalle.Descripcion
@@ -152,7 +166,7 @@
                         </td>
                         <td>
                             <button type="button" class="btn btn-outline-danger d-print-none"
-                                @onclick="()=>EliminarDetalle(detalle.ProductoId)">
+                                @onclick="async()=>{await EliminarDetalle(detalle.ProductoId);}">
                                 <span 
                                     class="oi oi-trash">
                                 </span>
@@ -184,10 +198,8 @@
                     <div class="col-4">
                         <!-- Sección de pago -->
                         <div class="input-group d-print-none">
-                            <input type="number" @bind="@facturaRequest.SaldoPagado" id="montoPagado" class="form-control"/>
-                            <button class="btn btn-success rounded" type="button" @onclick="CalcularCambio">
-                                Pagar
-                            </button>
+                            <input type="number" @bind="@facturaRequest.SaldoPagado" 
+                                id="montoPagado" class="form-control" readonly/>
                         </div>
                     </div>
                 </div>
@@ -238,34 +250,6 @@
 
             </div>
 
-            @*Cambio del efectivo*@
-            <div class="modal d-print-none" style="display: @(Chance ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title"><b>Devuelta para el cliente</b></h5>
-                        </div>
-
-                        <div class="modal-body">
-                            <h5><b>Cambio:</b> @facturaRequest.Cambio.ToString("N2")</h5>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button 
-                                class="btn btn-danger d-print-none" 
-                                type="button"
-                                @onclick="CancelarPago">
-                                <span class="oi oi-x"></span>
-                            </button>
-                            <button 
-                                class="btn btn-success d-print-none" 
-                                type="submit" @onclick="async ()=>{await PrintPageAsync(); Form=false; Chance=false;}">
-                                <span class="oi oi-check"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
     </EditForm>
@@ -564,22 +548,63 @@ else
         var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
         if (c != null) facturaRequest.ClienteId = c.Id;
     }
-    void EliminarDetalle(int Id)
+    async Task Add(int Id){
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        var Cant = 1;
+        var producto = Productos.FirstOrDefault(p => p.Id == Id);
+        int NewStock = detalle.Cantidad + Cant;
+
+        if (NewStock <= producto.Stock)
+        {
+            detalle.Cantidad += Cant;
+            await productoServices.ActualizarStock(detalle.ProductoId, Cant);
+            await Send();
+            NewStock = 0;
+        }
+        else
+        {
+            Message = "No hay suficientes artículos en el stock. 😥";
+            return;
+        }
+    }
+    async Task Remove(int Id){
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        var Cant = 1;
+        var producto = Productos.FirstOrDefault(p => p.Id == Id);
+        int NewStock = detalle.Cantidad - Cant;
+
+        if (NewStock >= 1)
+        {
+            detalle.Cantidad -= Cant;
+            await Send();
+            await productoServices.StockDevuelto(detalle.ProductoId, Cant);
+            NewStock = 0;
+        }
+        else
+        {
+            Message = "Debes dejar al menos un articulo. 😥";
+            return;
+        }
+    }
+    async Task EliminarDetalle(int Id)
     {
         var detalle = facturaRequest.Detalles
         .FirstOrDefault(d => d.ProductoId == Id);
         // Actualizar el stock del producto en la base de datos
-        productoServices.StockDevuelto(detalle.ProductoId, detalle.Cantidad);
+        await productoServices.StockDevuelto(detalle.ProductoId, detalle.Cantidad);
         if (detalle != null)
         {
             facturaRequest.Detalles.Remove(detalle);
         }
+        await Send();
     }
     async Task AgregarAlDetalle()
     {
         if (detalleFacturaRequest.Descuento > 30)
         {
-            Message = "😒 El descuento no puede ser mayor a 30%. 💰";
+            Message = "😒 El decuento no puede ser mayor a 30%. 💰";
             return;
         }
 
@@ -628,10 +653,12 @@ else
             // Actualizar el stock del producto en la base de datos
             await productoServices.ActualizarStock(IdProducto, Cantidad);
 
+            await Send();
             Message = null;
         }
     }
- async Task CargarContacto()
+   
+    async Task CargarContacto()
     { 
         //Llenar la lista de contactos para mostrar al usuario...
         var r = await clienteServices.Consultar("");
