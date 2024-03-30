@@ -22,7 +22,6 @@ public class Cliente
 
     public decimal Limitecredito { get; set; }
     public static Cliente Crear(ClienteRequest cliente)
-   
     {
         return new Cliente()
         {

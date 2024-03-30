@@ -3,19 +3,12 @@
 @using FactuSystem.Data.Request;
 @inject IFacturaServices facturaServices;
 @inject IPagoServices pagoServices;
-@inject IJSRuntime JSRuntime;
+@inject ICuadrarCajaServices cuadrarCajaServices;
 
-<PageTitle>Facturar</PageTitle>
+<PageTitle>Inicio</PageTitle>
 
 <style>
     /* Estilos CSS */
-    body{
-     background-color: #e0eadc; /* Gris claro */
-    /* Opciones adicionales:
-       background-color: #f0f8ff;  Azul claro
-       background-color: #e0eadc;  Verde claro
-    */
-    }
     .img-container {
         max-width: 100px; /* Ajusta el ancho máximo según tus necesidades */
         display: inline-block; /* Alinea las imágenes en línea */
@@ -33,487 +26,185 @@
     .card:hover {
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
+    .titulo {
+        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); /* Fondo oscuro */
+        color: #ffffff; /* Texto blanco */
+        padding: 10px; /* Añadir espacio alrededor del texto */
+    }
 </style>
 
-<EditForm Model="facturaRequest" OnValidSubmit="Send">
-    @*Disenar el espacio para el cliente o contacto a facturarle*@
-    <div class="input-group mb-3">
-        <select class="form-control" @bind="@facturaRequest.ClienteId" required>
-            <option disabled selected>Cliente</option>
-            @foreach (var contacto in Contactos)
-            {
-                <option value="@contacto.Id" >
-                    @contacto.Nombre @contacto.Apellidos
-                </option>
-            }
-        </select>
-        
-        <button 
-            class="btn btn-outline-danger d-print-none"
-            type="button" id="button-addon2">
-            <span class="oi oi-arrow-thick-left"></span>
-        </button>
-    </div>
+<h3 class="mt-4 titulo">
+    <span class="oi oi-dashboard oi mr-2"></span>
+    <strong>FactuSystem Dashboard</strong> 
+</h3>
 
-    @*Disenar el espacio para los productos a facturar*@
-    <div class="card p-2 d-print-none">
-        <div class="card-header card-title" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-            <h5>¿Que desea el cliente?</h5>
-        </div>
-        <div class="input-group mb-3 mt-2">
-            <input class="form-control"
-                placeholder="Producto"
-                aria-label="Producto"
-                aria-describedby="button-addon2" list="productos"
-                @onchange="(value)=>{
-                    var r = Productos.FirstOrDefault(p=>p.CodigoDescripcion == value.Value!.ToString());
-                    if(r!=null)
-                    BuscarPercio(r.Id);
-                    }"
-                    />
-            <datalist id="productos">
-                @foreach (var producto in Productos)
-                {
-                    <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)"></option>
-                }
-            </datalist>
-            
-            <button class="btn btn-outline-primary d-print-none" 
-                @onclick="PrintPageAsync">
-                <span class="oi oi-print"></span>
-            </button>
-            
-        </div>
-        <div class="input-group mb-3">
-            <span class="form-control w-50">
-                $@Precio.ToString("N2")
-            </span>
-            <input class="form-control w-25" type="number" @bind="@Cantidad" />
-            <button class="btn btn-success d-print-none"
-                type="button" id="button-addon2"
-                @onclick="async ()=>{await AgregarAlDetalle();}">
-                <span class="oi oi-collapse-down"></span>
-            </button>
-        </div>
-        <div class="input-group mb-3">
-            <label for="Descuento" class="input-group-text">Descuento:</label>
-            <input @bind="detalleFacturaRequest.Descuento" type="number" 
-            id="Descuento" placeholder="Descuento" class="form-control" />
-        </div>
-        @if (Message != null)
-        {
-            <div class="alert-warning">
-                <span class="text-dark">@Message</span>
+<div class="container mt-4">
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="card-header bg-dark text-white">
+                    <span class="oi oi-dollar oi mr-2"></span>
+                    <strong>Cuadrar Caja</strong>
+                </h5>
+                <EditForm Model="request" OnValidSubmit="Send">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="nombreCompleto">Nombre del Cajero</label>
+                            <input type="text" class="form-control" id="nombreCompleto" 
+                                @bind-value="request.Cajero" 
+                                required />
+                        </div>
+                        <div class="form-group">
+                            <label for="nombreCompleto">Monto</label>
+                            <input type="number" class="form-control" id="nombreCompleto" 
+                                @bind-value="request.Monto" readonly
+                                required />
+                        </div>
+                        <div class="form-group">
+                            <label for="nombreCompleto">Monto Cuadrado</label>
+                            <input type="number" class="form-control" id="nombreCompleto" 
+                                @bind-value="request.MontoCuadrado" required />
+                        </div>
+
+                    </div>
+                    <div class="card-footer bg-dark text-white">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="Clear">Cerrar</button>
+                        </div>
+                    </div>
+                </EditForm>
             </div>
-        }
-    </div>
-
-    
-    @*Disenar los elementos que se cargan a la factura*@
-    <h5 class="mt-1"><b>Detalle de la factura N°:</b> @ultimoIdFactura</h5>
-    <table class="table table-hover">
-        <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-            <tr>
-                <th class="col w-25">
-                    Cantidad
-                </th>
-                <th>Descripcion</th>
-                <th>Costo</th>
-                <th>ITBIS</th>
-                <th>Descuento</th>
-                <th>Total</th>
-                <th>...</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var detalle in facturaRequest.Detalles)
-            {
-                <tr>
-                    <td class="col w-25 text-center">
-                        <InputNumber 
-                            class="form-control" 
-                            @bind-Value="@detalle.Cantidad" />
-                    </td>
-                    <td class="col w-25">
-                        @detalle.Descripcion
-                    </td>
-                    <td class="col w-25">
-                        $@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")
-                    </td>
-                    <td>
-                        <span style="white-space: nowrap;">
-                            $@($"{(detalle.PrecioITBIS):N2}")
-                        </span>
-                    </td>
-                    <td class="col w-25">
-                        <span style="white-space: nowrap;">
-                            $@($"{(detalle.SubTotal * (detalle.Descuento / 100)):N2}")
-                        </span>
-                    </td>
-
-                    <td class="col text-center">
-                        $@detalle.SubTotal.ToString("N2")
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-outline-danger d-print-none"
-                            @onclick="()=>EliminarDetalle(detalle.ProductoId)">
-                            <span 
-                                class="oi oi-trash">
-                            </span>
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <div class="row">
-        @*Resumen de la venta*@
-        <div class="col card mt-1">
-            <div class="row card-header">
-                <!-- Encabezado de la tarjeta -->
-                <div class="col-4">
-                    <h5><b>Resumen:</b></h5>
-                </div>
-                <div class="col-4">
-                    <!-- Sección de tipo de venta y botón de actualización -->
-                    <div class="input-group">
-                        <select class="form-control" required @bind="@facturaRequest.TypePayment">
-                            <option disabled selected value="">Tipo de Venta</option>
-                            <option value="1">Contado 💲</option>
-                            <option value="2">Crédito 💳</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <!-- Sección de pago -->
-                    <div class="input-group d-print-none">
-                        <input type="number" @bind="@facturaRequest.SaldoPagado" id="montoPagado" class="form-control"/>
-                        <button class="btn btn-success rounded" type="button" @onclick="CalcularCambio">
-                            Pagar
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-body text-left">
-                <div class="row">
-                    <div class="col">
-                        <!-- Lista de resumen -->
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <strong>SubTotal: </strong>
-                                <span class="text-primary">$@($"{(facturaRequest.SubTotal - facturaRequest.ITBIS):N2}")</span>
-                            </li>
-                            <li class="mb-2">
-                                <strong>ITBIS:</strong>
-                                <span class="text-danger">$@($"{(facturaRequest.ITBIS):N2}")</span>
-                            </li>
-                            <li class="mb-2">
-                                <strong>Descuento: </strong>
-                                <span class="text-success">$@facturaRequest.TotalDesc.ToString("N2")</span>
-                            </li>
-                            <li class="mb-2">
-                                <strong>Importe: </strong>
-                                <span class="text-dark">
-                                    <strong>$@($"{(facturaRequest.SubTotal - facturaRequest.TotalDesc):N2}")</strong>
-                                </span>
-                            </li>
-                            <li>
-                                <strong>Devuelta: </strong>
-                                @if(facturaRequest.Cambio > 0)
-                                {
-                                    <span class="text-dark">
-                                        $@facturaRequest.Cambio.ToString("N2")
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-dark">
-                                        $0,00
-                                    </span>
-                                }
-                            </li>
-
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
         </div>
-
-        @*Cambio del efectivo*@
-        <div class="modal d-print-none" style="display: @(Chance ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><b>Devuelta para el cliente</b></h5>
-                    </div>
-
-                    <div class="modal-body">
-                        <h5><b>Cambio:</b> @facturaRequest.Cambio.ToString("N2")</h5>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button 
-                            class="btn btn-danger d-print-none" 
-                            type="button"
-                            @onclick="CancelarPago">
-                            <span class="oi oi-x"></span>
-                        </button>
-                        <button 
-                            class="btn btn-success d-print-none" 
-                            type="submit" @onclick="async ()=>{await PrintPageAsync(); Form=false; Chance=false;}">
-                            <span class="oi oi-check"></span>
-                        </button>
-                    </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="oi oi-dollar oi mr-2"></span>
+                        <strong>Dinero en caja</strong>
+                    </h5>
+                    <p class="card-text">Monto: $@DineroEnCaja.ToString("N2")</p>
                 </div>
             </div>
         </div>
     </div>
-
-</EditForm>
+    <a class="nav-link active text-dark" >
+        <span class="oi oi-person"></span>
+        <strong>Abusador</strong>
+    </a>
+</div>
 
 
 @code
 {
-     public bool Chance { get; set; } = false;
-    public bool Info { get; set; } = false;
-    public bool Form { get; set; } = false;
-    public string? Message { get; set; } = null;
-    public string Nombre { get; set; } = string.Empty;
-    public string ItemName { get; set; } = string.Empty;
-    public List<ClienteResponse> Contactos { get; set; } = new();
-    public List<ProductoResponse> Productos { get; set; } = new List<ProductoResponse>();
-    public FacturaRequest facturaRequest { get; set; } = new();
-    public FacturaDetalleRequest detalleFacturaRequest { get; set; } = new();
     public List<FacturaResponse> Facturas { get; set; } = new();
+    public List<PagoResponse> Pagos { get; set; } = new();
+    public List<CuadrarCajaResponse> Cajas { get; set; } = new();
+    public CuadrarCajaRequest request { get; set; } = new();
     public string Filtro { get; set; } = "";
-    public decimal Precio { get; set; } = 0;
-    public int Cantidad { get; set; } = 1;
-    public int IdProducto { get; set; } = 0;
-    void BuscarPercio(int idProducto)
+    public string Cashier { get; set; } = "";
+    public decimal DineroEnCaja = 0;
+    public decimal IngresoTotal = 0;
+    void AllSell()
     {
-        Precio = Productos.FirstOrDefault(p => p.Id == idProducto)!.Precio;
-        IdProducto = idProducto;
+        DateTime today = DateTime.Today;
+
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
+
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Sum(c => c.SaldoPendiente);
+
+        IngresoTotal = Contado + Credito;
     }
-    void BuscarSeleccionarCliente(string Contacto)
+
+    void CashInBox()
     {
-        var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
-        if (c != null) facturaRequest.ClienteId = c.Id;
-    }
-    void EliminarDetalle(int Id)
-    {
-        var detalle = facturaRequest.Detalles
-        .FirstOrDefault(d => d.ProductoId == Id);
-        // Actualizar el stock del producto en la base de datos
-        productoServices.StockDevuelto(detalle.ProductoId, detalle.Cantidad);
-        if (detalle != null)
-        {
-            facturaRequest.Detalles.Remove(detalle);
-        }
-    }
-    async Task AgregarAlDetalle()
-    {
-        if (detalleFacturaRequest.Descuento > 30)
-        {
-            Message = "😒 El descuento no puede ser mayor a 30%. 💰";
-            return;
-        }
+        DateTime today = DateTime.Today;
 
-        Message = null;
-        var producto = Productos.FirstOrDefault(p => p.Id == IdProducto);
+        var Contado = Facturas
+            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
 
-        if (producto != null)
-        {
-            var detalleExistente = facturaRequest.Detalles.FirstOrDefault(d => d.ProductoId == IdProducto);
+        var Credito = Facturas
+            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Sum(c => c.SaldoPendiente);
 
-            if (detalleExistente != null)
-            {
-                int nuevaCantidad = detalleExistente.Cantidad + Cantidad;
+        var Pago = (decimal)Pagos
+            .Where(c => c.Fecha.Date == today)
+            .Sum(c => c.MontoPagado);
 
-                if (nuevaCantidad <= producto.Stock)
-                {
-                    detalleExistente.Cantidad = nuevaCantidad;
-                }
-                else
-                {
-                    Message = "No hay suficientes artículos en el stock. 😥";
-                    return;
-                }
-            }
-            else
-            {
-                if (Cantidad <= producto.Stock)
-                {
-                    facturaRequest.Detalles.Add(new FacturaDetalleRequest
-                    {
-                        ProductoId = IdProducto,
-                        Descripcion = producto.Nombre,
-                        Precio = producto.Precio,
-                        Cantidad = Cantidad,
-                        Descuento = detalleFacturaRequest.Descuento
-                    });
-                    Cantidad = 1;
-                }
-                else
-                {
-                    Message = "No hay suficientes artículos en el stock. 😥";
-                    return;
-                }
-            }
-            // Actualizar el stock del producto en la base de datos
-            await productoServices.ActualizarStock(IdProducto, Cantidad);
-            Message = null;
-        }
-    }
-    async Task CargarContacto()
-    { 
-        //Llenar la lista de contactos para mostrar al usuario...
-        var r = await clienteServices.Consultar("");
-        if (r.Success)
-        {
-            Contactos = r.Data!;
-        }
-    }
-    async Task CargarProducto()
-    { 
-        //Llenar la lista de contactos para mostrar al usuario...
-        var r = await productoServices.Consultar("");
-        if (r.Success)
-        {
-            Productos = r.Data!;
-        }
+        DineroEnCaja = Contado + Pago;
+        request.Monto = DineroEnCaja;
     }
 
-    //Esto es para mostrar el Numero de la factura a registrar
-    int ultimoIdFactura = 0;
-    async Task Consultar2()
+    async Task Consultar()
     {
         var resultado = await facturaServices.Consultar(Filtro);
         if (resultado.Success)
         {
             Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
-
-            // Obtener el Id de la última factura registrada + 1
-            ultimoIdFactura = Facturas.FirstOrDefault()?.Id + 1 ?? 1;
         }
         StateHasChanged();
     }
-
-    int facturaId;
-   protected override async Task OnInitializedAsync()
+    async Task CargarPagos()
     {
-        await Consultar2();
-        await CargarContacto();
-        await CargarProducto();
-    }
-    public string TypePayment {get; set;} = string.Empty;
-    async Task Send()
-    {
-        if (facturaRequest.SaldoPagado > facturaRequest.SaldoPagado - facturaRequest.TotalDesc 
-            && facturaRequest.TypePayment == "2")
+        var resultado =
+        await pagoServices.Consultar(Filtro);
+        if (resultado.Success)
         {
-            Pendiente();
-
-            return;
+            Pagos = resultado.Data!;
         }
+    }
+    async Task CargarCajas()
+    {
+        var resultado =
+        await cuadrarCajaServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Cajas = resultado.Data!;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Consultar();
+        await CargarPagos();
+        await CargarCajas();
+        CashInBox();
+        AllSell();
         
-        BuscarSeleccionarCliente(Nombre);
-
-        var result = await facturaServices.Modificar(facturaRequest);
-        Message = null;
-
-        await Consultar2();
-        Precio = 0;
-        if (!result.Success)
-        {
-            Message = "Estoy cansado de trabajar 😥";
-            return;
-        }
     }
 
-    void CancelarPago()
+    void Clear()
     {
-        Chance = false;
-        Total = 0;
-        MontoPagado = 0;
-        Cambio = 0;
+        request  = new CuadrarCajaRequest();
     }
-
-    public decimal Cambio = 0;
-    public decimal MontoPagado = 0;
-    public decimal SaldoPendiente = 0;
-    public decimal Total = 0;
-    void CalcularCambio()
+    
+    public async Task Send()
     {
-        if(facturaRequest.SaldoPagado < facturaRequest.SubTotal - facturaRequest.TotalDesc &&  facturaRequest.TypePayment == "1")
+        if(request.Id == 0)
         {
-            Message = "😒 El monto pagado no puede ser menor al importe de la factura 💰";
-            return;
-        }
-        if (facturaRequest.Detalles.Count == 0)
-        {
-            Message = "😒 Debes agregar al menos un producto al detalle. 🛒";
-            return;
-        }
-
-        if (string.IsNullOrEmpty(facturaRequest.TypePayment))
-        {
-            Message = "😒 Debes seleccionar el tipo de venta. 💰";
-            return;
-        }
-        
-        var clienteSeleccionado = Contactos.FirstOrDefault(c => c.Nombre + " " + c.Apellidos == Nombre);
-        if (facturaRequest.TypePayment == "2" && LimiteCreditoExcedido())
-        {
-            Message = "😥 El límite de crédito del cliente ha sido excedido. $"
-            + clienteSeleccionado.Limitecredito.ToString("N2");
-            return;
-        }
-
-        if (facturaRequest.TypePayment == "2")
-        {
-            Info = true;
-        }
-
-        Chance = true;
-        Message = null;
-    }
-    bool LimiteCreditoExcedido()
-    {
-        // Aquí deberías obtener el límite de crédito del cliente seleccionado
-        // Puedes acceder a la información del cliente desde la lista de contactos
-        var clienteSeleccionado = Contactos.FirstOrDefault(c => c.Nombre + " " + c.Apellidos == Nombre);
-        
-        if (clienteSeleccionado != null && clienteSeleccionado.Limitecredito < 
-            facturaRequest.SubTotal - facturaRequest.TotalDesc)
-        {
-            return true;
-        }
-
-        return false;
-    }
-    void Pendiente()
-    {
-        if(facturaRequest.TypePayment=="2")
-        {
-            if(MontoPagado >= Total){
-                Message = "El monto pagado no puede ser mayor o igual al total 😢";
-                return;
+            //Debo registrar el contacto..
+            var r = await cuadrarCajaServices.Crear(request);
+            if (r.Success)
+            {
+                Clear();
+                await CargarCajas();
+                StateHasChanged();
             }
         }
-        Chance = true;
-        MontoPagado = facturaRequest.SaldoPagado;
-        Total = facturaRequest.SubTotal - facturaRequest.TotalDesc;
-        Cambio = MontoPagado - Total;
-        SaldoPendiente = Total - MontoPagado;
-        Message = null;
-    }
-
-    private async Task PrintPageAsync()
-    {
-        // Llama a la función JavaScript para imprimir la página
-        await JSRuntime.InvokeVoidAsync("printPage");
+        else
+        {
+            //Debo solicitar modificar el contacto...
+            var r = await cuadrarCajaServices.Modificar(request);
+            if (r.Success)
+            {
+                Clear();
+                await CargarCajas();
+                StateHasChanged();
+            }
+        }
     }
 }

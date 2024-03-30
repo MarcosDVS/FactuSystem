@@ -17,6 +17,7 @@ public class MyDbContext : DbContext, IMyDbContext
     public DbSet<Categoria> Categorias { get; set; }
     public DbSet<Factura> Facturas { get; set; }
     public DbSet<FacturaDetalle> FacturaDetalles { get; set; }
+    public DbSet<CuadrarCaja> CuadrarCajas { get; set; }
     public DbSet<Pago> Pagos { get; set; }
     public DbSet<Usuario> Usuarios { get; set; }
 

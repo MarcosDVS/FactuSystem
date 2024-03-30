@@ -10,6 +10,7 @@ namespace FactuSystem.Data.Context
         DbSet<FacturaDetalle> FacturaDetalles { get; set; }
         DbSet<Factura> Facturas { get; set; }
         DbSet<Pago> Pagos { get; set; }
+        DbSet<CuadrarCaja> CuadrarCajas { get; set; }
         DbSet<Producto> Productos { get; set; }
         DbSet<Proveedor> Proveedores { get; set; }
         DbSet<Usuario> Usuarios { get; set; }

@@ -26,6 +26,7 @@ builder.Services.AddScoped<IProveedorServices,ProveedorServices>();
 builder.Services.AddScoped<ICategoriaServices,CategoriaServices>();
 builder.Services.AddScoped<IClienteServices, ClienteServices>();
 builder.Services.AddScoped<IPagoServices, PagoServices>();
+builder.Services.AddScoped<ICuadrarCajaServices, CuadrarCajaServices>();
 builder.Services.AddScoped<IUsuarioServices, UsuarioServices>();
 #endregion
 #region Authentication
