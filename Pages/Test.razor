@@ -3,7 +3,6 @@
 @using FactuSystem.Data.Request;
 @inject IFacturaServices facturaServices;
 @inject IPagoServices pagoServices;
-@inject ICuadrarCajaServices cuadrarCajaServices;
 
 <PageTitle>Inicio</PageTitle>
 
@@ -57,8 +56,7 @@
                         <div class="form-group">
                             <label for="nombreCompleto">Monto</label>
                             <input type="number" class="form-control" id="nombreCompleto" 
-                                @bind-value="request.Monto" readonly
-                                required />
+                                @bind-value="request.Monto" readonly />
                         </div>
                         <div class="form-group">
                             <label for="nombreCompleto">Monto Cuadrado</label>
@@ -70,7 +68,7 @@
                     <div class="card-footer bg-dark text-white">
                         <div class="btn-group">
                             <button type="submit" class="btn btn-primary">Guardar</button>
-                            <button type="button" class="btn btn-secondary" @onclick="Clear">Cerrar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="Clear">Borrar</button>
                         </div>
                     </div>
                 </EditForm>
@@ -88,10 +86,46 @@
             </div>
         </div>
     </div>
-    <a class="nav-link active text-dark" >
-        <span class="oi oi-person"></span>
-        <strong>Abusador</strong>
-    </a>
+    <div class="row">
+        <table class="table table-striped">
+            <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cajero</th>
+                    <th>Monto</th>
+                    <th>Monto/Cuadrado</th>
+                    <th>Resultado</th>
+                    <th>...</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Cajas)
+                {
+                    <tr>
+                        <td>@item.Fecha.ToShortDateString()</td>
+                        <td>@item.Cajero</td>
+                        <td>$@item.Monto.ToString("N2")</td>
+                        <td>$@item.MontoCuadrado.ToString("N2")</td>
+                        <td class="bg-danger text-dark">
+                            
+                            <strong>@($"${(item.MontoCuadrado - item.Monto):N2}")</strong>
+
+                        </td>
+                        <td>
+                            <button @onclick="()=>Seleccionar(item.Id)"
+                                class="btn btn-outline-warning">
+                                <span class="oi oi-pencil"></span>
+                            </button>
+                            <button @onclick="()=>Eliminar(item)"
+                                class="btn btn-outline-danger">
+                                <span class="oi oi-trash"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 
@@ -120,20 +154,23 @@
         IngresoTotal = Contado + Credito;
     }
 
+    DateTime ultimoCuadreFecha;
     void CashInBox()
     {
-        DateTime today = DateTime.Today;
+        // Filtrar las facturas y pagos posteriores al último cuadre de caja
+        var facturasPosteriores = Facturas.Where(f => f.Fecha > ultimoCuadreFecha);
+        var pagosPosteriores = Pagos.Where(p => p.Fecha > ultimoCuadreFecha);
 
-        var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+        // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
+        var Contado = facturasPosteriores
+            .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
             .Sum(c => c.SubTotal);
 
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+        var Credito = facturasPosteriores
+            .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
             .Sum(c => c.SaldoPendiente);
 
-        var Pago = (decimal)Pagos
-            .Where(c => c.Fecha.Date == today)
+        var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);
 
         DineroEnCaja = Contado + Pago;
@@ -166,6 +203,16 @@
         {
             Cajas = resultado.Data!;
         }
+
+        // Verificar si hay algún cuadre de caja en la lista
+        if (Cajas.Any())
+        {
+            // Ordenar la lista de Cajas por fecha en orden descendente
+            Cajas = Cajas.OrderByDescending(c => c.Fecha).ToList();
+            
+            // Tomar la fecha del primer elemento de la lista (el más reciente)
+            ultimoCuadreFecha = Cajas.First().Fecha;
+        }
     }
     protected override async Task OnInitializedAsync()
     {
@@ -184,6 +231,7 @@
     
     public async Task Send()
     {
+        request.Fecha = DateTime.Now; // Establecer la fecha actual
         if(request.Id == 0)
         {
             //Debo registrar el contacto..
@@ -192,6 +240,7 @@
             {
                 Clear();
                 await CargarCajas();
+                CashInBox();
                 StateHasChanged();
             }
         }
@@ -203,8 +252,25 @@
             {
                 Clear();
                 await CargarCajas();
+                CashInBox();
                 StateHasChanged();
             }
+        }
+    }
+    public void Seleccionar(int Id)
+    {
+        request = Cajas
+        .Where(c => c.Id == Id)
+        .Select(c => c.ToRequest())
+        .FirstOrDefault() ?? new CuadrarCajaRequest();
+    }
+    public async Task Eliminar(CuadrarCajaResponse item)
+    {
+        var resultado = await cuadrarCajaServices.Eliminar(item.ToRequest());
+        if (resultado.Success)
+        {
+            await CargarCajas();
+            StateHasChanged();
         }
     }
 }

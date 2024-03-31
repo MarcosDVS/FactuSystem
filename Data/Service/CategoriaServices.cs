@@ -61,6 +61,7 @@ public class CategoriaServices : ICategoriaServices
             return new Result() { Message = E.Message, Success = false };
         }
     }
+    
     public async Task<Result> Modificar(CategoriaRequest request)
     {
         try

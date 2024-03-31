@@ -100,6 +100,24 @@ public class ProveedorServices : IProveedorServices
             return new Result() { Message = E.Message, Success = false };
         }
     }
+    public async Task CrearSuplidor()
+    {
+        var item = await dbContext.Proveedores.FirstOrDefaultAsync(u => u.NombreEmp == "Desconocido");
+
+        if (item == null)
+        {
+            item = new Proveedor
+            {
+                NombreEmp = "Desconocido",
+                Email = "Desconocido",
+                Direccion = "Desconocida",
+                Telefono = "Desconocido"
+            };
+
+            dbContext.Proveedores.Add(item);
+            await dbContext.SaveChangesAsync();
+        }
+    }
 }
 
 public interface IProveedorServices
@@ -108,4 +126,5 @@ public interface IProveedorServices
     Task<Result> Crear(ProveedorRequest request);
     Task<Result> Modificar(ProveedorRequest request);
     Task<Result> Eliminar(ProveedorRequest request);
+    Task CrearSuplidor();
 }
