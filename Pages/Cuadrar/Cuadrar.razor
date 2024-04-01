@@ -57,17 +57,65 @@
                             <div class="col">
                                 <div class="form-group">
                                     <label><strong>Dinero en caja</strong></label>
-                                    <span class="form-control">
-                                        <strong>$@DineroEnCaja.ToString("N2")</strong>
+                                    @if(request.Id > 0)
+                                    {
+                                        <span class="form-control">
+                                        <strong>$@request.Monto.ToString("N2")</strong>
                                     </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="form-control">
+                                            <strong>$@DineroEnCaja.ToString("N2")</strong>
+                                        </span>
+                                    }
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group">
-                                    <label for="nombreCompleto"><strong>Monto Cuadrado</strong></label>
-                                    <input type="number" class="form-control" id="nombreCompleto" 
-                                        @bind-value="request.MontoCuadrado" required />
-                                </div>
+                                @if(request.Id > 0)
+                                {
+                                    <div class="form-group">
+                                        <label for="nombreCompleto"><strong>Monto Cuadrado</strong></label>
+                                        @if(request.Total < request.Monto)
+                                        {
+                                            <span class="form-control bg-danger text-dark">
+                                                <strong>$@request.Total.ToString("N2")</strong>
+                                            </span>
+                                        }else if(request.Total > request.Monto)
+                                        {
+                                            <span class="form-control bg-warning text-dark">
+                                                <strong>$@request.Total.ToString("N2")</strong>
+                                            </span>
+                                        }else
+                                        {
+                                            <span class="form-control bg-success text-dark">
+                                                <strong>$@request.Total.ToString("N2")</strong>
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="form-group">
+                                        <label for="nombreCompleto"><strong>Monto Cuadrado</strong></label>
+                                        @if(request.Total < DineroEnCaja)
+                                        {
+                                            <span class="form-control bg-danger text-dark">
+                                                <strong>$@request.Total.ToString("N2")</strong>
+                                            </span>
+                                        }else if(request.Total > DineroEnCaja)
+                                        {
+                                            <span class="form-control bg-warning text-dark">
+                                                <strong>$@request.Total.ToString("N2")</strong>
+                                            </span>
+                                        }else
+                                        {
+                                            <span class="form-control bg-success text-dark">
+                                                <strong>$@request.Total.ToString("N2")</strong>
+                                            </span>
+                                        }
+                                    </div>
+                                }
                             </div>
                         </div>
 
@@ -76,14 +124,14 @@
                                 <div class="input-group">
                                     <label class="input-group-text">$1</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.One"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="input-group">
                                     <label class="input-group-text">$5</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.Five"/>
                                 </div>
                             </div>
                         </div>
@@ -92,14 +140,14 @@
                                 <div class="input-group">
                                     <label class="input-group-text">$10</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.Ten"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="input-group">
                                     <label class="input-group-text">$25</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.TwentyFive"/>
                                 </div>
                             </div>
                         </div>
@@ -108,14 +156,14 @@
                                 <div class="input-group">
                                     <label class="input-group-text">$50</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.Fifty"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="input-group">
                                     <label class="input-group-text">$100</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.OneHundred"/>
                                 </div>
                             </div>
                         </div>
@@ -124,14 +172,14 @@
                                 <div class="input-group">
                                     <label class="input-group-text">$200</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.TwoHundred"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="input-group">
                                     <label class="input-group-text">$500</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.FiveHundred"/>
                                 </div>
                             </div>
                         </div>
@@ -140,14 +188,14 @@
                                 <div class="input-group">
                                     <label class="input-group-text">$1,000</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.OneThousand"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="input-group">
                                     <label class="input-group-text">$2,000</label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="request.MontoCuadrado"/>
+                                        @bind-value="request.TwoThousand"/>
                                 </div>
                             </div>
                         </div>
@@ -360,7 +408,9 @@
     
     public async Task Send()
     {
-        request.Fecha = DateTime.Now; // Establecer la fecha actual
+        request.Fecha = DateTime.Now;
+        request.MontoCuadrado = request.Total;
+        
         if(request.Id == 0)
         {
             //Debo registrar el contacto..
@@ -386,12 +436,17 @@
             }
         }
     }
+    
     public void Seleccionar(int Id)
     {
         request = Cajas
         .Where(c => c.Id == Id)
         .Select(c => c.ToRequest())
         .FirstOrDefault() ?? new CuadrarCajaRequest();
+
+
+        showCard = true;
+
     }
     public async Task Eliminar(CuadrarCajaResponse item)
     {

@@ -12,46 +12,42 @@ public class CuadrarCaja
     public string Cajero { get; set; }
     public decimal Monto { get; set; }
     public decimal MontoCuadrado { get; set; }
+    
+    public int One { get; set; }
+    public int Five { get; set; }
+    public int Ten { get; set; }
+    public int TwentyFive { get; set; }
+    public int Fifty { get; set; }
+    public int OneHundred { get; set; }
+    public int TwoHundred { get; set; }
+    public int FiveHundred { get; set; }
+    public int OneThousand { get; set; }
+    public int TwoThousand { get; set; }
+    public decimal Total => (One * 1) + (Five * 5) + (Ten * 10) + (TwentyFive * 25) + (Fifty * 50)
+    + (OneHundred * 100) + (TwoHundred * 200) + (FiveHundred * 500) 
+    + (OneThousand * 1000) + (TwoThousand * 2000);
 
-    public static CuadrarCaja Crear(CuadrarCajaRequest item)
+    public static CuadrarCaja Crear(CuadrarCajaRequest request)
     {
         return new CuadrarCaja()
         {
-            Fecha = item.Fecha,
-            Cajero = item.Cajero,
-            Monto = item.Monto,
-            MontoCuadrado = item.MontoCuadrado
+            Fecha = request.Fecha,
+            Cajero = request.Cajero,
+            Monto = request.Monto,
+            MontoCuadrado = request.MontoCuadrado,
+
+            One = request.One, // Asegúrate de que esto sea correcto
+            Five = request.Five, // Asegúrate de que esto sea correcto
+            Ten = request.Ten,
+            TwentyFive = request.TwentyFive,
+            Fifty = request.Fifty,
+            OneHundred = request.OneHundred,
+            TwoHundred = request.TwoHundred,
+            FiveHundred = request.FiveHundred,
+            OneThousand = request.OneThousand,
+            TwoThousand = request.TwoThousand
         };
     }
-
-    public bool Modificar(CuadrarCajaRequest item)
-    {
-        var cambio = false;
-
-        if (Fecha != item.Fecha)
-        {
-            Fecha = item.Fecha;
-            cambio = true;
-        }
-        if (Cajero != item.Cajero)
-        {
-            Cajero = item.Cajero;
-            cambio = true;
-        }
-        if (Monto != item.Monto)
-        {
-            Monto = item.Monto;
-            cambio = true;
-        }
-        if (MontoCuadrado != item.MontoCuadrado)
-        {
-            MontoCuadrado = item.MontoCuadrado;
-            cambio = true;
-        }
-
-        return cambio;
-    }
-
 
 
     public CuadrarCajaResponse? ToResponse()
@@ -62,7 +58,18 @@ public class CuadrarCaja
             Fecha = Fecha,
             Cajero = Cajero,
             Monto = Monto,
-            MontoCuadrado = MontoCuadrado
+            MontoCuadrado = MontoCuadrado,
+
+            One = One, // Asegúrate de que esto sea correcto
+            Five = Five, // Asegúrate de que esto sea correcto
+            Ten = Ten,
+            TwentyFive = TwentyFive,
+            Fifty = Fifty,
+            OneHundred = OneHundred,
+            TwoHundred = TwoHundred,
+            FiveHundred = FiveHundred,
+            OneThousand = OneThousand,
+            TwoThousand = TwoThousand
         };
     }
 }

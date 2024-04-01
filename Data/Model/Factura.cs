@@ -60,7 +60,7 @@ public class Factura
             Detalles = Detalles.Select(d => d.ToResponse()).ToList(),
             TypePayment = TypePayment,
             SaldoPagado = SaldoPagado,
-            Pagos = Pagos!=null&&Pagos.Any()? Pagos.Select(p => p.ToResponse()).ToList():new List<PagoResponse?>()
+            Pagos = Pagos.Select(d => d.ToResponse()).ToList()
         };
 
     

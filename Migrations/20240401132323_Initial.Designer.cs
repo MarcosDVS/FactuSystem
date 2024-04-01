@@ -4,6 +4,7 @@ using FactuSystem.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FactuSystem.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240401132323_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,54 @@ namespace FactuSystem.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("FactuSystem.Data.Model.CajaDetalles", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CajaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Fifty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Five")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FiveHundred")
+                        .HasColumnType("int");
+
+                    b.Property<int>("One")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OneHundred")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OneThousand")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Ten")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TwentyFive")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TwoHundred")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TwoThousand")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CajaId");
+
+                    b.ToTable("CajaDetalles");
+                });
 
             modelBuilder.Entity("FactuSystem.Data.Model.Categoria", b =>
                 {
@@ -88,41 +139,11 @@ namespace FactuSystem.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Fifty")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Five")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FiveHundred")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("MontoCuadrado")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("One")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OneHundred")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OneThousand")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Ten")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TwentyFive")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TwoHundred")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TwoThousand")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -317,6 +338,17 @@ namespace FactuSystem.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("FactuSystem.Data.Model.CajaDetalles", b =>
+                {
+                    b.HasOne("FactuSystem.Data.Model.CuadrarCaja", "CuadrarCaja")
+                        .WithMany("Detalles")
+                        .HasForeignKey("CajaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CuadrarCaja");
+                });
+
             modelBuilder.Entity("FactuSystem.Data.Model.Factura", b =>
                 {
                     b.HasOne("FactuSystem.Data.Model.Cliente", "Cliente")
@@ -375,6 +407,11 @@ namespace FactuSystem.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Proveedor");
+                });
+
+            modelBuilder.Entity("FactuSystem.Data.Model.CuadrarCaja", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 
             modelBuilder.Entity("FactuSystem.Data.Model.Factura", b =>

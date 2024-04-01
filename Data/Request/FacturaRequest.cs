@@ -9,6 +9,8 @@ public class FacturaRequest
     public DateTime Fecha { get; set; } = DateTime.Now;
     public virtual ICollection<FacturaDetalleRequest> Detalles { get; set; }
         = new List<FacturaDetalleRequest>();
+    public virtual ICollection<FacturaRequest> Facturas { get; set; }
+        = new List<FacturaRequest>();
     public decimal SubTotal =>
         Detalles != null ?
         Detalles.Sum(d => d.SubTotal)

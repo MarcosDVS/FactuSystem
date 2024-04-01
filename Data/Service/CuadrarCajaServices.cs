@@ -61,24 +61,49 @@ public class CuadrarCajaServices : ICuadrarCajaServices
         }
     }
     
-    public async Task<Result> Modificar(CuadrarCajaRequest request)
+    public async Task<Result<CuadrarCajaResponse>> Modificar(CuadrarCajaRequest request)
     {
         try
         {
-            var item = await dbContext.CuadrarCajas
+            var caja = await dbContext.CuadrarCajas
                 .FirstOrDefaultAsync(c => c.Id == request.Id);
-            if (item == null)
-                return new Result() { Message= "No se encontro el CuadrarCaja", Success = false };
 
-            if (item.Modificar(request))
-                await dbContext.SaveChangesAsync();
+            if (caja == null)
+                return new Result<CuadrarCajaResponse>() { Message = "No se encontró la caja", Success = false };
 
-            return new Result() { Message = "Ok", Success = true };
+            // Actualizar las propiedades de la caja según el request
+            caja.Cajero = request.Cajero;
+            caja.Monto = request.Monto;
+            caja.MontoCuadrado = request.MontoCuadrado;
+
+            caja.One = request.One;
+            caja.Five = request.Five;
+            caja.Ten = request.Ten;
+            caja.TwentyFive = request.TwentyFive;
+            caja.Fifty = request.Fifty;
+            caja.OneHundred = request.OneHundred;
+            caja.TwoHundred = request.TwoHundred;
+            caja.FiveHundred = request.FiveHundred;
+            caja.OneThousand = request.OneThousand;
+            caja.TwoThousand = request.TwoThousand;
+            
+            await dbContext.SaveChangesAsync();
+
+            return new Result<CuadrarCajaResponse>()
+            {
+                Data = caja.ToResponse(),
+                Success = true,
+                Message = "Factura modificada correctamente"
+            };
         }
-        catch (Exception E)
+        catch (Exception ex)
         {
-
-            return new Result() { Message = E.Message, Success = false };
+            return new Result<CuadrarCajaResponse>()
+            {
+                Data = null,
+                Success = false,
+                Message = ex.Message
+            };
         }
     }
 
@@ -107,6 +132,6 @@ public interface ICuadrarCajaServices
 {
     Task<Result<List<CuadrarCajaResponse>>> Consultar(string filtro);
     Task<Result> Crear(CuadrarCajaRequest request);
-    Task<Result> Modificar(CuadrarCajaRequest request);
+    Task<Result<CuadrarCajaResponse>> Modificar(CuadrarCajaRequest request);
     Task<Result> Eliminar(CuadrarCajaRequest request);
 }
