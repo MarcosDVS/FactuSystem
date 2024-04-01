@@ -662,6 +662,7 @@ else
     }
     public async Task SendPago()
     {
+        pagoRequest.Fecha = DateTime.Now;
         if (pagoRequest.Id == 0)
         {
             // Debo registrar el contacto..

@@ -1,10 +1,11 @@
-namespace FactuSystem.Data.Request;
-
-public class CuadrarCajaRequest
+namespace FactuSystem.Data.Request // Sin el punto al final
 {
-    public int Id { get; set; }
-    public DateTime Fecha { get; set; } = DateTime.Now;
-    public string Cajero { get; set; }
-    public decimal Monto { get; set; }
-    public decimal MontoCuadrado { get; set; }
-}
+    public class CuadrarCajaRequest
+    {
+        public int Id { get; set; }
+        public DateTime Fecha { get; set; }
+        public string Cajero { get; set; } = null!;
+        public decimal Monto { get; set; }
+        public decimal MontoCuadrado { get; set; }
+    }
+} // Aquí se agrega un punto y coma al final

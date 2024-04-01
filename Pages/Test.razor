@@ -1,8 +1,11 @@
 @page "/test"
-@using FactuSystem.Data.Response;
 @using FactuSystem.Data.Request;
+@using FactuSystem.Data.Response;
+@using FactuSystem.Data.Services;
+
 @inject IFacturaServices facturaServices;
 @inject IPagoServices pagoServices;
+@inject ICuadrarCajaServices cuadrarCajaServices;
 
 <PageTitle>Inicio</PageTitle>
 
@@ -138,21 +141,7 @@
     public string Filtro { get; set; } = "";
     public string Cashier { get; set; } = "";
     public decimal DineroEnCaja = 0;
-    public decimal IngresoTotal = 0;
-    void AllSell()
-    {
-        DateTime today = DateTime.Today;
 
-        var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
-            .Sum(c => c.SubTotal);
-
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
-            .Sum(c => c.SaldoPendiente);
-
-        IngresoTotal = Contado + Credito;
-    }
 
     DateTime ultimoCuadreFecha;
     void CashInBox()
@@ -213,6 +202,10 @@
             // Tomar la fecha del primer elemento de la lista (el más reciente)
             ultimoCuadreFecha = Cajas.First().Fecha;
         }
+        else
+        {
+          ultimoCuadreFecha = DateTime.Today;  
+        }
     }
     protected override async Task OnInitializedAsync()
     {
@@ -220,7 +213,6 @@
         await CargarPagos();
         await CargarCajas();
         CashInBox();
-        AllSell();
         
     }
 

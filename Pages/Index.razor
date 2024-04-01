@@ -93,8 +93,8 @@
     <div class="row mt-4">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
+                <div class="card-body" @onclick="Cuadre">
+                    <h5 class="card-title" >
                         <span class="oi oi-dollar oi mr-2"></span>
                         <strong>Dinero en caja</strong>
                     </h5>
@@ -123,6 +123,7 @@
 {
     public List<FacturaResponse> Facturas { get; set; } = new();
     public List<PagoResponse> Pagos { get; set; } = new();
+    public List<CuadrarCajaResponse> Cajas { get; set; } = new();
     public string Filtro { get; set; } = "";
     public decimal DineroEnCaja = 0;
     public decimal VentaContado = 0;
@@ -130,6 +131,10 @@
     public decimal IngresoTotal = 0;
     public decimal IngresoAnual = 0;
     public decimal IngresoMensual = 0;
+    void Cuadre()
+    {
+        urlHelper.NavigateTo("/cuadre");
+    }
     void MonthlySell()
     {
         DateTime today = DateTime.Today;
@@ -177,20 +182,19 @@
         IngresoTotal = Contado + Credito;
     }
 
+    DateTime ultimoCuadreFecha;
     void CashInBox()
     {
-        DateTime today = DateTime.Today;
+        // Filtrar las facturas y pagos posteriores al último cuadre de caja
+        var facturasPosteriores = Facturas.Where(f => f.Fecha > ultimoCuadreFecha);
+        var pagosPosteriores = Pagos.Where(p => p.Fecha > ultimoCuadreFecha);
 
-        var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+        // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
+        var Contado = facturasPosteriores
+            .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
             .Sum(c => c.SubTotal);
 
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
-            .Sum(c => c.SaldoPendiente);
-
-        var Pago = (decimal)Pagos
-            .Where(c => c.Fecha.Date == today)
+        var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);
 
         DineroEnCaja = Contado + Pago;
@@ -236,10 +240,34 @@
             Pagos = resultado.Data!;
         }
     }
+    async Task CargarCajas()
+    {
+        var resultado =
+        await cuadrarCajaServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Cajas = resultado.Data!;
+        }
+
+        // Verificar si hay algún cuadre de caja en la lista
+        if (Cajas.Any())
+        {
+            // Ordenar la lista de Cajas por fecha en orden descendente
+            Cajas = Cajas.OrderByDescending(c => c.Fecha).ToList();
+            
+            // Tomar la fecha del primer elemento de la lista (el más reciente)
+            ultimoCuadreFecha = Cajas.First().Fecha;
+        }
+        else
+        {
+          ultimoCuadreFecha = DateTime.Today;  
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await Consultar();
         await CargarPagos();
+        await CargarCajas();
         CashInBox();
         SellToCash();
         SellToCredit();

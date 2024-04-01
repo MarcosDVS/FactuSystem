@@ -1,0 +1,411 @@
+@page "/cuadre"
+@attribute [Authorize]
+
+<style>
+    /* Estilo para el contenedor de la tabla */
+    .table-container {
+        margin-top: 20px;
+    }
+
+    /* Estilo para el cuerpo de la tarjeta */
+    .card-body {
+        padding: 20px;
+    }
+
+    /* Estilo para centrar el texto en las celdas de la tabla */
+    .table th, .table td {
+        text-align: center;
+    }
+
+    .titulo-proveedores {
+        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);
+        color: #ffffff; /* Texto blanco */
+        text-align: center; /* Centrar texto */
+        padding: 10px; /* Añadir espacio alrededor del texto */
+    }
+</style>
+
+
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="titulo-proveedores d-print-none">Listado de cuadres</h1>
+        <h1 class="d-none d-print-block text-center">Listado de cuadres</h1>
+    </div>
+</div>
+
+<div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><b>@TituloForm</b></h5>
+                <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" 
+                @onclick="Clear">
+                    <span aria-hidden="true" class="oi oi-x"></span>
+                </button>
+            </div>
+
+            <EditForm Model="request" OnValidSubmit="Send">
+                <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombreCompleto"><strong>Nombre del Cajero</strong></label>
+                            <input type="text" class="form-control" id="nombreCompleto" 
+                                @bind-value="request.Cajero" 
+                                required />
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label><strong>Dinero en caja</strong></label>
+                                    <span class="form-control">
+                                        <strong>$@DineroEnCaja.ToString("N2")</strong>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="nombreCompleto"><strong>Monto Cuadrado</strong></label>
+                                    <input type="number" class="form-control" id="nombreCompleto" 
+                                        @bind-value="request.MontoCuadrado" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$1</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$5</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$10</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$25</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$50</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$100</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$200</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$500</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$1,000</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">$2,000</label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="request.MontoCuadrado"/>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer bg-dark text-white">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" @onclick="Clear">Cerrar</button>
+                        </div>
+                    </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="card col-12">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-11">
+                    <!-- Button trigger modal -->
+                    <button class="btn btn-outline-success d-print-none" @onclick="ShowCard">
+                        <span class="oi oi-plus"></span>
+                    </button>
+                    <button class="btn btn-outline-primary d-print-none" 
+                        @onclick="async ()=>{await PrintPageAsync();}">
+                        <span class="oi oi-print"></span>
+                    </button>
+                </div>
+                <div class="col-1">
+                    <button class="btn btn-outline-danger d-print-none" @onclick="Back">
+                        <span class="oi oi-arrow-thick-left"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row mt-2">
+                <div class="col-8"></div>
+                <div class="col-4">
+                    <div class="input-group d-print-none">
+                        <input type="text" class="form-control border-0 border-bottom" 
+                        placeholder="Buscar por nombre" @bind="Filtro">
+                        <button class="btn btn-outline input-group-text border-0 bg-white" 
+                            type="button" id="button-addon2" @onclick="()=>CargarCajas()">
+                            <span class="oi oi-magnifying-glass text-black"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-12 mt-2">
+                <table class="table table-striped">
+                    <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cajero</th>
+                            <th>Monto</th>
+                            <th>Cuadrado</th>
+                            <th>Resultado</th>
+                            <th class="d-print-none">...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Cajas)
+                        {
+                            <tr>
+                                <td>@item.Fecha.ToString("dddd, dd MMMM yyyy hh:mm tt")</td>
+                                <td>@item.Cajero</td>
+                                <td>$@item.Monto.ToString("N2")</td>
+                                <td>$@item.MontoCuadrado.ToString("N2")</td>
+                                @if(item.MontoCuadrado - item.Monto < 0)
+                                {
+                                    <td class="bg-danger text-dark">
+                                        <strong>@($"${(item.MontoCuadrado - item.Monto):N2}")</strong>
+                                    </td>
+                                }
+                                else if(item.MontoCuadrado - item.Monto > 0)
+                                {
+                                    <td class="bg-warning text-dark">
+                                        <strong>@($"${(item.MontoCuadrado - item.Monto):N2}")</strong>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="bg-success text-dark">
+                                        <strong>@($"${(item.MontoCuadrado - item.Monto):N2}")</strong>
+                                    </td>
+                                }
+                                <td class="d-print-none">
+                                    <button @onclick="()=>Seleccionar(item.Id)"
+                                        class="btn btn-outline-warning">
+                                        <span class="oi oi-pencil"></span>
+                                    </button>
+                                    <button @onclick="()=>Eliminar(item)"
+                                        class="btn btn-outline-danger">
+                                        <span class="oi oi-trash"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string TituloForm => request.Id == 0 ? 
+    "Cuadrar Caja" : "Modificar cuadre";
+    
+    public List<FacturaResponse> Facturas { get; set; } = new();
+    public List<PagoResponse> Pagos { get; set; } = new();
+    public List<CuadrarCajaResponse> Cajas { get; set; } = new();
+    public CuadrarCajaRequest request { get; set; } = new();
+    public string Filtro { get; set; } = "";
+    public string Cashier { get; set; } = "";
+    public bool ShowForm { get; set; } = false;
+    public bool showCard { get; set; } = false;
+    public decimal DineroEnCaja = 0;
+
+    void ShowCard()
+    {
+        showCard = true;
+        request.Monto = DineroEnCaja;
+    }
+    void Back()
+    {
+        urlHelper.NavigateTo("inicio");
+    }
+    DateTime ultimoCuadreFecha;
+    void CashInBox()
+    {
+        // Filtrar las facturas y pagos posteriores al último cuadre de caja
+        var facturasPosteriores = Facturas.Where(f => f.Fecha > ultimoCuadreFecha);
+        var pagosPosteriores = Pagos.Where(p => p.Fecha > ultimoCuadreFecha);
+
+        // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
+        var Contado = facturasPosteriores
+            .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
+            .Sum(c => c.SubTotal);
+
+        var Credito = facturasPosteriores
+            .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
+            .Sum(c => c.SaldoPendiente);
+
+        var Pago = (decimal)pagosPosteriores
+            .Sum(c => c.MontoPagado);
+
+        DineroEnCaja = Contado + Pago;
+        request.Monto = DineroEnCaja;
+    }
+
+    async Task Consultar()
+    {
+        var resultado = await facturaServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
+        }
+        StateHasChanged();
+    }
+    async Task CargarPagos()
+    {
+        var resultado =
+        await pagoServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Pagos = resultado.Data!;
+        }
+    }
+    async Task CargarCajas()
+    {
+        var resultado =
+        await cuadrarCajaServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Cajas = resultado.Data!;
+        }
+
+        // Verificar si hay algún cuadre de caja en la lista
+        if (Cajas.Any())
+        {
+            // Ordenar la lista de Cajas por fecha en orden descendente
+            Cajas = Cajas.OrderByDescending(c => c.Fecha).ToList();
+            
+            // Tomar la fecha del primer elemento de la lista (el más reciente)
+            ultimoCuadreFecha = Cajas.First().Fecha;
+        }
+        else
+        {
+          ultimoCuadreFecha = DateTime.Today;  
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Consultar();
+        await CargarPagos();
+        await CargarCajas();
+        CashInBox();
+        
+    }
+
+    void Clear()
+    {
+        request  = new CuadrarCajaRequest();
+        showCard = false;
+    }
+    
+    public async Task Send()
+    {
+        request.Fecha = DateTime.Now; // Establecer la fecha actual
+        if(request.Id == 0)
+        {
+            //Debo registrar el contacto..
+            var r = await cuadrarCajaServices.Crear(request);
+            if (r.Success)
+            {
+                Clear();
+                await CargarCajas();
+                CashInBox();
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            //Debo solicitar modificar el contacto...
+            var r = await cuadrarCajaServices.Modificar(request);
+            if (r.Success)
+            {
+                Clear();
+                await CargarCajas();
+                CashInBox();
+                StateHasChanged();
+            }
+        }
+    }
+    public void Seleccionar(int Id)
+    {
+        request = Cajas
+        .Where(c => c.Id == Id)
+        .Select(c => c.ToRequest())
+        .FirstOrDefault() ?? new CuadrarCajaRequest();
+    }
+    public async Task Eliminar(CuadrarCajaResponse item)
+    {
+        var resultado = await cuadrarCajaServices.Eliminar(item.ToRequest());
+        if (resultado.Success)
+        {
+            await CargarCajas();
+            StateHasChanged();
+        }
+    }
+
+    private async Task PrintPageAsync()
+    {
+        // Llama a la función JavaScript para imprimir la página
+        await JSRuntime.InvokeVoidAsync("printPage");
+    }
+}
