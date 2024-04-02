@@ -49,9 +49,9 @@
                 <div class="modal-body">
                         <div class="form-group">
                             <label for="nombreCompleto"><strong>Nombre del Cajero</strong></label>
-                            <input type="text" class="form-control" id="nombreCompleto" 
-                                @bind-value="request.Cajero" 
-                                required />
+                            <span class="form-control">
+                                @UserId
+                            </span>
                         </div>
                         <div class="row">
                             <div class="col">
@@ -286,7 +286,7 @@
                                     </td>
                                 }
                                 <td class="d-print-none">
-                                    <button @onclick="()=>Seleccionar(item.Id)"
+                                    <button @onclick="async ()=>{await Seleccionar(item.Id);}"
                                         class="btn btn-outline-warning">
                                         <span class="oi oi-pencil"></span>
                                     </button>
@@ -314,6 +314,7 @@
     public CuadrarCajaRequest request { get; set; } = new();
     public string Filtro { get; set; } = "";
     public string Cashier { get; set; } = "";
+    public string UserId = "";
     public bool ShowForm { get; set; } = false;
     public bool showCard { get; set; } = false;
     public decimal DineroEnCaja = 0;
@@ -398,6 +399,17 @@
         await CargarCajas();
         CashInBox();
         
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null)
+            {
+                UserId = userIdClaim.Value;
+            }
+        }
     }
 
     void Clear()
@@ -410,6 +422,7 @@
     {
         request.Fecha = DateTime.Now;
         request.MontoCuadrado = request.Total;
+        request.Cajero = UserId;
         
         if(request.Id == 0)
         {
@@ -437,14 +450,12 @@
         }
     }
     
-    public void Seleccionar(int Id)
+    async Task Seleccionar(int Id)
     {
         request = Cajas
         .Where(c => c.Id == Id)
         .Select(c => c.ToRequest())
         .FirstOrDefault() ?? new CuadrarCajaRequest();
-
-
         showCard = true;
 
     }

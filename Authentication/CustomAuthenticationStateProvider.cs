@@ -26,7 +26,8 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             {
                 new Claim(ClaimTypes.Name, userSession.UserName),
                 new Claim(ClaimTypes.GivenName, userSession.Name),
-                new Claim(ClaimTypes.Role, userSession.Role)
+                new Claim(ClaimTypes.Role, userSession.Role),
+                new Claim(ClaimTypes.NameIdentifier, userSession.UserId.ToString()) // Include UserId claim
             }, "CustomAuth"));
 
             return await Task.FromResult(new AuthenticationState(claimsPrincipal));
@@ -48,7 +49,8 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             {
                 new Claim(ClaimTypes.Name, userSession.UserName),
                 new Claim(ClaimTypes.GivenName, userSession.Name),
-                new Claim(ClaimTypes.Role, userSession.Role)
+                new Claim(ClaimTypes.Role, userSession.Role),
+                new Claim(ClaimTypes.NameIdentifier, userSession.UserId.ToString()) // Convertir a string
             }));
         }
         else

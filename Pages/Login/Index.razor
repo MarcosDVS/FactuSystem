@@ -77,6 +77,7 @@
             var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
             await customAuthStateProvider.UpdateAuthenticationState(new UserSession
                 {
+                    UserId = userAccount.Id, // Include UserId
                     UserName = userAccount.Email,
                     Name = userAccount.Nombre + " " + userAccount.Apellidos,
                     Role = userAccount.Role

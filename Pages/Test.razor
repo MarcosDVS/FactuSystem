@@ -1,11 +1,6 @@
 @page "/test"
-@using FactuSystem.Data.Request;
-@using FactuSystem.Data.Response;
-@using FactuSystem.Data.Services;
-
-@inject IFacturaServices facturaServices;
-@inject IPagoServices pagoServices;
-@inject ICuadrarCajaServices cuadrarCajaServices;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Inicio</PageTitle>
 
@@ -40,229 +35,34 @@
     <strong>FactuSystem Dashboard</strong> 
 </h3>
 
-<div class="container mt-4">
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <h5 class="card-header bg-dark text-white">
-                    <span class="oi oi-dollar oi mr-2"></span>
-                    <strong>Cuadrar Caja</strong>
-                </h5>
-                <EditForm Model="request" OnValidSubmit="Send">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="nombreCompleto">Nombre del Cajero</label>
-                            <input type="text" class="form-control" id="nombreCompleto" 
-                                @bind-value="request.Cajero" 
-                                required />
-                        </div>
-                        <div class="form-group">
-                            <label for="nombreCompleto">Monto</label>
-                            <input type="number" class="form-control" id="nombreCompleto" 
-                                @bind-value="request.Monto" readonly />
-                        </div>
-                        <div class="form-group">
-                            <label for="nombreCompleto">Monto Cuadrado</label>
-                            <input type="number" class="form-control" id="nombreCompleto" 
-                                @bind-value="request.MontoCuadrado" required />
-                        </div>
 
-                    </div>
-                    <div class="card-footer bg-dark text-white">
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                            <button type="button" class="btn btn-secondary" @onclick="Clear">Borrar</button>
-                        </div>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <span class="oi oi-dollar oi mr-2"></span>
-                        <strong>Dinero en caja</strong>
-                    </h5>
-                    <p class="card-text">Monto: $@DineroEnCaja.ToString("N2")</p>
-                </div>
-            </div>
-        </div>
+@if (!string.IsNullOrEmpty(UserId))
+{
+    <div>
+        <p>UserId: @UserId</p>
     </div>
-    <div class="row">
-        <table class="table table-striped">
-            <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-                <tr>
-                    <th>Fecha</th>
-                    <th>Cajero</th>
-                    <th>Monto</th>
-                    <th>Monto/Cuadrado</th>
-                    <th>Resultado</th>
-                    <th>...</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Cajas)
-                {
-                    <tr>
-                        <td>@item.Fecha.ToShortDateString()</td>
-                        <td>@item.Cajero</td>
-                        <td>$@item.Monto.ToString("N2")</td>
-                        <td>$@item.MontoCuadrado.ToString("N2")</td>
-                        <td class="bg-danger text-dark">
-                            
-                            <strong>@($"${(item.MontoCuadrado - item.Monto):N2}")</strong>
-
-                        </td>
-                        <td>
-                            <button @onclick="()=>Seleccionar(item.Id)"
-                                class="btn btn-outline-warning">
-                                <span class="oi oi-pencil"></span>
-                            </button>
-                            <button @onclick="()=>Eliminar(item)"
-                                class="btn btn-outline-danger">
-                                <span class="oi oi-trash"></span>
-                            </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
+}
+else
+{
+    <p>No se ha encontrado un UserId válido.</p>
+}
 
 @code
 {
-    public List<FacturaResponse> Facturas { get; set; } = new();
-    public List<PagoResponse> Pagos { get; set; } = new();
-    public List<CuadrarCajaResponse> Cajas { get; set; } = new();
-    public CuadrarCajaRequest request { get; set; } = new();
-    public string Filtro { get; set; } = "";
-    public string Cashier { get; set; } = "";
-    public decimal DineroEnCaja = 0;
+    public string UserId = "";
 
-
-    DateTime ultimoCuadreFecha;
-    void CashInBox()
-    {
-        // Filtrar las facturas y pagos posteriores al último cuadre de caja
-        var facturasPosteriores = Facturas.Where(f => f.Fecha > ultimoCuadreFecha);
-        var pagosPosteriores = Pagos.Where(p => p.Fecha > ultimoCuadreFecha);
-
-        // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
-        var Contado = facturasPosteriores
-            .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
-            .Sum(c => c.SubTotal);
-
-        var Credito = facturasPosteriores
-            .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
-            .Sum(c => c.SaldoPendiente);
-
-        var Pago = (decimal)pagosPosteriores
-            .Sum(c => c.MontoPagado);
-
-        DineroEnCaja = Contado + Pago;
-        request.Monto = DineroEnCaja;
-    }
-
-    async Task Consultar()
-    {
-        var resultado = await facturaServices.Consultar(Filtro);
-        if (resultado.Success)
-        {
-            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
-        }
-        StateHasChanged();
-    }
-    async Task CargarPagos()
-    {
-        var resultado =
-        await pagoServices.Consultar(Filtro);
-        if (resultado.Success)
-        {
-            Pagos = resultado.Data!;
-        }
-    }
-    async Task CargarCajas()
-    {
-        var resultado =
-        await cuadrarCajaServices.Consultar(Filtro);
-        if (resultado.Success)
-        {
-            Cajas = resultado.Data!;
-        }
-
-        // Verificar si hay algún cuadre de caja en la lista
-        if (Cajas.Any())
-        {
-            // Ordenar la lista de Cajas por fecha en orden descendente
-            Cajas = Cajas.OrderByDescending(c => c.Fecha).ToList();
-            
-            // Tomar la fecha del primer elemento de la lista (el más reciente)
-            ultimoCuadreFecha = Cajas.First().Fecha;
-        }
-        else
-        {
-          ultimoCuadreFecha = DateTime.Today;  
-        }
-    }
     protected override async Task OnInitializedAsync()
     {
-        await Consultar();
-        await CargarPagos();
-        await CargarCajas();
-        CashInBox();
-        
-    }
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
 
-    void Clear()
-    {
-        request  = new CuadrarCajaRequest();
-    }
-    
-    public async Task Send()
-    {
-        request.Fecha = DateTime.Now; // Establecer la fecha actual
-        if(request.Id == 0)
+        if (user.Identity.IsAuthenticated)
         {
-            //Debo registrar el contacto..
-            var r = await cuadrarCajaServices.Crear(request);
-            if (r.Success)
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null)
             {
-                Clear();
-                await CargarCajas();
-                CashInBox();
-                StateHasChanged();
+                UserId = userIdClaim.Value;
             }
-        }
-        else
-        {
-            //Debo solicitar modificar el contacto...
-            var r = await cuadrarCajaServices.Modificar(request);
-            if (r.Success)
-            {
-                Clear();
-                await CargarCajas();
-                CashInBox();
-                StateHasChanged();
-            }
-        }
-    }
-    public void Seleccionar(int Id)
-    {
-        request = Cajas
-        .Where(c => c.Id == Id)
-        .Select(c => c.ToRequest())
-        .FirstOrDefault() ?? new CuadrarCajaRequest();
-    }
-    public async Task Eliminar(CuadrarCajaResponse item)
-    {
-        var resultado = await cuadrarCajaServices.Eliminar(item.ToRequest());
-        if (resultado.Success)
-        {
-            await CargarCajas();
-            StateHasChanged();
         }
     }
 }
