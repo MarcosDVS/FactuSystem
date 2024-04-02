@@ -1,5 +1,6 @@
 @page "/cuadre"
 @attribute [Authorize]
+<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
 
 <style>
     /* Estilo para el contenedor de la tabla */
@@ -38,8 +39,9 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title"><b>@TituloForm</b></h5>
-                <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" 
+                <h5 class="modal-title d-print-none"><b>@TituloForm</b></h5>
+                <h5 class="modal-title text-dark d-none d-print-block"><b>Detalles del Cuadre</b></h5>
+                <button type="button" class="close btn btn-danger d-print-none" data-dismiss="modal" aria-label="Close" 
                 @onclick="Clear">
                     <span aria-hidden="true" class="oi oi-x"></span>
                 </button>
@@ -49,9 +51,17 @@
                 <div class="modal-body">
                         <div class="form-group">
                             <label for="nombreCompleto"><strong>Nombre del Cajero</strong></label>
-                            <span class="form-control">
-                                @UserId
-                            </span>
+                            @if(request.Id > 0)
+                            {
+                                <span class="form-control">
+                                    @request.Cajero
+                                </span>
+                            }
+                            else{
+                                <span class="form-control">
+                                    @Cashier
+                                </span>
+                            }
                         </div>
                         <div class="row">
                             <div class="col">
@@ -199,9 +209,54 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <div class="input-group-text">
+                                    <label class="input-group"><strong>Resultado:</strong></label>
+                                    @if(request.Id > 0)
+                                    {
+                                        @if(request.Total < request.Monto)
+                                        {
+                                            <span class="form-control bg-danger text-dark">
+                                                <strong>@($"${(request.Total - request.Monto):N2}")</strong>
+                                            </span>
+                                        }else if(request.Total > request.Monto)
+                                        {
+                                            <span class="form-control bg-warning text-dark">
+                                                <strong>@($"${(request.Total - request.Monto):N2}")</strong>
+                                            </span>
+                                        }else
+                                        {
+                                            <span class="form-control bg-success text-dark">
+                                                <strong>@($"${(request.Total - request.Monto):N2}")</strong>
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @if(request.Total < DineroEnCaja)
+                                        {
+                                            <span class="form-control bg-danger text-dark">
+                                                <strong>@($"${(request.Total - DineroEnCaja):N2}")</strong>
+                                            </span>
+                                        }else if(request.Total > DineroEnCaja)
+                                        {
+                                            <span class="form-control bg-warning text-dark">
+                                                <strong>@($"${(request.Total - DineroEnCaja):N2}")</strong>
+                                            </span>
+                                        }else
+                                        {
+                                            <span class="form-control bg-success text-dark">
+                                                <strong>@($"${(request.Total - DineroEnCaja):N2}")</strong>
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
-                    <div class="modal-footer bg-dark text-white">
+                    <div class="modal-footer bg-dark text-white d-print-none">
                         <div class="btn-group">
                             <button type="submit" class="btn btn-primary">Guardar</button>
                             <button type="button" class="btn btn-secondary" @onclick="Clear">Cerrar</button>
@@ -409,6 +464,12 @@
             {
                 UserId = userIdClaim.Value;
             }
+
+            var userNameClaim = user.FindFirst(ClaimTypes.GivenName);
+            if (userNameClaim != null)
+            {
+                Cashier = userNameClaim.Value;
+            }
         }
     }
 
@@ -422,7 +483,7 @@
     {
         request.Fecha = DateTime.Now;
         request.MontoCuadrado = request.Total;
-        request.Cajero = UserId;
+        request.Cajero = Cashier;
         
         if(request.Id == 0)
         {
@@ -465,6 +526,7 @@
         if (resultado.Success)
         {
             await CargarCajas();
+            CashInBox();
             StateHasChanged();
         }
     }

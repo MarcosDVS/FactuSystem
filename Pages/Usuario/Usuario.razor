@@ -68,7 +68,7 @@
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" 
+                        <input  class="form-control" id="email" 
                         @bind-value="request.Email" required />
                     </div>
                     <div class="form-group">
@@ -222,6 +222,11 @@
         if (request.Password.Length < 4 || request.Password.Length > 8)
         {
             Message = "😒 La contraseña debe tener entre 4 y 8 caracteres. 🔑";
+            return;
+        }
+        if (request.Email.Length < 4)
+        {
+            Message = "😒 El Email debe tener 3 o más caracteres. 📧";
             return;
         }
         if(request.Id == 0)

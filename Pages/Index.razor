@@ -34,7 +34,7 @@
 
 <h3 class="mt-4 titulo">
     <span class="oi oi-dashboard oi mr-2"></span>
-    <strong>FactuSystem Dashboard</strong> 
+    <strong>Yoja's Drinks & Heladería Los Paso Dashboard</strong> 
 </h3>
 
 <div class="container mt-4">
@@ -193,6 +193,8 @@
         var Contado = facturasPosteriores
             .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
             .Sum(c => c.SubTotal);
+
+        
 
         var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);

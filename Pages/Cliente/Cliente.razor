@@ -2,7 +2,7 @@
 @inject IJSRuntime JSRuntime;
 @inject IClienteServices clienteServices;
 @attribute [Authorize]
-<PageTitle>Yoja's Drinks & Heladeria Los Paso</PageTitle>
+<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
 <style>
     /* Estilo para resaltar las filas al pasar el cursor */
     .table-hover tbody tr:hover {
@@ -106,7 +106,7 @@
                                 </span>
                             </div>
                             <input class="form-control" placeholder="Dirección" 
-                            @bind-value="request.Direccion" required />
+                            @bind-value="request.Direccion" />
                         </div>
                         <div class="form-group input-group mb-3">
                             <div class="input-group-prepend">
@@ -115,7 +115,7 @@
                                 </span>
                             </div>
                             <input type="number" class="form-control" placeholder="Limite de credito" 
-                            @bind-value="request.Limitecredito" required />
+                            @bind-value="request.Limitecredito"/>
                         </div>
                     </div>
 

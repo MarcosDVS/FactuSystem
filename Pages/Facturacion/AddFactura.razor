@@ -2,7 +2,7 @@
 @using FactuSystem.Data.Request;
 @using FactuSystem.Data.Response;
 @inject IJSRuntime JSRuntime;
-<PageTitle>Yoja's Drinks & Heladeria Los Paso</PageTitle>
+<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
 
 <EditForm Model="facturaRequest" OnValidSubmit="Send">
     @*Disenar el espacio para el cliente o contacto a facturarle*@
@@ -162,7 +162,7 @@
                             <option value="2">Crédito 💳</option>
                         </select>
                         
-                        <button class="btn btn-warning d-print-none" @onclick="UpdatePage">
+                        <button class="btn btn-warning d-print-none" @onclick="async ()=>{await UpdatePage();}">
                             <span class="oi oi-loop"></span>
                         </button>
                     </div>
@@ -251,7 +251,7 @@
                         </button>
                         <button 
                             class="btn btn-success d-print-none" 
-                            type="submit" @onclick="async ()=>{await PrintPageAsync(); Info=false;}">
+                            type="submit" @onclick="async ()=>{await PrintPageAsync(); await UpdatePage();}">
                             <span class="oi oi-check"></span>
                         </button>
                     </div>
@@ -277,7 +277,7 @@
     public decimal Precio { get; set; } = 0;
     public int Cantidad { get; set; } = 1;
     public int IdProducto { get; set; } = 0;
-    void UpdatePage()
+    async Task UpdatePage()
     {
         urlHelper.NavigateTo(urlHelper.Uri, forceLoad: true);
     }
