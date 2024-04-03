@@ -354,7 +354,7 @@ else
                                         <span class="oi oi-align-left"></span>
                                     </span>
                                 </div>
-                                <select class="form-control" @oninput="Money" @bind="@pagoRequest.Observacion" required>
+                                <select class="form-control" @bind="@pagoRequest.Observacion" required>
                                     <option disabled selected value="">Observación</option>
                                     <option value="Justo 😉">Justo 😉</option>
                                     <option value="Antes 😎">Antes 😎</option>
@@ -364,8 +364,19 @@ else
 
                             <div class="card">
                                 <div class="card-header">
-                                    <div class="col-8">
-                                        <h5><b>Pago de la factura Nº: @InvoiceId</b></h5>
+                                    <div class="row">
+                                        <div class="col-7">
+                                            <h5><b>Pago de la factura Nº: @InvoiceId</b></h5>
+                                        </div>
+                                        <div class="col text-end">
+                                            <div class="input-group">
+                                                <button @onclick="Money" 
+                                                    class="btn btn-outline-primary text-dark form-control d-print-none">
+                                                    <strong>Calcular</strong>
+                                                </button>
+                                                <label class="input-group-text text-end"><strong>@Fecha.ToShortDateString()</strong></label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -638,6 +649,7 @@ else
         formPago = true;
         detailsPago = false;
         pagoRequest.FacturaID = InvoiceId;
+
     }
     void CloseFormPago()
     {
@@ -715,6 +727,7 @@ else
         DetallesPago = true;
         PaiedMoney = Convert.ToDecimal(pagoRequest.MontoPagado);
         Pending = PendingMoney - PaiedMoney;
+        
     }
     void CloseMoney()
     {
@@ -723,6 +736,8 @@ else
         PaiedMoney = 0;
         Pending = 0;
     }
+
+    DateTime Fecha;
     void MostrarPagos(FacturaResponse factura)
     {
         SelectedFactura = factura;
@@ -735,6 +750,7 @@ else
         PendingMoney = SelectedFactura.SaldoPendiente;
         CustomerName = SelectedFactura.Cliente.Nombre +" "+ SelectedFactura.Cliente.Apellidos;
         InvoiceId = SelectedFactura.Id;
+        Fecha = SelectedFactura.Fecha;
     }
 
     //De aqui en adelante es para controlar la ediccion de la factura

@@ -86,44 +86,18 @@
                                 {
                                     <div class="form-group">
                                         <label for="nombreCompleto"><strong>Monto Cuadrado</strong></label>
-                                        @if(request.Total < request.Monto)
-                                        {
-                                            <span class="form-control bg-danger text-dark">
-                                                <strong>$@request.Total.ToString("N2")</strong>
-                                            </span>
-                                        }else if(request.Total > request.Monto)
-                                        {
-                                            <span class="form-control bg-warning text-dark">
-                                                <strong>$@request.Total.ToString("N2")</strong>
-                                            </span>
-                                        }else
-                                        {
-                                            <span class="form-control bg-success text-dark">
-                                                <strong>$@request.Total.ToString("N2")</strong>
-                                            </span>
-                                        }
+                                        <span class="form-control @(GetTotalClass(request.Total)) text-dark">
+                                            <strong>$@request.Total.ToString("N2")</strong>
+                                        </span>
                                     </div>
                                 }
                                 else
                                 {
                                     <div class="form-group">
                                         <label for="nombreCompleto"><strong>Monto Cuadrado</strong></label>
-                                        @if(request.Total < DineroEnCaja)
-                                        {
-                                            <span class="form-control bg-danger text-dark">
-                                                <strong>$@request.Total.ToString("N2")</strong>
-                                            </span>
-                                        }else if(request.Total > DineroEnCaja)
-                                        {
-                                            <span class="form-control bg-warning text-dark">
-                                                <strong>$@request.Total.ToString("N2")</strong>
-                                            </span>
-                                        }else
-                                        {
-                                            <span class="form-control bg-success text-dark">
-                                                <strong>$@request.Total.ToString("N2")</strong>
-                                            </span>
-                                        }
+                                        <span class="form-control @(GetTotalClass2(request.Total, DineroEnCaja)) text-dark">
+                                            <strong>$@request.Total.ToString("N2")</strong>
+                                        </span>
                                     </div>
                                 }
                             </div>
@@ -215,41 +189,15 @@
                                     <label class="input-group"><strong>Resultado:</strong></label>
                                     @if(request.Id > 0)
                                     {
-                                        @if(request.Total < request.Monto)
-                                        {
-                                            <span class="form-control bg-danger text-dark">
-                                                <strong>@($"${(request.Total - request.Monto):N2}")</strong>
-                                            </span>
-                                        }else if(request.Total > request.Monto)
-                                        {
-                                            <span class="form-control bg-warning text-dark">
-                                                <strong>@($"${(request.Total - request.Monto):N2}")</strong>
-                                            </span>
-                                        }else
-                                        {
-                                            <span class="form-control bg-success text-dark">
-                                                <strong>@($"${(request.Total - request.Monto):N2}")</strong>
-                                            </span>
-                                        }
+                                        <span class="form-control @(GetTotalClass(request.Total)) text-dark">
+                                            <strong>@($"${(request.Total - request.Monto):N2}")</strong>
+                                        </span>
                                     }
                                     else
                                     {
-                                        @if(request.Total < DineroEnCaja)
-                                        {
-                                            <span class="form-control bg-danger text-dark">
-                                                <strong>@($"${(request.Total - DineroEnCaja):N2}")</strong>
-                                            </span>
-                                        }else if(request.Total > DineroEnCaja)
-                                        {
-                                            <span class="form-control bg-warning text-dark">
-                                                <strong>@($"${(request.Total - DineroEnCaja):N2}")</strong>
-                                            </span>
-                                        }else
-                                        {
-                                            <span class="form-control bg-success text-dark">
-                                                <strong>@($"${(request.Total - DineroEnCaja):N2}")</strong>
-                                            </span>
-                                        }
+                                        <span class="form-control @(GetTotalClass2(request.Total, DineroEnCaja)) text-dark">
+                                            <strong>@($"${(request.Total - request.Monto):N2}")</strong>
+                                        </span>
                                     }
                                 </div>
                             </div>
@@ -374,6 +322,36 @@
     public bool showCard { get; set; } = false;
     public decimal DineroEnCaja = 0;
 
+    private string GetTotalClass(decimal total)
+    {
+        if (total < request.Monto)
+        {
+            return "bg-danger";
+        }
+        else if (total > request.Monto)
+        {
+            return "bg-warning";
+        }
+        else
+        {
+            return "bg-success";
+        }
+    }
+    private string GetTotalClass2(decimal total, decimal dineroEnCaja)
+    {
+        if (total < dineroEnCaja)
+        {
+            return "bg-danger";
+        }
+        else if (total > dineroEnCaja)
+        {
+            return "bg-warning";
+        }
+        else
+        {
+            return "bg-success";
+        }
+    }
     void ShowCard()
     {
         showCard = true;
