@@ -128,6 +128,22 @@ public class CategoriaServices : ICategoriaServices
             };
         }
     }
+
+    public async Task CrearCategoria()
+    {
+        var item = await dbContext.Categorias.FirstOrDefaultAsync(u => u.Nombre == "Desconocido");
+
+        if (item == null)
+        {
+            item = new Categoria
+            {
+                Nombre = "Desconocido"
+            };
+
+            dbContext.Categorias.Add(item);
+            await dbContext.SaveChangesAsync();
+        }
+    }
 }
 public interface ICategoriaServices
 {
@@ -136,4 +152,5 @@ public interface ICategoriaServices
     Task<Result> Crear(CategoriaRequest request);
     Task<Result> Modificar(CategoriaRequest request);
     Task<Result> Eliminar(CategoriaRequest request);
+    Task CrearCategoria();
 }

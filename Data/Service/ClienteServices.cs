@@ -131,7 +131,7 @@ namespace FactuSystem.Data.Services
                 {
                     Nombre = "Cliente",
                     Apellidos = "Frecuente",
-                    Cedula = "Desconocida",
+                    Cedula = "00000000000",
                     Direccion = "Desconocida",
                     Telefono = "Desconocido",
                     Limitecredito = 0, // Asigna un valor para el límite de crédito según tus requisitos

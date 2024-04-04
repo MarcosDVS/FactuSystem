@@ -370,7 +370,7 @@ else
                                         </div>
                                         <div class="col text-end">
                                             <div class="input-group">
-                                                <button @onclick="Money" 
+                                                <button @onclick="async()=>{await Money();}" 
                                                     class="btn btn-outline-primary text-dark form-control d-print-none">
                                                     <strong>Calcular</strong>
                                                 </button>
@@ -711,7 +711,7 @@ else
     public decimal PaiedMoney = 0;
     public decimal Pending = 0;
 
-    void Money()
+    async Task Money()
     {
         if (Convert.ToDecimal(pagoRequest.MontoPagado) > SelectedFactura.SaldoPendiente)
         {
@@ -738,6 +738,7 @@ else
     }
 
     DateTime Fecha;
+    DateTime FechaPago;
     void MostrarPagos(FacturaResponse factura)
     {
         SelectedFactura = factura;
@@ -751,6 +752,9 @@ else
         CustomerName = SelectedFactura.Cliente.Nombre +" "+ SelectedFactura.Cliente.Apellidos;
         InvoiceId = SelectedFactura.Id;
         Fecha = SelectedFactura.Fecha;
+
+        // Obtener la última fecha de pago
+        FechaPago = PagosFacturaSeleccionada.Max(p => p.Fecha);
     }
 
     //De aqui en adelante es para controlar la ediccion de la factura
