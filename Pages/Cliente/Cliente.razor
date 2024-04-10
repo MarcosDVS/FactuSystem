@@ -50,31 +50,26 @@
                     <ValidationSummary />
 
                     <div class="modal-body">
+
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-person"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-person"></span>
+                            </span>
                             <input type="text" class="form-control" placeholder="Nombre" 
-                            @bind-value="request.Nombre" required />
+                                @bind-value="request.Nombre" required/>
                         </div>
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-envelope-closed"></span>
-                                </span>
-                            </div>
-                            <input id="emailInput"  class="form-control" placeholder="  Apellido" 
-                            @bind-value="request.Apellidos" required />
+                            <span class="input-group-text">
+                                <span class="oi oi-envelope-closed"></span>
+                            </span>
+                            <input id="emailInput"  class="form-control" placeholder="  Apellidos" 
+                                @bind-value="request.Apellidos" required />
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-credit-card"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-credit-card"></span>
+                            </span>
                             <input  class="form-control" placeholder="Cedula" 
                                 @bind-value="request.Cedula" 
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" 
@@ -85,11 +80,9 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-phone"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-phone"></span>
+                            </span>
                             <input class="form-control" type="tel" placeholder="Teléfono" 
                                 @bind-value="request.Telefono" 
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" 
@@ -100,20 +93,16 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-map-marker"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-map-marker"></span>
+                            </span>
                             <input class="form-control" placeholder="Dirección" 
-                            @bind-value="request.Direccion" />
+                                @bind-value="request.Direccion" />
                         </div>
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-dollar"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-dollar"></span>
+                            </span>
                             <input type="number" class="form-control" placeholder="Limite de credito" 
                             @bind-value="request.Limitecredito"/>
                         </div>

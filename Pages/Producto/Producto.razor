@@ -52,39 +52,32 @@
                         </div>
                     }
                     <div class="form-group input-group mb-3 mt-1">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-white text-black border-0">
-                                <span class="oi oi-code"></span>
-                            </span>
-                        </div>
+                        <span class="input-group-text">
+                            <span class="oi oi-code"></span>
+                        </span>
                         <input type="text" class="form-control" placeholder="Codigo" id="nombreCompleto" 
-                        @bind-value="productoRequest.Codigo" required />
+                            @bind-value="productoRequest.Codigo" required />
                     </div>
                     <div class="form-group input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-white text-black border-0">
-                                <span class="oi oi-infinity"></span>
-                            </span>
-                        </div>
-                        <input type="number" class="form-control" placeholder="Descripción" id="correo" 
-                            @bind-value="productoRequest.Stock" required min="0.01" step="0.01"/>
+                        <span class="input-group-text">
+                            <span class="oi oi-infinity"></span>
+                        </span>
+                        <input type="number" class="form-control" placeholder="Stock" id="correo" 
+                            @bind-value="productoRequest.Stock" required min="0.01" step="0.01"
+                            title="Agrega la cantidad de productos"/>
                     </div>
                     <div class="form-group input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-white text-black border-0">
-                                <span class="oi oi-document"></span>
-                            </span>
-                        </div>
+                        <span class="input-group-text">
+                            <span class="oi oi-document"></span>
+                        </span>
                         <input type="text" class="form-control" placeholder="Descripción" id="correo" 
                             @bind-value="productoRequest.Nombre" required/>
                     </div>
                     <div class="form-group input-group mb-3">
                         <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-spreadsheet"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-spreadsheet"></span>
+                            </span>
                             <select class="form-control" required @bind="productoRequest.CategoriaID">
                                 @if (Categorias.Any())
                                 {
@@ -107,11 +100,9 @@
                         </div>
                     </div>
                     <div class="form-group input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-white text-black border-0">
-                                <span class="oi oi-person"></span>
-                            </span>
-                        </div>
+                        <span class="input-group-text">
+                            <span class="oi oi-person"></span>
+                        </span>
                         <select class="form-control" required @bind="productoRequest.ProveedorID">
                             @if (Proveedores.Any())
                             {
@@ -130,23 +121,20 @@
                         </select>
                     </div>
                     <div class="form-group input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-white text-black border-0">
-                                <span class="oi oi-dollar"></span>
-                            </span>
-                        </div>
+                        <span class="input-group-text">
+                            <span class="oi oi-dollar"></span>
+                        </span>
                         <input class="form-control" placeholder="Precio/Compra" id="costo" 
                         @bind-value="productoRequest.PrecioCompra" required min="0.01" step="0.01"
-                        @oninput="ActualizarPrecioVenta" />
+                        @oninput="ActualizarPrecioVenta" title="Precio de compra"/>
                     </div>
                     <div class="form-group input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text bg-white text-black border-0">
-                                <span class="oi oi-dollar"></span>
-                            </span>
-                        </div>
+                        <span class="input-group-text">
+                            <span class="oi oi-dollar"></span>
+                        </span>
                         <input class="form-control" placeholder="Precio/Venta" id="precio" 
-                        @bind-value="productoRequest.Precio" required min="0.01" step="0.01"/>
+                        @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
+                        title="Precio de venta"/>
                     </div>
                 </div>
 

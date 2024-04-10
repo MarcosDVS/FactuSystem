@@ -50,34 +50,27 @@
 
                     <div class="modal-body">
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-person"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-person"></span>
+                            </span>
                             <input type="text" class="form-control" placeholder="Nombre" 
-                            @bind-value="proveedorRequest.NombreEmp" required />
+                                @bind-value="proveedorRequest.NombreEmp" required />
                         </div>
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-envelope-closed"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-envelope-closed"></span>
+                            </span>
                             <input id="emailInput" type="email" class="form-control" placeholder="Email" 
-                            @bind-value="proveedorRequest.Email" />
+                                @bind-value="proveedorRequest.Email" />
                         </div>
 
                        
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-phone"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-phone"></span>
+                            </span>
                             <input 
-                                class="form-control" 
-                                placeholder="Teléfono" type="tel"
+                                class="form-control" placeholder="Teléfono" type="tel"
                                 @bind-value="proveedorRequest.Telefono" 
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" 
                                 required 
@@ -88,11 +81,9 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white text-black border-0">
-                                    <span class="oi oi-map-marker"></span>
-                                </span>
-                            </div>
+                            <span class="input-group-text">
+                                <span class="oi oi-map-marker"></span>
+                            </span>
                             <input class="form-control" placeholder="Dirección" 
                             @bind-value="proveedorRequest.Direccion"/>
                         </div>
