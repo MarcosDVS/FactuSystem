@@ -58,14 +58,37 @@
                         <input type="text" class="form-control" placeholder="Codigo" id="nombreCompleto" 
                             @bind-value="productoRequest.Codigo" required />
                     </div>
-                    <div class="form-group input-group mb-3">
-                        <span class="input-group-text">
-                            <span class="oi oi-infinity"></span>
-                        </span>
-                        <input type="number" class="form-control" placeholder="Stock" id="correo" 
-                            @bind-value="productoRequest.Stock" required min="0.01" step="0.01"
-                            title="Agrega la cantidad de productos"/>
-                    </div>
+                    @if(productoRequest.Id > 0)
+                    {
+                        <div class="row mb-3">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text">
+                                        <span class="oi oi-plus"></span>
+                                    </label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="Stock"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="input-group">
+                                    <label class="input-group-text"><strong>Stock</strong></label>
+                                    <input type="number" class="form-control"  
+                                        @bind-value="productoRequest.Stock"/>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else{
+                        <div class="form-group input-group mb-3">
+                            <span class="input-group-text">
+                                <strong>Stock</strong>
+                            </span>
+                            <input type="number" class="form-control" placeholder="Stock" id="correo" 
+                                @bind-value="productoRequest.Stock" required min="0.01" step="0.01"
+                                title="Agrega la cantidad de productos"/>
+                        </div>
+                    }
                     <div class="form-group input-group mb-3">
                         <span class="input-group-text">
                             <span class="oi oi-document"></span>
@@ -78,7 +101,7 @@
                             <span class="input-group-text">
                                 <span class="oi oi-spreadsheet"></span>
                             </span>
-                            <select class="form-control" required @bind="productoRequest.CategoriaID">
+                            <select class="form-select" placeholder="Categoria" required @bind="productoRequest.CategoriaID">
                                 @if (Categorias.Any())
                                 {
                                     <option disabled selected>Selecciona una categoría</option>
@@ -101,28 +124,7 @@
                     </div>
                     <div class="form-group input-group mb-3">
                         <span class="input-group-text">
-                            <span class="oi oi-person"></span>
-                        </span>
-                        <select class="form-control" required @bind="productoRequest.ProveedorID">
-                            @if (Proveedores.Any())
-                            {
-                                <option disabled selected>Selecciona un proveedor</option>
-                                @foreach (var item in Proveedores)
-                                {
-                                    <option value="@item.Id">
-                                        @item.NombreEmp
-                                    </option>
-                                }
-                            }
-                            else
-                            {
-                                <option disabled selected>No hay proveedores disponibles</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="form-group input-group mb-3">
-                        <span class="input-group-text">
-                            <span class="oi oi-dollar"></span>
+                            <span class="oi oi-dollar"><strong>Compra</strong></span>
                         </span>
                         <input class="form-control" placeholder="Precio/Compra" id="costo" 
                         @bind-value="productoRequest.PrecioCompra" required min="0.01" step="0.01"
@@ -130,7 +132,7 @@
                     </div>
                     <div class="form-group input-group mb-3">
                         <span class="input-group-text">
-                            <span class="oi oi-dollar"></span>
+                            <span class="oi oi-dollar"><strong>Venta</strong></span>
                         </span>
                         <input class="form-control" placeholder="Precio/Venta" id="precio" 
                         @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
@@ -184,7 +186,6 @@
                             <th>Stock</th>
                             <th>Nombre</th>
                             <th>Categoria</th>
-                            <th>Proveedor</th>
                             <th>Precio/Compra</th>
                             <th>Precio/Venta</th>
                             <th class="d-print-none">...</th>
@@ -198,7 +199,6 @@
                                 <td>@productoRow.Stock</td>
                                 <td>@productoRow.Nombre</td>
                                 <td>@productoRow.NombreCategoriatexto</td>
-                                <td>@productoRow.NombreProveedortexto</td>
                                 <td>@productoRow.PrecioCompra.ToString("N2")</td>
                                 <td>@productoRow.Precio.ToString("N2")</td>
                                 <td class="d-print-none">
@@ -235,6 +235,7 @@
     public string Message { get; set; } = null;
     public string Nombre { get; set; } = string.Empty;
     public string NombreEmp { get; set; } = string.Empty;
+    public int Stock = 0;
     void GoCategory()
     {
         urlHelper.NavigateTo("category");
@@ -319,6 +320,10 @@
             var r = await productoServices.Modificar(productoRequest);
             if (r.Success)
             {
+                if(Stock > 0)
+                {
+                    productoRequest.Stock += Stock;
+                }
                 Cancelar();
                 await CargarContactos();
                 StateHasChanged();

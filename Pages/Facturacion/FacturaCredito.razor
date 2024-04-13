@@ -724,7 +724,6 @@ else
             return;
         }
         ErrorMessage = null;
-        DetallesPago = true;
         PaiedMoney = Convert.ToDecimal(pagoRequest.MontoPagado);
         Pending = PendingMoney - PaiedMoney;
         
@@ -925,7 +924,7 @@ else
         StateHasChanged();
     }
 
-    int facturaId;
+    
    
     public string TypePayment {get; set;} = string.Empty;
     async Task Send()
