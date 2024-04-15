@@ -32,7 +32,8 @@
     }
 </style>
 
-<h1 class="titulo-proveedores">Listado de Clientes</h1>
+<h1 class="titulo-proveedores d-print-none">Listado de Clientes</h1>
+<h1 class="d-none d-print-block text-center">Listado de Clientes</h1>
 
 
 <div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
@@ -52,14 +53,14 @@
                     <div class="modal-body">
 
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-person"></span>
                             </span>
                             <input type="text" class="form-control" placeholder="Nombre" 
                                 @bind-value="request.Nombre" required/>
                         </div>
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-envelope-closed"></span>
                             </span>
                             <input id="emailInput"  class="form-control" placeholder="  Apellidos" 
@@ -67,7 +68,7 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-credit-card"></span>
                             </span>
                             <input  class="form-control" placeholder="Cedula" 
@@ -80,7 +81,7 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-phone"></span>
                             </span>
                             <input class="form-control" type="tel" placeholder="Teléfono" 
@@ -93,14 +94,14 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-map-marker"></span>
                             </span>
                             <input class="form-control" placeholder="Dirección" 
                                 @bind-value="request.Direccion" />
                         </div>
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-dollar"></span>
                             </span>
                             <input type="number" class="form-control" placeholder="Limite de credito" 

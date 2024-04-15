@@ -31,7 +31,8 @@
     }
 </style>
 
-<h1 class="titulo-proveedores">Listado de Proveedores</h1>
+<h1 class="titulo-proveedores d-print-none">Listado de Proveedores</h1>
+<h1 class="d-none d-print-block text-center">Listado de Proveedores</h1>
 
 
 <div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
@@ -50,14 +51,14 @@
 
                     <div class="modal-body">
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-person"></span>
                             </span>
                             <input type="text" class="form-control" placeholder="Nombre" 
                                 @bind-value="proveedorRequest.NombreEmp" required />
                         </div>
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-envelope-closed"></span>
                             </span>
                             <input id="emailInput" type="email" class="form-control" placeholder="Email" 
@@ -66,7 +67,7 @@
 
                        
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-phone"></span>
                             </span>
                             <input 
@@ -81,7 +82,7 @@
                         </div>
 
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-map-marker"></span>
                             </span>
                             <input class="form-control" placeholder="Dirección" 

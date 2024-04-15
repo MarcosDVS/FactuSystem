@@ -26,9 +26,9 @@
         padding: 10px; /* Añadir espacio alrededor del texto */
     }
 </style>
+<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
 @if(Form)
 {
-    <PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
     <EditForm Model="facturaRequest" OnValidSubmit="Send">
         @*Disenar el espacio para el cliente o contacto a facturarle*@
         <div class="input-group mb-3">
@@ -247,7 +247,8 @@ else
     {
         <div class="row">
             <div class="col-12">
-                <h1 class="titulo">@TituloForm</h1>
+                <h1 class="titulo d-print-none">@TituloForm</h1>
+                <h1 class="d-none d-print-block text-center">@TituloForm</h1>
             </div>
         </div>
         <div class="modal" style="display: @(detailsPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
@@ -255,7 +256,8 @@ else
                 <div class="modal-content">
                     <div class="modal-header bg-dark text-white">
                         <h5 class="modal-title"><b>Detalles de los Pagos</b></h5>
-                        <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
+                        <button type="button" class="close btn btn-danger" data-dismiss="modal" 
+                        aria-label="Close" @onclick="CloseDetailsPago">
                             <span aria-hidden="true" class="oi oi-x"></span>
                         </button>
                     </div>
@@ -270,7 +272,10 @@ else
                             </div>
                         }
                         else{
-                            <table class="table table-hover">
+                            <div class="alert-warning text-dark" role="alert" style="display: @(string.IsNullOrEmpty(ErrorMessage) ? "none" : "block")">
+                                <strong>@ErrorMessage</strong> 
+                            </div>
+                            <table class="table table-hover mt-2">
                                 <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
                                     <tr>
                                         <th>FacturaId</th>
@@ -295,7 +300,8 @@ else
                     </div>
                     <div class="modal-footer bg-dark text-white d-print-none">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-primary" @onclick="FormPago">Agregar Pago</button>
+                            <input type="number" @bind-value="@PaiedMoney">
+                            <button type="submit" class="btn btn-primary" @onclick="async()=>{await FormPago();}">Agregar Pago</button>
                         </div>
                     </div>
                 </div>
@@ -318,43 +324,27 @@ else
                                 <strong>@ErrorMessage</strong> 
                             </div>
 
-                            <div class="form-group input-group mb-3">
-                                <div class="input-group-prepend d-print-none">
-                                    <span class="input-group-text bg-white text-black border-0">
-                                        <span class="oi oi-calendar"></span>
-                                    </span>
-                                </div>
+                            <div class="form-group input-group d-print-none mb-3">
+                                <span class="input-group-text bg-white text-black">
+                                    <span class="oi oi-calendar"></span>
+                                </span>
                                 <input type="date" class="form-control" placeholder="Fecha" 
                                 @bind-value="pagoRequest.Fecha" readonly/>
                             </div>
                             
                             <div class="form-group input-group mb-3 d-print-none">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-white text-black border-0">
-                                        <span class="oi oi-code"></span>
-                                    </span>
-                                </div>
+                                <span class="input-group-text bg-white text-black ">
+                                    <span class="oi oi-code"></span>
+                                </span>
                                 <input type="text" class="form-control" placeholder="Codigo"
                                 @bind-value="pagoRequest.FacturaID" readonly />
                             </div>
-                            
-                            <div class="form-group input-group mb-3 d-print-none">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-white text-black border-0">
-                                        <span class="oi oi-dollar"></span>
-                                    </span>
-                                </div>
-                                <input type="number" class="form-control" placeholder="Monto a Pagar" 
-                                @bind-value="pagoRequest.MontoPagado" required min="0.01" step="0.01"/>
-                            </div>
 
                             <div class="form-group input-group mb-3 d-print-none">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-white text-black border-0">
-                                        <span class="oi oi-align-left"></span>
-                                    </span>
-                                </div>
-                                <select class="form-control" @bind="@pagoRequest.Observacion" required>
+                                <span class="input-group-text bg-white text-black">
+                                    <span class="oi oi-align-left"></span>
+                                </span>
+                                <select class="form-select" @bind="@pagoRequest.Observacion" required>
                                     <option disabled selected value="">Observación</option>
                                     <option value="Justo 😉">Justo 😉</option>
                                     <option value="Antes 😎">Antes 😎</option>
@@ -365,16 +355,12 @@ else
                             <div class="card">
                                 <div class="card-header">
                                     <div class="row">
-                                        <div class="col-7">
+                                        <div class="col">
                                             <h5><b>Pago de la factura Nº: @InvoiceId</b></h5>
                                         </div>
                                         <div class="col text-end">
                                             <div class="input-group">
-                                                <button @onclick="async()=>{await Money();}" 
-                                                    class="btn btn-outline-primary text-dark form-control d-print-none">
-                                                    <strong>Calcular</strong>
-                                                </button>
-                                                <label class="input-group-text text-end"><strong>@Fecha.ToShortDateString()</strong></label>
+                                                <label class="input-group-text"><strong>@Fecha.ToLongDateString()</strong></label>
                                             </div>
                                         </div>
                                     </div>
@@ -483,7 +469,7 @@ else
                                     <th scope="col">Importe</th>
                                     <th scope="col">Pendiente</th>
                                     <th scope="col">Fecha</th>
-                                    <th scope="col">...</th>
+                                    <th scope="col" class="d-print-none">...</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -644,11 +630,23 @@ else
     bool MostrarErrorSeleccion { get; set; } = false;
     public string? ErrorMessage { get; set; } = null;
 
-    void FormPago()
+    async Task FormPago()
     {
+        if (PaiedMoney < 1)
+        {
+            ErrorMessage = "El monto a pagar no puede ser $0";
+            return;
+        }
+        if (PaiedMoney > SelectedFactura.SaldoPendiente)
+        {
+            ErrorMessage = "El monto a pagar no puede ser mayor al saldo pendiente $" + SelectedFactura.SaldoPendiente.ToString("N2");
+            return;
+        }
+        ErrorMessage = null;
         formPago = true;
         detailsPago = false;
         pagoRequest.FacturaID = InvoiceId;
+        await Money();
 
     }
     void CloseFormPago()
@@ -664,17 +662,11 @@ else
         pagoRequest  = new PagoRequest();
         formPago = false;
     }
-    public void SeleccionarPago(int Id)
-    {
-        formPago = true;
-        pagoRequest = Pagos
-        .Where(c => c.Id == Id)
-        .Select(c => c.ToRequest())
-        .FirstOrDefault() ?? new PagoRequest();
-    }
+    
     public async Task SendPago()
     {
         pagoRequest.Fecha = DateTime.Now;
+        pagoRequest.MontoPagado = Convert.ToDouble(PaiedMoney);
         if (pagoRequest.Id == 0)
         {
             // Debo registrar el contacto..
@@ -699,6 +691,7 @@ else
     void CloseDetailsPago()
     {
         detailsPago = false;
+        ErrorMessage = null;
     } 
 
     public List<PagoResponse> PagosFacturaSeleccionada { get; set; } = new List<PagoResponse>();
@@ -713,18 +706,8 @@ else
 
     async Task Money()
     {
-        if (Convert.ToDecimal(pagoRequest.MontoPagado) > SelectedFactura.SaldoPendiente)
-        {
-            ErrorMessage = "El monto a pagar no puede ser mayor al saldo pendiente $" + SelectedFactura.SaldoPendiente.ToString("N2");
-            return;
-        }
-        if (pagoRequest.MontoPagado < 1)
-        {
-            ErrorMessage = "El pago debe ser mayor a $0";
-            return;
-        }
         ErrorMessage = null;
-        PaiedMoney = Convert.ToDecimal(pagoRequest.MontoPagado);
+        pagoRequest.MontoPagado = Convert.ToDouble(PaiedMoney);
         Pending = PendingMoney - PaiedMoney;
         
     }

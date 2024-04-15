@@ -31,7 +31,8 @@
     }
 </style>
 <PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
-<h1 class="titulo-proveedores">Listado de Productos</h1>
+<h1 class="titulo-proveedores d-print-none">Listado de Productos</h1>
+<h1 class="d-none d-print-block text-center">Listado de Productos</h1>
 
 <div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -52,7 +53,7 @@
                         </div>
                     }
                     <div class="form-group input-group mb-3 mt-1">
-                        <span class="input-group-text">
+                        <span class="input-group-text bg-white text-black">
                             <span class="oi oi-code"></span>
                         </span>
                         <input type="text" class="form-control" placeholder="Codigo" id="nombreCompleto" 
@@ -63,16 +64,16 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <div class="input-group">
-                                    <label class="input-group-text">
+                                    <label class="input-group-text bg-white text-black">
                                         <span class="oi oi-plus"></span>
                                     </label>
                                     <input type="number" class="form-control"  
-                                        @bind-value="Stock"/>
+                                        @bind-value="@Stock"/>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="input-group">
-                                    <label class="input-group-text"><strong>Stock</strong></label>
+                                    <label class="input-group-text bg-white text-black"><strong>Stock</strong></label>
                                     <input type="number" class="form-control"  
                                         @bind-value="productoRequest.Stock"/>
                                 </div>
@@ -81,7 +82,7 @@
                     }
                     else{
                         <div class="form-group input-group mb-3">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <strong>Stock</strong>
                             </span>
                             <input type="number" class="form-control" placeholder="Stock" id="correo" 
@@ -90,7 +91,7 @@
                         </div>
                     }
                     <div class="form-group input-group mb-3">
-                        <span class="input-group-text">
+                        <span class="input-group-text bg-white text-black">
                             <span class="oi oi-document"></span>
                         </span>
                         <input type="text" class="form-control" placeholder="Descripción" id="correo" 
@@ -98,7 +99,7 @@
                     </div>
                     <div class="form-group input-group mb-3">
                         <div class="input-group">
-                            <span class="input-group-text">
+                            <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-spreadsheet"></span>
                             </span>
                             <select class="form-select" placeholder="Categoria" required @bind="productoRequest.CategoriaID">
@@ -123,7 +124,7 @@
                         </div>
                     </div>
                     <div class="form-group input-group mb-3">
-                        <span class="input-group-text">
+                        <span class="input-group-text bg-white text-black">
                             <span class="oi oi-dollar"><strong>Compra</strong></span>
                         </span>
                         <input class="form-control" placeholder="Precio/Compra" id="costo" 
@@ -131,7 +132,7 @@
                         @oninput="ActualizarPrecioVenta" title="Precio de compra"/>
                     </div>
                     <div class="form-group input-group mb-3">
-                        <span class="input-group-text">
+                        <span class="input-group-text bg-white text-black">
                             <span class="oi oi-dollar"><strong>Venta</strong></span>
                         </span>
                         <input class="form-control" placeholder="Precio/Venta" id="precio" 
@@ -235,7 +236,7 @@
     public string Message { get; set; } = null;
     public string Nombre { get; set; } = string.Empty;
     public string NombreEmp { get; set; } = string.Empty;
-    public int Stock = 0;
+    public int Stock { get; set; } = 0;
     void GoCategory()
     {
         urlHelper.NavigateTo("category");
@@ -250,6 +251,7 @@
         productoRequest  = new ProductoRequest();
         showCard = false;
         Message = null;
+        Stock = 0;
     }
 
     async Task CargarContactos()
@@ -291,6 +293,7 @@
     {
         productoRequest  = new ProductoRequest();
         showCard = false;
+        Stock = 0;
     }
     
     public async Task Send()
@@ -317,13 +320,13 @@
         else
         {
             // Debo solicitar modificar el producto.
+            if(Stock > 0)
+            {
+                productoRequest.Stock += Stock;
+            }
             var r = await productoServices.Modificar(productoRequest);
             if (r.Success)
             {
-                if(Stock > 0)
-                {
-                    productoRequest.Stock += Stock;
-                }
                 Cancelar();
                 await CargarContactos();
                 StateHasChanged();
@@ -350,10 +353,7 @@
             StateHasChanged();
         }
     }
-    public void PrecioAum()
-    {
-        productoRequest.Precio = productoRequest.PrecioCompra + (productoRequest.PrecioCompra * (30/100));
-    }
+    
     private async Task PrintPageAsync()
     {
         // Llama a la función JavaScript para imprimir la página
