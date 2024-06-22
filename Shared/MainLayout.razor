@@ -1,12 +1,12 @@
 ﻿@inherits LayoutComponentBase
 @using System.Security.Claims
 
-<PageTitle>FactuSystem</PageTitle>
+<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
 
 <div class="page">
     <AuthorizeView>
         <Authorized>
-            <div class="sidebar d-print-none" style="background-color: darkblue;">
+            <div class="sidebar d-print-none">
                 <NavMenu />
             </div>
         </Authorized>
@@ -15,7 +15,7 @@
     <main>
         <AuthorizeView>
                 <Authorized>
-                    <div class="top-row px-4 d-print-none" style="background-color: rgb(0, 0, 17);">
+                    <div class="top-row px-4 d-print-none" style="background-color: #040505;">
                         <a class="nav-link active text-white" href="user">
                             <span class="oi oi-person"></span>
                             <strong>@context.User.FindFirstValue(ClaimTypes.GivenName)</strong>

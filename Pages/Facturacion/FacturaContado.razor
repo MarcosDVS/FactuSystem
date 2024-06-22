@@ -3,8 +3,6 @@
 @inject IJSRuntime JSRuntime
 @attribute [Authorize]
 
-<PageTitle>Factura</PageTitle>
-
 <style>
     /* Estilo para el contenedor de la tabla */
     .table-container {
@@ -27,7 +25,7 @@
         padding: 10px; /* Añadir espacio alrededor del texto */
     }
 </style>
-<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
+
 @if(Form)
 {
     <EditForm Model="facturaRequest" OnValidSubmit="Send">
@@ -260,7 +258,6 @@ else
     {
         <div class="row">
             <div class="col-12">
-                <h1 class="titulo d-print-none">@TituloForm</h1>
                 <h1 class="d-none d-print-block text-center">@TituloForm</h1>
             </div>
         </div>
@@ -343,7 +340,7 @@ else
                     </div>
                     <div class="row-12 mt-2">
                         <table class="table table-striped">
-                            <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                            <thead class="bg-black text-white">
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Cliente</th>
@@ -358,7 +355,7 @@ else
                             <tbody>
                                 @foreach (var f in Facturas)
                                 {
-                                    @if(f.TypePayment == "1" || f.SaldoPendiente == 0)    
+                                    @if(f.TypePayment == "1" || f.SaldoPendiente <= 0)    
                                     {
                                         <tr>
                                             <th scope="row">@f.Id</th>

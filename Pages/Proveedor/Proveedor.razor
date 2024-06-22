@@ -1,7 +1,7 @@
 @page "/proveedor"
 @inject IJSRuntime JSRuntime;
 @attribute [Authorize]
-<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
+
 <style>
     /* Estilo para resaltar las filas al pasar el cursor */
     .table-hover tbody tr:hover {
@@ -23,15 +23,8 @@
         text-align: center;
     }
 
-    .titulo-proveedores {
-        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);
-        color: #ffffff; /* Texto blanco */
-        text-align: center; /* Centrar texto */
-        padding: 10px; /* Añadir espacio alrededor del texto */
-    }
 </style>
 
-<h1 class="titulo-proveedores d-print-none">Listado de Proveedores</h1>
 <h1 class="d-none d-print-block text-center">Listado de Proveedores</h1>
 
 
@@ -131,7 +124,7 @@
 
             <div class="row-12 mt-2">
                 <table class="table table-striped">
-                    <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                    <thead class="bg-black text-white">
                         <tr>
                             <th>#</th>
                             <th>Nombre completo</th>

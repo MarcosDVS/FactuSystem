@@ -1,6 +1,5 @@
 @page "/cuadre"
 @attribute [Authorize]
-<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
 
 <style>
     /* Estilo para el contenedor de la tabla */
@@ -17,20 +16,12 @@
     .table th, .table td {
         text-align: center;
     }
-
-    .titulo-proveedores {
-        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);
-        color: #ffffff; /* Texto blanco */
-        text-align: center; /* Centrar texto */
-        padding: 10px; /* Añadir espacio alrededor del texto */
-    }
 </style>
 
 
 
 <div class="row">
     <div class="col-12">
-        <h1 class="titulo-proveedores d-print-none">Listado de cuadres</h1>
         <h1 class="d-none d-print-block text-center">Listado de cuadres</h1>
     </div>
 </div>
@@ -252,7 +243,7 @@
 
             <div class="row-12 mt-2">
                 <table class="table table-striped">
-                    <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                    <thead class="bg-black text-white">
                         <tr>
                             <th>Fecha</th>
                             <th>Cajero</th>
@@ -370,12 +361,8 @@
 
         // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
         var Contado = facturasPosteriores
-            .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
+            .Where(c => c.TypePayment == "1" && c.SaldoPendiente <= 0)
             .Sum(c => c.SubTotal);
-
-        var Credito = facturasPosteriores
-            .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
-            .Sum(c => c.SaldoPendiente);
 
         var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);

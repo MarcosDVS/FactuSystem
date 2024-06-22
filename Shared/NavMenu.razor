@@ -2,7 +2,7 @@
 @inject AuthenticationStateProvider authStateProvider
 
 <div class=" d-flex flex-column" style="min-height: 100vh;">
-    <div class="top-row ps-3 navbar navbar-dark" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);">
+    <div class="top-row ps-3 navbar navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="">Yoja's Drinks & Heladería</a>
             <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -40,30 +40,31 @@
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="proveedor">
-                        <span class="oi oi-people" aria-hidden="true"></span> Proveedores
+                        <span class="oi oi-briefcase" aria-hidden="true"></span> Proveedores
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <div class="dropdown">
-                        <NavLink class="nav-link" @onclick="ToggleDropdown">
-                            <span class="oi oi-spreadsheet " aria-hidden="true"></span> <strong>Factura</strong>
+                        <NavLink class="nav-link" @onclick="ToggleDropdown" title="Opción desplegable">
+                            <span class="@DropdownIconClass" aria-hidden="true"></span>
+                            <strong>Factura</strong>
                         </NavLink>
                         @if (showDropdown)
                         {
                             <div class="dropdown-content">
                                 <div class="nav-item px-3">
-                                    <NavLink class="nav-link" @onclick="Vender">
+                                    <NavLink class="nav-link" href="factura/vender">
                                         <span class="oi oi-document " aria-hidden="true">
                                         </span> Vender
                                     </NavLink>
                                 </div>
                                 <div class="nav-item px-3">
-                                    <NavLink class="nav-link" @onclick="Pagas">
+                                    <NavLink class="nav-link" href="factura/paga">
                                         <span class="oi oi-dollar" aria-hidden="true"></span> Facturas/Contado
                                     </NavLink>
                                 </div>
                                 <div class="nav-item px-3">
-                                    <NavLink class="nav-link" @onclick="Cobrar">
+                                    <NavLink class="nav-link" href="factura/cobrar">
                                         <span class="oi oi-credit-card " aria-hidden="true"></span> Facturas/Crédito
                                     </NavLink>
                                 </div>
@@ -79,7 +80,7 @@
     <div class="mt-auto">
         <!-- Opción Log Out aquí -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link" @onclick="Logout">
+            <NavLink class="nav-link btn-lg" @onclick="Logout">
                 <span class="oi oi-account-logout" aria-hidden="true"></span> Log Out
             </NavLink>
         </div>
@@ -96,24 +97,14 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+    
+
+    private string DropdownIconClass => showDropdown ? "oi oi-caret-top" : "oi oi-caret-bottom";
     private bool showDropdown = false;
 
     private void ToggleDropdown()
     {
         showDropdown = !showDropdown;
-    }
-
-    void Vender()
-    {
-        urlHelper.NavigateTo("factura/vender");
-    }
-    void Pagas()
-    {
-        urlHelper.NavigateTo("factura/paga");
-    }
-    void Cobrar()
-    {
-        urlHelper.NavigateTo("factura/cobrar");
     }
 
     private async Task Logout()

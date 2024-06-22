@@ -19,14 +19,8 @@
         text-align: center;
     }
 
-    .titulo {
-        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);
-        color: #ffffff; /* Texto blanco */
-        text-align: center; /* Centrar texto */
-        padding: 10px; /* Añadir espacio alrededor del texto */
-    }
 </style>
-<PageTitle>Yoja's Drinks & Heladería Los Paso</PageTitle>
+
 @if(Form)
 {
     <EditForm Model="facturaRequest" OnValidSubmit="Send">
@@ -247,7 +241,6 @@ else
     {
         <div class="row">
             <div class="col-12">
-                <h1 class="titulo d-print-none">@TituloForm</h1>
                 <h1 class="d-none d-print-block text-center">@TituloForm</h1>
             </div>
         </div>
@@ -276,7 +269,7 @@ else
                                 <strong>@ErrorMessage</strong> 
                             </div>
                             <table class="table table-hover mt-2">
-                                <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                                <thead class="bg-black text-white">
                                     <tr>
                                         <th>FacturaId</th>
                                         <th>Monto/Pagado</th>
@@ -459,7 +452,7 @@ else
                     </div>
                     <div class="row-12 mt-2">
                         <table class="table table-striped">
-                            <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+                            <thead class="bg-black text-white">
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Cliente</th>
@@ -476,7 +469,7 @@ else
                                 @foreach (var f in Facturas)
                                 {
                                     
-                                    @if(f.TypePayment == "2" && f.SaldoPendiente > 0)    
+                                    @if(f.TypePayment == "2")    
                                     {
                                         <tr>
                                             <th scope="row">@f.Id</th>
@@ -493,10 +486,14 @@ else
                                             <td>@f.Fecha.ToShortDateString()</td>
                                             <td>
                                                 <div class="button d-print-none">
-                                                    <button @onclick="() => MostrarPagos(f)"
-                                                        class="btn btn-outline-success">
-                                                        <span class="oi oi-dollar"></span>
-                                                    </button>
+                                                    @if (f.SaldoPendiente > 0)
+                                                    {
+                                                        <button @onclick="() => MostrarPagos(f)"
+                                                            class="btn btn-outline-success ">
+                                                            <span class="oi oi-dollar"></span>
+                                                        </button>
+                                                    
+                                                    }
                                                     <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-warning">
                                                         <span class="oi oi-pencil"></span>
                                                     </button>

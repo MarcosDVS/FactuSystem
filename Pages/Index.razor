@@ -26,7 +26,7 @@
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
     .titulo {
-        background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); /* Fondo oscuro */
+        background-image: linear-gradient(180deg, #0d0e0f 0%, #040505 70%); /* Fondo oscuro */
         color: #ffffff; /* Texto blanco */
         padding: 10px; /* Añadir espacio alrededor del texto */
     }
@@ -41,7 +41,7 @@
     <hr>
     <div class="row">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" title="La suma total de los ingresos recibidos durante el mes en curso.">
                 <div class="card-body">
                     <h5 class="card-title">
                         <span class="oi oi-dollar oi mr-2"></span>
@@ -52,7 +52,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" title="La suma total de los ingresos recibidos durante el año en curso.">
                 <div class="card-body">
                     <h5 class="card-title">
                         <span class="oi oi-dollar oi mr-2"></span>
@@ -67,7 +67,7 @@
 
     <div class="row mt-4">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" title="La suma total de las ventas al contado durante el día en curso.">
                 <div class="card-body">
                     <h5 class="card-title">
                         <span class="oi oi-dollar oi mr-2"></span>
@@ -78,7 +78,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" title="La suma total de las ventas a crédito durante el día en curso.">
                 <div class="card-body">
                     <h5 class="card-title">
                         <span class="oi oi-dollar oi mr-2"></span>
@@ -92,7 +92,7 @@
 
     <div class="row mt-4">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" title="La suma total de las ventas al contado y los pagos de las ventas a crédito durante el día en curso.">
                 <div class="card-body" @onclick="Cuadre">
                     <h5 class="card-title" >
                         <span class="oi oi-dollar oi mr-2"></span>
@@ -103,7 +103,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card">
+            <div class="card" title="La suma total de las ventas al contado y crédito durante el día en curso.">
                 <div class="card-body">
                     <h5 class="card-title">
                         <span class="oi oi-dollar oi mr-2"></span>
@@ -142,41 +142,42 @@
         int currentMonth = today.Month;
 
         var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Year == currentYear && c.Fecha.Month == currentMonth)
+            .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Year == currentYear && c.Fecha.Month == currentMonth)
             .Sum(c => c.SubTotal);
 
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Year == currentYear && c.Fecha.Month == currentMonth)
-            .Sum(c => c.SaldoPendiente);
+        var Pago = Pagos
+            .Where(c => c.Fecha.Year == currentMonth)
+            .Sum(c => c.MontoPagado);
 
-        IngresoMensual = Contado + Credito;
+        IngresoMensual = Contado + Convert.ToDecimal(Pago);
     }
 
     void OneYearIncome()
     {
         DateTime today = DateTime.Today;
         int currentYear = today.Year;
+        int currentMonth = today.Month;
 
         var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Year == currentYear)
+            .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Year == currentYear)
             .Sum(c => c.SubTotal);
 
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Year == currentYear)
-            .Sum(c => c.SaldoPendiente);
+        var Pago = Pagos
+            .Where(c => c.Fecha.Year == currentYear)
+            .Sum(c => c.MontoPagado);
 
-        IngresoAnual = Contado + Credito;
+        IngresoAnual = Contado + Convert.ToDecimal(Pago);;
     }
     void AllSell()
     {
         DateTime today = DateTime.Today;
 
         var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Date == today)
             .Sum(c => c.SubTotal);
 
         var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
+            .Where(c => (c.TypePayment == "2") && c.Fecha.Date == today)
             .Sum(c => c.SaldoPendiente);
 
         IngresoTotal = Contado + Credito;
@@ -191,7 +192,7 @@
 
         // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
         var Contado = facturasPosteriores
-            .Where(c => c.TypePayment == "1" || c.SaldoPendiente == 0)
+            .Where(c => c.TypePayment == "1" && c.SaldoPendiente <= 0)
             .Sum(c => c.SubTotal);
 
         
@@ -207,7 +208,7 @@
         DateTime today = DateTime.Today;
 
         var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" || c.SaldoPendiente == 0) && c.Fecha.Date == today)
+            .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Date == today)
             .Sum(c => c.SubTotal);
 
         VentaContado = Contado;
@@ -218,8 +219,8 @@
         DateTime today = DateTime.Today;
 
         var Credito = Facturas
-            .Where(c => (c.TypePayment == "2" && c.SaldoPendiente > 0) && c.Fecha.Date == today)
-            .Sum(c => c.SaldoPendiente);
+            .Where(c => (c.TypePayment == "2") && c.Fecha.Date == today)
+            .Sum(c => c.SubTotal);
 
         VentaCredito = Credito;
     }
