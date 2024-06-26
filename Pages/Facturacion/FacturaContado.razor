@@ -262,56 +262,6 @@ else
             </div>
         </div>
 
-        <div class="modal" style="display: @(detailsPago ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header bg-dark text-white">
-                        <h5 class="modal-title"><b>Detalles de los Pagos</b></h5>
-                        <button type="button" class="close btn btn-danger d-print-none" data-dismiss="modal" aria-label="Close" @onclick="CloseDetailsPago">
-                            <span aria-hidden="true" class="oi oi-x"></span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        @if(FacturaSinPagos)
-                        {
-                            <div class="alert alert-success" role="alert">
-                                <h4 class="alert-heading">¡Aviso!</h4>
-                                <p>Este cliente pago al contado 😎.</p>
-                                <hr>
-                                <p class="mb-0">Por favor, asegúrese de conservar este cliente. ¡Gracias!
-                                </p>
-                            </div>
-                        }
-                        else{
-                            <table class="table table-hover">
-                                <thead class="table" style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
-                                    <tr>
-                                        <th>FacturaId</th>
-                                        <th>Monto/Pagado</th>
-                                        <th>Observación</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var pago in PagosFacturaSeleccionada)
-                                    {
-                                        <tr>
-                                            <td>@pago.FacturaID</td>
-                                            <td>$@pago.MontoPagado.ToString("N2")</td>
-                                            <td>@pago.Observacion</td>
-                                            <td>@pago.Fecha.ToShortDateString()</td>
-                                        </tr>
-                                    } 
-                                </tbody>
-                            </table>
-                        }
-                    </div>
-                    <div class="modal-footer bg-dark text-white d-print-none">
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Mostrar la lista de facturas -->
         <div class="table-container">
@@ -371,10 +321,6 @@ else
                                             <td>@f.Fecha.ToShortDateString()</td>
                                             <td>
                                                 <div class="button d-print-none">
-                                                    <button @onclick="() => MostrarPagos(f)"
-                                                        class="btn btn-outline-success">
-                                                        <span class="oi oi-dollar"></span>
-                                                    </button>
                                                         <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-warning">
                                                             <span class="oi oi-pencil"></span>
                                                         </button>
