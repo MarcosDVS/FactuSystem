@@ -54,6 +54,7 @@
                                 </span>
                             }
                         </div>
+
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
@@ -247,6 +248,9 @@
                         <tr>
                             <th>Fecha</th>
                             <th>Cajero</th>
+                            <th>Venta/Crédito</th>
+                            <th>Venta/Contado</th>
+                            <th>Abonado</th>
                             <th>Monto</th>
                             <th>Cuadrado</th>
                             <th>Resultado</th>
@@ -259,6 +263,9 @@
                             <tr>
                                 <td>@item.Fecha.ToString("dddd, dd MMMM yyyy hh:mm tt")</td>
                                 <td>@item.Cajero</td>
+                                <td>$@item.VentaCredito.ToString("N2")</td>
+                                <td>$@item.VentaContado.ToString("N2")</td>
+                                <td>$@item.Abonado.ToString("N2")</td>
                                 <td>$@item.Monto.ToString("N2")</td>
                                 <td>$@item.MontoCuadrado.ToString("N2")</td>
                                 @if(item.MontoCuadrado - item.Monto < 0)
@@ -359,6 +366,10 @@
         var facturasPosteriores = Facturas.Where(f => f.Fecha > ultimoCuadreFecha);
         var pagosPosteriores = Pagos.Where(p => p.Fecha > ultimoCuadreFecha);
 
+        var Credito = facturasPosteriores
+            .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
+            .Sum(c => c.SubTotal);
+
         // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
         var Contado = facturasPosteriores
             .Where(c => c.TypePayment == "1" && c.SaldoPendiente <= 0)
@@ -367,7 +378,11 @@
         var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);
 
+        
         DineroEnCaja = Contado + Pago;
+        request.VentaCredito = Credito;
+        request.VentaContado = Contado;
+        request.Abonado = Pago;
         request.Monto = DineroEnCaja;
     }
 

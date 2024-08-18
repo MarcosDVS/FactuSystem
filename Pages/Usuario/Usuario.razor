@@ -30,7 +30,7 @@
     </div>
 </div>
 
-<div class="modal" style="display: @(showCard ? "block" : "none"); background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%);" tabindex="-1" role="dialog">
+<div class="modal" style="display: @(showCard ? "block" : "none"); background-color: rgba(0, 0, 0, 0.5);" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
@@ -49,28 +49,28 @@
                         </div>
                     }
                     <div class="form-group">
-                        <label for="nombre">Nombre</label>
+                        <label for="nombre" class="fw-bold">Nombre</label>
                         <input type="text" class="form-control" id="nombre" 
                         @bind-value="request.Nombre" required />
                     </div>
                     <div class="form-group">
-                        <label for="apellidos">Apellidos</label>
+                        <label for="apellidos" class="fw-bold">Apellidos</label>
                         <input type="text" class="form-control" id="apellidos" 
                         @bind-value="request.Apellidos" required />
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
+                        <label for="email" class="fw-bold">Email</label>
                         <input  class="form-control" id="email" 
                         @bind-value="request.Email" required />
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
+                        <label for="password" class="fw-bold">Password</label>
                         <input type="text" class="form-control" id="password" 
                         @bind-value="request.Password" required />
                     </div>
                     <div class="form-group">
-                        <label for="role">Role</label>
-                        <select class="form-control" required @bind="@request.Role">
+                        <label for="role" class="fw-bold">Role</label>
+                        <select class="form-select" required @bind="@request.Role">
                             <option disabled selected>Seleccione un role</option>
                             <option value="Administrator">Administrator</option>
                             <option value="User">User</option>

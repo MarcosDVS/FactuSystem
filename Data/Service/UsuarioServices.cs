@@ -146,7 +146,7 @@ public class UsuarioServices : IUsuarioServices
             adminUser = new Usuario
             {
                 Nombre = "ADMIN",
-                Apellidos = "HDC",
+                Apellidos = "CASA IRYS",
                 Email = "admin",
                 Password = "1234", // Recuerda realizar un hash de la contraseña en un entorno de producción
                 Role = "Administrator"

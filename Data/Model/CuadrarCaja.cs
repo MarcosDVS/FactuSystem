@@ -10,6 +10,9 @@ public class CuadrarCaja
     public int Id { get; set; }
     public DateTime Fecha { get; set; }
     public string Cajero { get; set; }
+    public decimal VentaCredito { get; set; }
+    public decimal VentaContado { get; set; }
+    public decimal Abonado { get; set; }
     public decimal Monto { get; set; }
     public decimal MontoCuadrado { get; set; }
     
@@ -33,6 +36,9 @@ public class CuadrarCaja
         {
             Fecha = request.Fecha,
             Cajero = request.Cajero,
+            VentaCredito = request.VentaCredito,
+            VentaContado = request.VentaContado,
+            Abonado = request.Abonado,
             Monto = request.Monto,
             MontoCuadrado = request.MontoCuadrado,
 
@@ -57,6 +63,9 @@ public class CuadrarCaja
             Id = Id,
             Fecha = Fecha,
             Cajero = Cajero,
+            VentaCredito = VentaCredito,
+            VentaContado = VentaContado,
+            Abonado = Abonado,
             Monto = Monto,
             MontoCuadrado = MontoCuadrado,
 

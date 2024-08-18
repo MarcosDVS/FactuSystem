@@ -37,7 +37,7 @@
             <h5>¿Qué desea el cliente?</h5>
         </div>
         <div class="input-group mb-3 mt-2">
-            <input class="form-control"
+            <input class="form-control w-50"
                    placeholder="Producto"
                    aria-label="Producto"
                    aria-describedby="button-addon2" list="productos"
@@ -53,16 +53,13 @@
                     <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)" />
                 }
             </datalist>
-            
-            @*<button class="btn btn-outline-success d-print-none"
-                type="button" id="button-addon2"
-                @onclick="async()=>{
-                await CargarProducto(); }">
-                <span class="oi oi-reload"></span>
-            </button>*@
-            
+            <input @bind="detalleFacturaRequest.Descuento" type="number" 
+            id="Descuento" placeholder="Descuento" class="form-control w-25" />
+            <label for="Descuento" class="input-group-text"><strong>Descuento</strong></label>
         </div>
+
         <div class="input-group mb-3">
+            <label for="Descuento" class="input-group-text"><strong>Precio:</strong></label>
             <span class="form-control w-50">
                 $@Precio.ToString("N2")
             </span>
@@ -72,11 +69,6 @@
                 @onclick="AgregarAlDetalle">
                 <span class="oi oi-collapse-down"></span>
             </button>
-        </div>
-        <div class="input-group mb-3">
-            <label for="Descuento" class="input-group-text">Descuento:</label>
-            <input @bind="detalleFacturaRequest.Descuento" type="number" 
-            id="Descuento" placeholder="Descuento" class="form-control" />
         </div>
         @if (Message != null)
         {

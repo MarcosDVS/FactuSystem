@@ -34,7 +34,7 @@
 
 <h3 class="mt-4 titulo">
     <span class="oi oi-dashboard oi mr-2"></span>
-    <strong>Yoja's Drinks & Heladería Los Paso Dashboard</strong> 
+    <strong>CASA IRYS Dashboard</strong> 
 </h3>
 
 <div class="container mt-4">
@@ -168,20 +168,7 @@
 
         IngresoAnual = Contado + Convert.ToDecimal(Pago);;
     }
-    void AllSell()
-    {
-        DateTime today = DateTime.Today;
 
-        var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Date == today)
-            .Sum(c => c.SubTotal);
-
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2") && c.Fecha.Date == today)
-            .Sum(c => c.SaldoPendiente);
-
-        IngresoTotal = Contado + Credito;
-    }
 
     DateTime ultimoCuadreFecha;
     void CashInBox()
@@ -195,34 +182,17 @@
             .Where(c => c.TypePayment == "1" && c.SaldoPendiente <= 0)
             .Sum(c => c.SubTotal);
 
-        
+        var Credito = facturasPosteriores
+            .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
+            .Sum(c => c.SubTotal);
 
         var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);
 
         DineroEnCaja = Contado + Pago;
-    }
-
-    void SellToCash()
-    {
-        DateTime today = DateTime.Today;
-
-        var Contado = Facturas
-            .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Date == today)
-            .Sum(c => c.SubTotal);
-
         VentaContado = Contado;
-    }
-
-    void SellToCredit()
-    {
-        DateTime today = DateTime.Today;
-
-        var Credito = Facturas
-            .Where(c => (c.TypePayment == "2") && c.Fecha.Date == today)
-            .Sum(c => c.SubTotal);
-
         VentaCredito = Credito;
+        IngresoTotal = Contado + Credito;
     }
 
     async Task Consultar()
@@ -268,9 +238,6 @@
         await CargarPagos();
         await CargarCajas();
         CashInBox();
-        SellToCash();
-        SellToCredit();
-        AllSell();
         OneYearIncome();
         MonthlySell();
         
