@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FactuSystem.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240818024003_New")]
-    partial class New
+    [Migration("20240818214954_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,14 +55,13 @@ namespace FactuSystem.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cedula")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Correo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Direccion")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Limitecredito")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -131,6 +130,9 @@ namespace FactuSystem.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("VentaContado")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("VentaCredito")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");

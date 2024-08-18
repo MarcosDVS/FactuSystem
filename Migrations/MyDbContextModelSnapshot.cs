@@ -52,14 +52,13 @@ namespace FactuSystem.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Cedula")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Correo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Direccion")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Limitecredito")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -128,6 +127,9 @@ namespace FactuSystem.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("VentaContado")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("VentaCredito")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");

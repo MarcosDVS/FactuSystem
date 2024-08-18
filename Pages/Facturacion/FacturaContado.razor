@@ -694,13 +694,6 @@ else
             return;
         }
         
-        var clienteSeleccionado = Contactos.FirstOrDefault(c => c.Nombre + " " + c.Apellidos == Nombre);
-        if (facturaRequest.TypePayment == "2" && LimiteCreditoExcedido())
-        {
-            Message = "😥 El límite de crédito del cliente ha sido excedido. $"
-            + clienteSeleccionado.Limitecredito.ToString("N2");
-            return;
-        }
 
         if (facturaRequest.TypePayment == "2")
         {
@@ -710,20 +703,7 @@ else
         Chance = true;
         Message = null;
     }
-    bool LimiteCreditoExcedido()
-    {
-        // Aquí deberías obtener el límite de crédito del cliente seleccionado
-        // Puedes acceder a la información del cliente desde la lista de contactos
-        var clienteSeleccionado = Contactos.FirstOrDefault(c => c.Nombre + " " + c.Apellidos == Nombre);
-        
-        if (clienteSeleccionado != null && clienteSeleccionado.Limitecredito < 
-            facturaRequest.SubTotal - facturaRequest.TotalDesc)
-        {
-            return true;
-        }
-
-        return false;
-    }
+    
     void Pendiente()
     {
         if(facturaRequest.TypePayment=="2")

@@ -10,7 +10,7 @@ public class Cliente
     [Key]
     public int Id { get; set; }
 
-    public string Cedula { get; set; } = null!;
+    public string? Cedula { get; set; }
 
     public string Nombre { get; set; } = null!;
 
@@ -20,7 +20,7 @@ public class Cliente
 
     public string? Telefono { get; set; }
 
-    public decimal Limitecredito { get; set; }
+    public string? Correo { get; set; }
     public static Cliente Crear(ClienteRequest cliente)
     {
         return new Cliente()
@@ -30,7 +30,7 @@ public class Cliente
             Direccion = cliente.Direccion,
             Telefono = cliente.Telefono,
             Cedula = cliente.Cedula,
-            Limitecredito = cliente.Limitecredito,
+            Correo = cliente.Correo,
         };
     }
 
@@ -63,9 +63,9 @@ public class Cliente
             Cedula = cliente.Cedula;
             cambio = true;
         }
-        if (Limitecredito != cliente.Limitecredito)
+        if (Correo != cliente.Correo)
         {
-            Limitecredito = cliente.Limitecredito;
+            Correo = cliente.Correo;
             cambio = true;
         }
 
@@ -84,7 +84,7 @@ public class Cliente
             Apellidos = Apellidos,
             Telefono = Telefono,
             Direccion = Direccion,
-            Limitecredito = Limitecredito,
+            Correo = Correo,
         };
     }
 }

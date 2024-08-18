@@ -12,18 +12,6 @@ using System.Threading.Tasks;
 
 namespace FactuSystem.Data.Services
 {
-    public class Result
-    {
-        public bool Success { get; set; }
-        public string? Message { get; set; }
-    }
-
-    public class Result<T>
-    {
-        public bool Success { get; set; }
-        public string? Message { get; set; }
-        public T? Data { get; set; }
-    }
 
     public class ClienteServices : IClienteServices
     {
@@ -97,7 +85,7 @@ namespace FactuSystem.Data.Services
             {
                 var clientes = await dbContext.Clientes
                     .Where(c =>
-                        (c.Nombre + " " + c.Apellidos + " " + c.Direccion + " " + c.Telefono + " " + c.Cedula)
+                        (c.Nombre + " " + c.Apellidos + " " + c.Direccion + " " + c.Telefono + " " + c.Cedula + " " + c.Correo)
                         .ToLower()
                         .Contains(filtro.ToLower())
                     )
@@ -134,7 +122,7 @@ namespace FactuSystem.Data.Services
                     Cedula = "00000000000",
                     Direccion = "Desconocida",
                     Telefono = "Desconocido",
-                    Limitecredito = 0, // Asigna un valor para el límite de crédito según tus requisitos
+                    Correo = "Desconocido" // Asigna un valor para el límite de crédito según tus requisitos
                 };
 
                 dbContext.Clientes.Add(cliente);

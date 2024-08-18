@@ -66,8 +66,7 @@
                             </span>
                             <input  class="form-control" placeholder="Cedula" 
                                 @bind-value="request.Cedula" 
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" 
-                                required 
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)"  
                                 pattern="\d{11}" 
                                 title="Debe tener 11 dígitos" 
                             />
@@ -79,8 +78,7 @@
                             </span>
                             <input class="form-control" type="tel" placeholder="Teléfono" 
                                 @bind-value="request.Telefono" 
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" 
-                                required 
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"  
                                 pattern="\d{10}" 
                                 title="Debe tener 10 dígitos" 
                             />
@@ -97,8 +95,8 @@
                             <span class="input-group-text bg-white text-black">
                                 <span class="oi oi-dollar"></span>
                             </span>
-                            <input type="number" class="form-control" placeholder="Limite de credito" 
-                            @bind-value="request.Limitecredito"/>
+                            <input type="email" class="form-control" placeholder="Limite de credito" 
+                            @bind-value="request.Correo"/>
                         </div>
                     </div>
 
@@ -148,7 +146,7 @@
                             <th>Nombre completo</th>
                             <th>Direccion</th>
                             <th>Telefono</th>
-                            <th>Limite/Credito</th>
+                            <th>Correo</th>
                             <th class="d-print-none">...</th>
                         </tr>
                     </thead>
@@ -161,7 +159,7 @@
                                 <td>@Row.Nombre @Row.Apellidos</td>
                                 <td>@Row.Direccion</td>
                                 <td>@FormatPhoneNumber(Row.Telefono)</td>
-                                <td>$@Row.Limitecredito.ToString("N2")</td>
+                                <td>@Row.Correo</td>
                                 <td class="d-print-none">
                                     <button @onclick="()=>Seleccionar(Row.Id)"
                                         class="btn btn-outline-warning">

@@ -32,7 +32,7 @@ public class CuadrarCajaServices : ICuadrarCajaServices
             {
                 Message = "Ok",
                 Success = true,
-                Data = item
+                Data = item!
             };
         }
         catch (Exception E)

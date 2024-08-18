@@ -30,12 +30,12 @@ namespace FactuSystem.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Cedula = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Cedula = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Nombre = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Apellidos = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Direccion = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Telefono = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Limitecredito = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Correo = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -50,8 +50,21 @@ namespace FactuSystem.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Cajero = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VentaCredito = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    VentaContado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Abonado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MontoCuadrado = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    MontoCuadrado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    One = table.Column<int>(type: "int", nullable: false),
+                    Five = table.Column<int>(type: "int", nullable: false),
+                    Ten = table.Column<int>(type: "int", nullable: false),
+                    TwentyFive = table.Column<int>(type: "int", nullable: false),
+                    Fifty = table.Column<int>(type: "int", nullable: false),
+                    OneHundred = table.Column<int>(type: "int", nullable: false),
+                    TwoHundred = table.Column<int>(type: "int", nullable: false),
+                    FiveHundred = table.Column<int>(type: "int", nullable: false),
+                    OneThousand = table.Column<int>(type: "int", nullable: false),
+                    TwoThousand = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
