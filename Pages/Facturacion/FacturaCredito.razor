@@ -671,7 +671,10 @@ else
         Fecha = SelectedFactura.Fecha;
 
         // Obtener la última fecha de pago
-        FechaPago = PagosFacturaSeleccionada.Max(p => p.Fecha);
+        if (PagosFacturaSeleccionada.Any())
+        {
+            FechaPago = PagosFacturaSeleccionada.Max(p => p.Fecha);
+        }
     }
 
     //De aqui en adelante es para controlar la ediccion de la factura
