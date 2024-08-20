@@ -226,11 +226,23 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title"><b>Devuelta para el cliente</b></h5>
+                        @if(Cambio < 0)
+                        {
+                            <h5 class="modal-title"><b>Deuda del cliente</b></h5>
+                        }
+                        else{
+                            <h5 class="modal-title"><b>Devuelta para el cliente</b></h5>
+                        }
                     </div>
 
                     <div class="modal-body">
-                        <h5><b>Cambio:</b> @Cambio.ToString("N2")</h5>
+                        @if(Cambio < 0)
+                        {
+                            <h5><b>Pendiente:</b> @Cambio.ToString("N2")</h5>
+                        }
+                        else{
+                            <h5><b>Cambio:</b> @Cambio.ToString("N2")</h5>
+                        }
                     </div>
 
                     <div class="modal-footer">
