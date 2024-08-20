@@ -28,7 +28,7 @@
 
 @if(Form)
 {
-    <EditForm Model="facturaRequest" OnValidSubmit="Send">
+    <EditForm Model="facturaRequest">
         @*Disenar el espacio para el cliente o contacto a facturarle*@
         <div class="input-group mb-3">
             <select class="form-control" @bind="@facturaRequest.ClienteId" required readonly>
@@ -41,6 +41,10 @@
                 }
             </select>
             
+            <button class="btn btn-outline-primary d-print-none" 
+                    @onclick="async ()=>{await PrintPageAsync();}">
+                    <span class="oi oi-print"></span>
+                </button>
             <button 
                 class="btn btn-outline-danger d-print-none"
                 type="button" id="button-addon2"
@@ -50,62 +54,11 @@
         </div>
 
         @*Disenar el espacio para los productos a facturar*@
-        <div class="card p-2 d-print-none">
-            <div class="card-header card-title">
-                <strong>¿Que desea el cliente?</strong>
-            </div>
-            <div class="input-group mb-3 mt-2">
-                <input class="form-control"
-                    placeholder="Producto"
-                    aria-label="Producto"
-                    aria-describedby="button-addon2" list="productos"
-                    @onchange="(value)=>{
-                        var r = Productos.FirstOrDefault(p=>p.CodigoDescripcion == value.Value!.ToString());
-                        if(r!=null)
-                        BuscarPercio(r.Id);
-                        }"
-                        />
-                <datalist id="productos">
-                    @foreach (var producto in Productos)
-                    {
-                        <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)"></option>
-                    }
-                </datalist>
-                
-                <button class="btn btn-outline-primary d-print-none" 
-                    @onclick="async ()=>{await PrintPageAsync();}">
-                    <span class="oi oi-print"></span>
-                </button>
-                
-            </div>
-            <div class="input-group mb-3">
-                <span class="form-control w-50">
-                    $@Precio.ToString("N2")
-                </span>
-                <input class="form-control w-25" type="number" @bind="@Cantidad" />
-                <button class="btn btn-success d-print-none"
-                    type="button" id="button-addon2"
-                    @onclick="async ()=>{await AgregarAlDetalle();}">
-                    <span class="oi oi-collapse-down"></span>
-                </button>
-            </div>
-            <div class="input-group mb-3">
-                <label for="Descuento" class="input-group-text">Descuento:</label>
-                <input @bind="detalleFacturaRequest.Descuento" type="number" 
-                id="Descuento" placeholder="Descuento" class="form-control" />
-            </div>
-            @if (Message != null)
-            {
-                <div class="alert-warning">
-                    <span class="text-dark">@Message</span>
-                </div>
-            }
-        </div>
 
         
         @*Disenar los elementos que se cargan a la factura*@
         <h5 class="mt-1"><b>Detalle de la factura N°:</b> @facturaRequest.Id</h5>
-        <table class="table table-hover">
+        <table class="table table">
             <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
                 <tr>
                     <th class="col w-25">
@@ -116,7 +69,6 @@
                     <th>ITBIS</th>
                     <th>Descuento</th>
                     <th>Total</th>
-                    <th class="d-print-none">...</th>
                 </tr>
             </thead>
             <tbody>
@@ -124,23 +76,7 @@
                 {
                     <tr>
                         <td class="col w-25 text-center">
-                            <div class="input-group">
-                                <InputNumber 
-                                    class="col form-control" 
-                                    @bind-Value="@detalle.Cantidad" readonly/>
-                                <div class="col d-print-none">
-                                    <div class="form-group">
-                                        <span @onclick="async()=>{await Add(detalle.ProductoId);}" 
-                                            class="oi oi-caret-top">
-                                        </span>
-                                    </div>
-                                    <div class="form-group">
-                                        <span @onclick="async()=>{await Remove(detalle.ProductoId);}" 
-                                            class="oi oi-caret-bottom">
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                            @detalle.Cantidad
                         </td>
                         <td class="col w-25">
                             @detalle.Descripcion
@@ -161,14 +97,6 @@
 
                         <td class="col text-center">
                             $@detalle.SubTotal.ToString("N2")
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-outline-danger d-print-none"
-                                @onclick="async()=>{await EliminarDetalle(detalle.ProductoId);}">
-                                <span 
-                                    class="oi oi-trash">
-                                </span>
-                            </button>
                         </td>
                     </tr>
                 }
@@ -215,7 +143,7 @@
                                     <strong>ITBIS:</strong>
                                     <span class="text-danger">$@($"{(facturaRequest.ITBIS):N2}")</span>
                                 </li>
-                                <li class="mb-2">
+                                <li class="mb-2"> 
                                     <strong>Descuento: </strong>
                                     <span class="text-success">$@facturaRequest.TotalDesc.ToString("N2")</span>
                                 </li>
@@ -321,8 +249,8 @@ else
                                             <td>@f.Fecha.ToShortDateString()</td>
                                             <td>
                                                 <div class="button d-print-none">
-                                                        <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-warning">
-                                                            <span class="oi oi-pencil"></span>
+                                                        <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-info">
+                                                            <span class="oi oi-info"></span>
                                                         </button>
                                                     <button @onclick="() => Eliminar(f)" class="btn btn-outline-danger d-print-none" >
                                                         <span class="oi oi-trash"></span>
@@ -393,7 +321,7 @@ else
         }
         StateHasChanged();
     }
-    protected override async Task OnInitializedAsync()
+    private async Task LoadDataAsync()
     {
         await Consultar();
         await Consultar2();
@@ -401,20 +329,34 @@ else
         await CargarProducto();
         await CargarPagos();
     }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
     public void Seleccionar(int Id, FacturaResponse factura)
     {
         Form = true;
         facturaRequest = Facturas
-        .Where(c => c.Id == Id)
-        .Select(c => c.ToRequest())
-        .FirstOrDefault() ?? new FacturaRequest();
+            .Where(c => c.Id == Id)
+            .Select(c => c.ToRequest())
+            .FirstOrDefault() ?? new FacturaRequest();
 
         PagosFacturaSeleccionada = Pagos.Where(p => p.FacturaID == factura.Id).ToList();
-        facturaRequest.DineroPagado = 
-        facturaRequest.SaldoPagado +
-        PagosFacturaSeleccionada
-        .Sum(c => (decimal)c.MontoPagado);
+        
+        // Calculate the total amount paid
+        facturaRequest.DineroPagado = facturaRequest.SaldoPagado +
+            PagosFacturaSeleccionada.Sum(c => (decimal)c.MontoPagado);
+
+        // Load the Descuento information for each detail in the selected factura
+        foreach (var detalle in facturaRequest.Detalles)
+        {
+            detalle.Descuento = factura.Detalles
+                .Where(d => d.Id == detalle.Id)
+                .Select(d => d.Descuento)
+                .FirstOrDefault();
+        }
     }
+
     public async Task Eliminar(FacturaResponse user)
     {
         var resultado = await facturaServices.Eliminar(user.ToRequest());
@@ -492,116 +434,6 @@ else
         var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
         if (c != null) facturaRequest.ClienteId = c.Id;
     }
-    async Task Add(int Id){
-        var detalle = facturaRequest.Detalles
-        .FirstOrDefault(d => d.ProductoId == Id);
-        var Cant = 1;
-        var producto = Productos.FirstOrDefault(p => p.Id == Id);
-        int NewStock = detalle.Cantidad + Cant;
-
-        if (NewStock <= producto.Stock)
-        {
-            detalle.Cantidad += Cant;
-            await productoServices.ActualizarStock(detalle.ProductoId, Cant);
-            await Send();
-            NewStock = 0;
-        }
-        else
-        {
-            Message = "No hay suficientes artículos en el stock. 😥";
-            return;
-        }
-    }
-    async Task Remove(int Id){
-        var detalle = facturaRequest.Detalles
-        .FirstOrDefault(d => d.ProductoId == Id);
-        var Cant = 1;
-        var producto = Productos.FirstOrDefault(p => p.Id == Id);
-        int NewStock = detalle.Cantidad - Cant;
-
-        if (NewStock >= 1)
-        {
-            detalle.Cantidad -= Cant;
-            await Send();
-            await productoServices.StockDevuelto(detalle.ProductoId, Cant);
-            NewStock = 0;
-        }
-        else
-        {
-            Message = "Debes dejar al menos un articulo. 😥";
-            return;
-        }
-    }
-    async Task EliminarDetalle(int Id)
-    {
-        var detalle = facturaRequest.Detalles
-        .FirstOrDefault(d => d.ProductoId == Id);
-        // Actualizar el stock del producto en la base de datos
-        await productoServices.StockDevuelto(detalle.ProductoId, detalle.Cantidad);
-        if (detalle != null)
-        {
-            facturaRequest.Detalles.Remove(detalle);
-        }
-        await Send();
-    }
-    async Task AgregarAlDetalle()
-    {
-        if (detalleFacturaRequest.Descuento > 30)
-        {
-            Message = "😒 El decuento no puede ser mayor a 30%. 💰";
-            return;
-        }
-
-        Message = null;
-        var producto = Productos.FirstOrDefault(p => p.Id == IdProducto);
-
-        if (producto != null)
-        {
-            var detalleExistente = facturaRequest.Detalles.FirstOrDefault(d => d.ProductoId == IdProducto);
-
-            if (detalleExistente != null)
-            {
-                int nuevaCantidad = detalleExistente.Cantidad + Cantidad;
-
-                if (nuevaCantidad <= producto.Stock)
-                {
-                    detalleExistente.Cantidad = nuevaCantidad;
-                }
-                else
-                {
-                    Message = "No hay suficientes artículos en el stock. 😥";
-                    return;
-                }
-            }
-            else
-            {
-                if (Cantidad <= producto.Stock)
-                {
-                    facturaRequest.Detalles.Add(new FacturaDetalleRequest
-                    {
-                        ProductoId = IdProducto,
-                        Descripcion = producto.Nombre,
-                        Precio = producto.Precio,
-                        Cantidad = Cantidad,
-                        Descuento = detalleFacturaRequest.Descuento
-                    });
-                    Cantidad = 1;
-                }
-                else
-                {
-                    Message = "No hay suficientes artículos en el stock. 😥";
-                    return;
-                }
-            }
-
-            // Actualizar el stock del producto en la base de datos
-            await productoServices.ActualizarStock(IdProducto, Cantidad);
-
-            await Send();
-            Message = null;
-        }
-    }
-   
     async Task CargarContacto()
     { 
         //Llenar la lista de contactos para mostrar al usuario...
@@ -635,89 +467,5 @@ else
         }
         StateHasChanged();
     }
-
-    
-   
-    public string TypePayment {get; set;} = string.Empty;
-    async Task Send()
-    {
-        if (facturaRequest.SaldoPagado > facturaRequest.SaldoPagado - facturaRequest.TotalDesc 
-            && facturaRequest.TypePayment == "2")
-        {
-            Pendiente();
-
-            return;
-        }
-        
-        BuscarSeleccionarCliente(Nombre);
-
-        var result = await facturaServices.Modificar(facturaRequest);
-        Message = null;
-
-        await Consultar();
-        Precio = 0;
-        if (!result.Success)
-        {
-            Message = "Estoy cansado de trabajar 😥";
-            return;
-        }
-    }
-
-    void CancelarPago()
-    {
-        Chance = false;
-        Total = 0;
-        MontoPagado = 0;
-        Cambio = 0;
-    }
-
-    public decimal Cambio = 0;
-    public decimal MontoPagado = 0;
-    public decimal SaldoPendiente = 0;
-    public decimal Total = 0;
-    void CalcularCambio()
-    {
-        if(facturaRequest.SaldoPagado < facturaRequest.SubTotal - facturaRequest.TotalDesc &&  facturaRequest.TypePayment == "1")
-        {
-            Message = "😒 El monto pagado no puede ser menor al importe de la factura 💰";
-            return;
-        }
-        if (facturaRequest.Detalles.Count == 0)
-        {
-            Message = "😒 Debes agregar al menos un producto al detalle. 🛒";
-            return;
-        }
-
-        if (string.IsNullOrEmpty(facturaRequest.TypePayment))
-        {
-            Message = "😒 Debes seleccionar el tipo de venta. 💰";
-            return;
-        }
-        
-
-        if (facturaRequest.TypePayment == "2")
-        {
-            Info = true;
-        }
-
-        Chance = true;
-        Message = null;
-    }
-    
-    void Pendiente()
-    {
-        if(facturaRequest.TypePayment=="2")
-        {
-            if(MontoPagado >= Total){
-                Message = "El monto pagado no puede ser mayor o igual al total 😢";
-                return;
-            }
-        }
-        Chance = true;
-        MontoPagado = facturaRequest.SaldoPagado;
-        Total = facturaRequest.SubTotal - facturaRequest.TotalDesc;
-        Cambio = MontoPagado - Total;
-        SaldoPendiente = Total - MontoPagado;
-        Message = null;
-    }
+ 
 }

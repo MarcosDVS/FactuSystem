@@ -143,7 +143,7 @@
 
         var Contado = Facturas
             .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Year == currentYear && c.Fecha.Month == currentMonth)
-            .Sum(c => c.SubTotal);
+            .Sum(c => c.SubTotal - c.TotalDesc);
 
         var Pago = Pagos
             .Where(c => c.Fecha.Year == currentMonth)
@@ -160,7 +160,7 @@
 
         var Contado = Facturas
             .Where(c => (c.TypePayment == "1" && c.SaldoPendiente <= 0) && c.Fecha.Year == currentYear)
-            .Sum(c => c.SubTotal);
+            .Sum(c => c.SubTotal - c.TotalDesc);
 
         var Pago = Pagos
             .Where(c => c.Fecha.Year == currentYear)
@@ -180,11 +180,11 @@
         // Calcular el monto en caja sumando las facturas y los pagos posteriores al último cuadre
         var Contado = facturasPosteriores
             .Where(c => c.TypePayment == "1" && c.SaldoPendiente <= 0)
-            .Sum(c => c.SubTotal);
+            .Sum(c => c.SubTotal - c.TotalDesc);
 
         var Credito = facturasPosteriores
             .Where(c => c.TypePayment == "2" && c.SaldoPendiente > 0)
-            .Sum(c => c.SubTotal);
+            .Sum(c => c.SubTotal - c.TotalDesc);
 
         var Pago = (decimal)pagosPosteriores
             .Sum(c => c.MontoPagado);
