@@ -101,7 +101,7 @@
                     </button>
                 </div>
                 <div class="col-1">
-                    <button class="btn btn-outline-danger" @onclick="Producto">
+                    <button class="btn btn-outline-danger" @onclick='()=>{urlHelper.NavigateTo("/inicio");}'>
                         <span class="oi oi-arrow-thick-left"></span>
                     </button>
                 </div>
@@ -144,7 +144,7 @@
                                 <td>@item.Role</td>
                                 <td>
                                     <button @onclick="()=>Seleccionar(item.Id)"
-                                        class="btn btn-outline-warning">
+                                        class="btn btn-outline-primary">
                                         <span class="oi oi-pencil"></span>
                                     </button>
                                     <button @onclick="()=>Eliminar(item)"
@@ -173,10 +173,6 @@
     public bool showCard { get; set; } = false;
     public string? Message { get; set; } = null;
 
-    void Producto()
-    {
-        urlHelper.NavigateTo("producto", true);
-    }
     void ShowCard()
     {
         showCard = true;

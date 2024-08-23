@@ -116,14 +116,14 @@
                             </button>
                         </div>
                     </div>
-                    <div class="form-group input-group mb-3">
+                    @* <div class="form-group input-group mb-3">
                         <span class="input-group-text bg-white text-black">
                             <span class="oi oi-dollar"><strong>Compra</strong></span>
                         </span>
                         <input class="form-control" placeholder="Precio/Compra" id="costo" 
                         @bind-value="productoRequest.PrecioCompra" required min="0.01" step="0.01"
                         @oninput="ActualizarPrecioVenta" title="Precio de compra"/>
-                    </div>
+                    </div> *@
                     <div class="form-group input-group mb-3">
                         <span class="input-group-text bg-white text-black">
                             <span class="oi oi-dollar"><strong>Venta</strong></span>
@@ -180,7 +180,7 @@
                             <th>Stock</th>
                             <th>Nombre</th>
                             <th>Categoria</th>
-                            <th>Precio/Compra</th>
+                            @* <th>Precio/Compra</th> *@
                             <th>Precio/Venta</th>
                             <th class="d-print-none">...</th>
                         </tr>
@@ -193,11 +193,11 @@
                                 <td>@productoRow.Stock</td>
                                 <td>@productoRow.Nombre</td>
                                 <td>@productoRow.NombreCategoriatexto</td>
-                                <td>@productoRow.PrecioCompra.ToString("N2")</td>
-                                <td>@productoRow.Precio.ToString("N2")</td>
+                                @* <td>@productoRow.PrecioCompra.ToString("N2")</td> *@
+                                <td>$@productoRow.Precio.ToString("N2")</td>
                                 <td class="d-print-none">
                                     <button @onclick="()=>Seleccionar(productoRow.Id)"
-                                        class="btn btn-outline-warning">
+                                        class="btn btn-outline-primary">
                                         <span class="oi oi-pencil"></span>
                                     </button>
                                     <button @onclick="()=>Eliminar(productoRow)"
@@ -291,44 +291,56 @@
     
     public async Task Send()
     {
-        if (productoRequest.Id == 0)
+        try
         {
-            var existingUser = Productos.FirstOrDefault(u => u.Codigo.Equals(productoRequest.Codigo, StringComparison.OrdinalIgnoreCase));
-            if (existingUser != null)
+            if (productoRequest.Id == 0)
             {
-                Message = "El código "+productoRequest.Codigo +" ya pertenece a un articulo 🤨";
-                return;
+                var existingUser = Productos.FirstOrDefault(u => u.Codigo.Equals(productoRequest.Codigo, StringComparison.OrdinalIgnoreCase));
+                if (existingUser != null)
+                {
+                    Message = "El código " + productoRequest.Codigo + " ya pertenece a un articulo 🤨";
+                    return;
+                }
+                var r = await productoServices.Crear(productoRequest);
+                if (r.Success)
+                {
+                    Cancelar();
+                    await CargarContactos();
+                    StateHasChanged();
+                }
+                else
+                {
+                    Message = r.Message;
+                }
             }
-            var r = await productoServices.Crear(productoRequest);
-            if (r.Success)
+            else
             {
-                Cancelar();
-                await CargarContactos();
-                StateHasChanged();
-            }
-            else{
-                Message = r.Message;
+                // Debo solicitar modificar el producto.
+                if (Stock > 0)
+                {
+                    productoRequest.Stock += Stock;
+                }
+                var r = await productoServices.Modificar(productoRequest);
+                if (r.Success)
+                {
+                    Cancelar();
+                    await CargarContactos();
+                    StateHasChanged();
+                }
+                else
+                {
+                    Message = r.Message;
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            // Debo solicitar modificar el producto.
-            if(Stock > 0)
-            {
-                productoRequest.Stock += Stock;
-            }
-            var r = await productoServices.Modificar(productoRequest);
-            if (r.Success)
-            {
-                Cancelar();
-                await CargarContactos();
-                StateHasChanged();
-            }
-            else{
-                Message = r.Message;
-            }
+            // Registra la excepción interna para obtener más detalles.
+            var innerException = ex.InnerException?.Message ?? ex.Message;
+            Message = "Ocurrió un error al guardar los cambios: " + innerException;
         }
     }
+
     public void Seleccionar(int Id)
     {
         showCard = true;
@@ -352,13 +364,13 @@
         // Llama a la función JavaScript para imprimir la página
         await JSRuntime.InvokeVoidAsync("printPage");
     }
-    void ActualizarPrecioVenta(ChangeEventArgs args)
+    @* void ActualizarPrecioVenta(ChangeEventArgs args)
     {
         if (decimal.TryParse(args.Value.ToString(), out decimal precioCompra))
         {
             // Calcula el precio de venta sumando un 30% al precio de compra
             productoRequest.Precio = precioCompra * 1.3m; // Aumento del 30%
         }
-    }
+    } *@
 
 }

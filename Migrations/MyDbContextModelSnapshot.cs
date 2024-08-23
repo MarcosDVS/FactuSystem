@@ -248,20 +248,12 @@ namespace FactuSystem.Migrations
                     b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("PrecioCompra")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProveedorID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaID");
-
-                    b.HasIndex("ProveedorID");
 
                     b.ToTable("Productos");
                 });
@@ -374,15 +366,7 @@ namespace FactuSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FactuSystem.Data.Model.Proveedor", "Proveedor")
-                        .WithMany()
-                        .HasForeignKey("ProveedorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Categoria");
-
-                    b.Navigation("Proveedor");
                 });
 
             modelBuilder.Entity("FactuSystem.Data.Model.Factura", b =>

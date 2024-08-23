@@ -59,14 +59,13 @@
         @*Disenar los elementos que se cargan a la factura*@
         <h5 class="mt-1"><b>Detalle de la factura N°:</b> @facturaRequest.Id</h5>
         <table class="table table">
-            <thead style="background-image: linear-gradient(180deg, rgb(0, 29, 82) 0%, rgb(0, 0, 0) 70%); color: #ffffff;">
+            <thead class="bg-black text-white">
                 <tr>
                     <th class="col w-25">
                         Cantidad
                     </th>
                     <th>Descripcion</th>
                     <th>Costo</th>
-                    <th>ITBIS</th>
                     <th>Descuento</th>
                     <th>Total</th>
                 </tr>
@@ -82,12 +81,7 @@
                             @detalle.Descripcion
                         </td>
                         <td class="col w-25">
-                            $@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")
-                        </td>
-                        <td>
-                            <span style="white-space: nowrap;">
-                                $@($"{(detalle.PrecioITBIS):N2}")
-                            </span>
+                            $@($"{(detalle.Precio):N2}")
                         </td>
                         <td class="col w-25">
                             <span style="white-space: nowrap;">
@@ -96,7 +90,7 @@
                         </td>
 
                         <td class="col text-center">
-                            $@detalle.SubTotal.ToString("N2")
+                            $@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")
                         </td>
                     </tr>
                 }
@@ -190,7 +184,6 @@ else
             </div>
         </div>
 
-
         <!-- Mostrar la lista de facturas -->
         <div class="table-container">
             <div class="card col-12">
@@ -249,7 +242,7 @@ else
                                             <td>@f.Fecha.ToShortDateString()</td>
                                             <td>
                                                 <div class="button d-print-none">
-                                                        <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-info">
+                                                        <button @onclick="()=>Seleccionar(f.Id, f)" class="btn btn-outline-primary">
                                                             <span class="oi oi-info"></span>
                                                         </button>
                                                     <button @onclick="() => Eliminar(f)" class="btn btn-outline-danger d-print-none" >

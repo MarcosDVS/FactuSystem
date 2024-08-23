@@ -21,7 +21,7 @@ public class ProductoServices : IProductoServices
         {
             var contactos = await dbContext.Productos
                 .Where(c =>
-                    (c.Nombre +" "+ c.Categoria.Nombre +" "+ c.Proveedor.NombreEmp)
+                    (c.Codigo +" "+c.Nombre +" "+ c.Categoria.Nombre +" "+ c.Precio)
                     .ToLower()
                     .Contains(filtro.ToLower()
                     )

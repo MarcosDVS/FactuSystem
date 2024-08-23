@@ -17,7 +17,7 @@
           @foreach (var contacto in Contactos)
             {
                 <option value="@contacto.Nombre @contacto.Apellidos" @onclick="()=>BuscarSeleccionarCliente(contacto.Nombre + contacto.Apellidos)" >
-                    @contacto.Cedula
+                    @FormatCustomerId(contacto.Cedula)
                 </option>
             }
         </datalist>
@@ -88,7 +88,6 @@
                 </th>
                 <th>Descripcion</th>
                 <th>Costo</th>
-                <th>ITBIS</th>
                 <th>Descuento</th>
                 <th>Total</th>
                 <th>...</th>
@@ -100,19 +99,22 @@
                 <tr>
                     <td class="col w-25 text-center">
                         <InputNumber 
-                            class="form-control" 
+                            class="form-control d-print-none" 
                             @bind-Value="@detalle.Cantidad" />
+                        <div class="d-none d-print-block">
+                            @detalle.Cantidad
+                        </div>
                     </td>
                     <td class="col w-25">
                         @detalle.Descripcion
                      </td>
                     <td class="col w-25">
-                        $@($"{(detalle.Precio - detalle.PrecioITBIS):N2}")
-                    </td>
-                    <td>
-                        <span style="white-space: nowrap;">
-                            $@($"{(detalle.PrecioITBIS):N2}")
-                        </span>
+                        <InputNumber 
+                            class="form-control d-print-none" 
+                            @bind-Value="@detalle.Precio" />
+                        <div class="d-none d-print-block">
+                            $@($"{(detalle.Precio):N2}")
+                        </div>
                     </td>
                     <td class="col w-25">
                         <span style="white-space: nowrap;">
@@ -121,7 +123,7 @@
                     </td>
 
                     <td class="col text-center">
-                        $@detalle.SubTotal.ToString("N2")
+                        $@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")
                     </td>
                     <td>
                         <button type="button" class="btn btn-outline-danger d-print-none"
@@ -147,15 +149,15 @@
                 <div class="col-4">
                     <!-- Sección de tipo de venta y botón de actualización -->
                     <div class="input-group">
+                        <button class="btn btn-warning d-print-none" @onclick="async ()=>{await UpdatePage();}">
+                            <span class="oi oi-loop"></span>
+                        </button>
                         <select class="form-control" required @bind="@facturaRequest.TypePayment">
                             <option disabled selected value="">Tipo de Venta</option>
                             <option value="1">Contado 💲</option>
                             <option value="2">Crédito 💳</option>
                         </select>
                         
-                        <button class="btn btn-warning d-print-none" @onclick="async ()=>{await UpdatePage();}">
-                            <span class="oi oi-loop"></span>
-                        </button>
                     </div>
                 </div>
                 <div class="col-4">
@@ -280,6 +282,22 @@
     public decimal Precio { get; set; } = 0;
     public int Cantidad { get; set; } = 1;
     public int IdProducto { get; set; } = 0;
+
+    private string FormatCustomerId(string customerId)
+    {
+        // Verifica si el número telefónico tiene la longitud esperada
+        if (customerId != null && customerId.Length == 11)
+        {
+            // Formatea el número telefónico
+            return $"{customerId.Substring(0, 3)}-{customerId.Substring(3, 7)}-{customerId.Substring(10)}";
+        }
+        else
+        {
+            // Devuelve el número telefónico sin cambios si no tiene la longitud esperada
+            return customerId;
+        }
+    }
+
     async Task UpdatePage()
     {
         urlHelper.NavigateTo(urlHelper.Uri, forceLoad: true);

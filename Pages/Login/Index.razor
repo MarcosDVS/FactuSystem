@@ -12,7 +12,7 @@
 <br/>
 <div class="container">
     <div class="row justify-content-center">
-        <div class="card p-4" style="width: 20rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <div class="card p-4" style="width: 25rem; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
             <div class="text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
@@ -36,15 +36,15 @@
             <div class="d-flex justify-content-center">
                 <button type="button" class="btn btn-primary" @onclick="Authenticate">Sign In</button>
             </div>
+            @if (!string.IsNullOrEmpty(mensajeError))
+            {
+                <div class="alert alert-warning mt-3" role="alert">
+                    <p class="text-dark text-center fw-bold">@mensajeError</p>
+                </div>
+            }
         </div>
     </div>
 
-    @if (!string.IsNullOrEmpty(mensajeError))
-    {
-        <div class="alert alert-warning mt-3" role="alert">
-            <p class="text-dark">@mensajeError</p>
-        </div>
-    }
 </div>
 
 @code 
@@ -62,7 +62,7 @@
     {
         if (string.IsNullOrWhiteSpace(model.UserName) || string.IsNullOrWhiteSpace(model.Password))
         {
-            mensajeError = "Complete Los Campos Patrón 😒";
+            mensajeError = "Complete los campos patrón 😒";
             
         }
         else
@@ -70,7 +70,7 @@
             var userAccount = userAccountService.GetByUserName(model.UserName);
             if(userAccount == null || userAccount.Password != model.Password)
             {
-                mensajeError = "Las Credenciales Son Incorrectas ❌";
+                mensajeError = "Credenciales incorrectas ❌";
                 return;
             }
 
