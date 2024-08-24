@@ -149,7 +149,7 @@ public class UsuarioServices : IUsuarioServices
                 Apellidos = "CASA IRYS",
                 Email = "admin",
                 Password = "1234", // Recuerda realizar un hash de la contraseña en un entorno de producción
-                Role = "Administrator"
+                Role = "Admin"
             };
 
             _database.Usuarios.Add(adminUser);

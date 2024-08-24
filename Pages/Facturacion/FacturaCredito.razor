@@ -49,7 +49,62 @@
         </div>
 
         @*Disenar el espacio para los productos a facturar*@
-        
+        @if(Role=="Admin")
+        {
+            <div class="card p-2 d-print-none">
+                <div class="card-header card-title">
+                    <strong>¿Que desea el cliente?</strong>
+                </div>
+                <div class="input-group mb-3 mt-2">
+                    <input class="form-control"
+                        placeholder="Producto"
+                        aria-label="Producto"
+                        aria-describedby="button-addon2" list="productos"
+                        @onchange="(value)=>{
+                            var r = Productos.FirstOrDefault(p=>p.CodigoDescripcion == value.Value!.ToString());
+                            if(r!=null)
+                            BuscarPercio(r.Id);
+                            }"
+                            />
+                    <datalist id="productos">
+                        @foreach (var producto in Productos)
+                        {
+                            <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)"></option>
+                        }
+                    </datalist>
+                    
+                    <button class="btn btn-outline-primary btn-lg d-print-none" 
+                        @onclick="async ()=>{await PrintPageAsync();}"
+                        title="Imprimir factura">
+                        <span class="oi oi-print"></span>
+                    </button>
+                    
+                </div>
+                <div class="input-group mb-3">
+                    <span class="form-control w-50">
+                        $@Precio.ToString("N2")
+                    </span>
+                    <input class="form-control w-25" type="number" @bind="@Cantidad" />
+                    <button class="btn btn-success btn-lg d-print-none"
+                        type="button" id="button-addon2"
+                        @onclick="async ()=>{await AgregarAlDetalle();}"
+                        title="Agregar producto al detalle">
+                        <span class="oi oi-collapse-down"></span>
+                    </button>
+                </div>
+                <div class="input-group mb-3">
+                    <label for="Descuento" class="input-group-text">Descuento:</label>
+                    <input @bind="detalleFacturaRequest.Descuento" type="number" 
+                    id="Descuento" placeholder="Descuento" class="form-control" />
+                </div>
+                @if (Message != null)
+                {
+                    <div class="alert-warning">
+                        <span class="text-dark">@Message</span>
+                    </div>
+                }
+            </div>
+        }
 
         
         @*Disenar los elementos que se cargan a la factura*@
@@ -62,7 +117,6 @@
                     </th>
                     <th>Descripcion</th>
                     <th>Costo</th>
-                    <th>ITBIS</th>
                     <th>Descuento</th>
                     <th>Total</th>
                 </tr>
@@ -72,9 +126,26 @@
                 {
                     <tr>
                         <td class="col w-25 text-center">
-                            <InputNumber 
-                                class="form-control d-print-none" 
-                                @bind-Value="@detalle.Cantidad" />
+                            <div class="input-group d-print-none">
+                                <InputNumber 
+                                    class="col form-control" 
+                                    @bind-Value="@detalle.Cantidad" readonly/>
+                                <div class="col d-print-none">
+                                    @if(Role=="Admin")
+                                    {
+                                        <div class="form-group">
+                                            <span @onclick="async()=>{await Add(detalle.ProductoId);}" 
+                                                class="oi oi-caret-top">
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <span @onclick="async()=>{await Remove(detalle.ProductoId);}" 
+                                                class="oi oi-caret-bottom">
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
                             <div class="d-none d-print-block">
                                 @detalle.Cantidad
                             </div>
@@ -488,15 +559,18 @@ else
         Form = false;
         Precio = 0;
     }
-     async Task Consultar()
+    async Task Consultar()
     {
         var resultado = await facturaServices.Consultar(FiltroInvoice);
         if (resultado.Success)
         {
-            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha).ToList() ?? new List<FacturaResponse>();
+            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha)
+            .ToList() ?? new List<FacturaResponse>();
         }
         StateHasChanged();
     }
+
+    public string Role { get; set; } = "";
     protected override async Task OnInitializedAsync()
     {
         await Consultar();
@@ -504,21 +578,29 @@ else
         await CargarContacto();
         await CargarProducto();
         await CargarPagos();
+
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+        var userRoleClaim = user.FindFirst(ClaimTypes.Role);
+        if (userRoleClaim != null)
+        {
+            Role = userRoleClaim.Value;
+        }
     }
 
     public void Seleccionar(int Id, FacturaResponse factura)
     {
         Form = true;
         facturaRequest = Facturas
-            .Where(c => c.Id == Id)
-            .Select(c => c.ToRequest())
-            .FirstOrDefault() ?? new FacturaRequest();
+        .Where(c => c.Id == Id)
+        .Select(c => c.ToRequest())
+        .FirstOrDefault() ?? new FacturaRequest();
 
         PagosFacturaSeleccionada = Pagos.Where(p => p.FacturaID == factura.Id).ToList();
-        
-        // Calculate the total amount paid
-        facturaRequest.DineroPagado = facturaRequest.SaldoPagado +
-            PagosFacturaSeleccionada.Sum(c => (decimal)c.MontoPagado);
+        facturaRequest.DineroPagado = 
+        facturaRequest.SaldoPagado +
+        PagosFacturaSeleccionada
+        .Sum(c => (decimal)c.MontoPagado);
 
         // Load the Descuento information for each detail in the selected factura
         foreach (var detalle in facturaRequest.Detalles)
@@ -629,7 +711,7 @@ else
         ErrorMessage = null;
     } 
 
-    public List<PagoResponse> PagosFacturaSeleccionada { get; set; } = new List<PagoResponse>();
+    public List<PagoResponse> PagosFacturaSeleccionada { get; set; } = new();
     public bool FacturaSinPagos => PagosFacturaSeleccionada.Count == 0;
     public bool MostrarMensajeSinPagos { get; set; } = false;
     public bool DetallesPago { get; set; } = false;
@@ -675,6 +757,11 @@ else
         {
             FechaPago = PagosFacturaSeleccionada.Max(p => p.Fecha);
         }
+        else
+        {
+            // Manejar el caso donde la lista está vacía
+            // Puedes asignar un valor predeterminado a FechaPago o realizar cualquier otra acción adecuada.
+        }
     }
 
     //De aqui en adelante es para controlar la ediccion de la factura
@@ -701,7 +788,117 @@ else
         var c = Contactos.FirstOrDefault(p => p.Nombre+" "+p.Apellidos == Contacto)!;
         if (c != null) facturaRequest.ClienteId = c.Id;
     }
-    async Task CargarContacto()
+    async Task Add(int Id){
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        var Cant = 1;
+        var producto = Productos.FirstOrDefault(p => p.Id == Id);
+        int NewStock = detalle.Cantidad + Cant;
+
+        if (NewStock <= producto.Stock)
+        {
+            detalle.Cantidad += Cant;
+            await productoServices.ActualizarStock(detalle.ProductoId, Cant);
+            await Send();
+            NewStock = 0;
+        }
+        else
+        {
+            Message = "No hay suficientes artículos en el stock. 😥";
+            return;
+        }
+    }
+    async Task Remove(int Id){
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        var Cant = 1;
+        var producto = Productos.FirstOrDefault(p => p.Id == Id);
+        int NewStock = detalle.Cantidad - Cant;
+
+        if (NewStock >= 1)
+        {
+            detalle.Cantidad -= Cant;
+            await Send();
+            await productoServices.StockDevuelto(detalle.ProductoId, Cant);
+            NewStock = 0;
+        }
+        else
+        {
+            Message = "Debes dejar al menos un articulo. 😥";
+            return;
+        }
+    }
+    async Task EliminarDetalle(int Id)
+    {
+        var detalle = facturaRequest.Detalles
+        .FirstOrDefault(d => d.ProductoId == Id);
+        // Actualizar el stock del producto en la base de datos
+        await productoServices.StockDevuelto(detalle.ProductoId, detalle.Cantidad);
+        if (detalle != null)
+        {
+            facturaRequest.Detalles.Remove(detalle);
+        }
+        await Send();
+    }
+    async Task AgregarAlDetalle()
+    {
+        if (detalleFacturaRequest.Descuento > 30)
+        {
+            Message = "😒 El decuento no puede ser mayor a 30%. 💰";
+            return;
+        }
+
+        Message = null;
+        var producto = Productos.FirstOrDefault(p => p.Id == IdProducto);
+
+        if (producto != null)
+        {
+            var detalleExistente = facturaRequest.Detalles.FirstOrDefault(d => d.ProductoId == IdProducto);
+
+            if (detalleExistente != null)
+            {
+                int nuevaCantidad = detalleExistente.Cantidad + Cantidad;
+
+                if (nuevaCantidad <= producto.Stock)
+                {
+                    detalleExistente.Cantidad = nuevaCantidad;
+                }
+                else
+                {
+                    Message = "No hay suficientes artículos en el stock. 😥";
+                    return;
+                }
+            }
+            else
+            {
+                if (Cantidad <= producto.Stock)
+                {
+                    facturaRequest.Detalles.Add(new FacturaDetalleRequest
+                    {
+                        ProductoId = IdProducto,
+                        Descripcion = producto.Nombre,
+                        Precio = producto.Precio,
+                        Cantidad = Cantidad,
+                        Descuento = detalleFacturaRequest.Descuento
+                    });
+                    Cantidad = 1;
+                }
+                else
+                {
+                    Message = "No hay suficientes artículos en el stock. 😥";
+                    return;
+                }
+            }
+
+            // Actualizar el stock del producto en la base de datos
+            await productoServices.ActualizarStock(IdProducto, Cantidad);
+
+            await Send();
+            Message = null;
+        }
+    }
+   
+   async Task CargarContacto()
     { 
         //Llenar la lista de contactos para mostrar al usuario...
         var r = await clienteServices.Consultar("");
@@ -737,9 +934,75 @@ else
 
     
    
-    public string TypePayment {get; set;} = string.Empty;    
+    public string TypePayment {get; set;} = string.Empty;
+    async Task Send()
+    {
+        if (facturaRequest.SaldoPagado > facturaRequest.SaldoPagado - facturaRequest.TotalDesc 
+            && facturaRequest.TypePayment == "2")
+        {
+            Pendiente();
+
+            return;
+        }
+        
+        BuscarSeleccionarCliente(Nombre);
+
+        var result = await facturaServices.Modificar(facturaRequest);
+        Message = null;
+
+        await Consultar();
+        Precio = 0;
+        
+    }
+
     public decimal Cambio = 0;
     public decimal MontoPagado = 0;
     public decimal SaldoPendiente = 0;
     public decimal Total = 0;
+    void CalcularCambio()
+    {
+        if(facturaRequest.SaldoPagado < facturaRequest.SubTotal - facturaRequest.TotalDesc &&  facturaRequest.TypePayment == "1")
+        {
+            Message = "😒 El monto pagado no puede ser menor al importe de la factura 💰";
+            return;
+        }
+        if (facturaRequest.Detalles.Count == 0)
+        {
+            Message = "😒 Debes agregar al menos un producto al detalle. 🛒";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(facturaRequest.TypePayment))
+        {
+            Message = "😒 Debes seleccionar el tipo de venta. 💰";
+            return;
+        }
+
+        if (facturaRequest.TypePayment == "2")
+        {
+            Info = true;
+        }
+
+        Chance = true;
+        MontoPagado = facturaRequest.SaldoPagado;
+        Total = facturaRequest.SubTotal - facturaRequest.TotalDesc;
+        Cambio = MontoPagado - Total;
+        Message = null;
+    }
+    void Pendiente()
+    {
+        if(facturaRequest.TypePayment=="2")
+        {
+            if(MontoPagado >= Total){
+                Message = "El monto pagado no puede ser mayor o igual al total 😢";
+                return;
+            }
+        }
+        Chance = true;
+        MontoPagado = facturaRequest.SaldoPagado;
+        Total = facturaRequest.SubTotal - facturaRequest.TotalDesc;
+        Cambio = MontoPagado - Total;
+        SaldoPendiente = Total - MontoPagado;
+        Message = null;
+    }
 }
