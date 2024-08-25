@@ -265,12 +265,33 @@
     public int Stock { get; set; } = 0;
     public string Role { get; set; } = "";
 
+    // Código para generar un código de 4 dígitos único
+    private string GenerarCodigoUnico()
+    {
+        string nuevoCodigo;
+        var random = new Random();
+        do
+        {
+            // Genera un código de 4 dígitos aleatorio
+            nuevoCodigo = random.Next(1000, 10000).ToString();
+        }
+        // Verifica que el código no esté en la lista de productos ya registrados
+        while (Productos.Any(p => p.Codigo == nuevoCodigo));
+        return nuevoCodigo;
+    }
+
     void GoCategory()
     {
         urlHelper.NavigateTo("category");
     }
+    
+    // Modifica la función ShowCard para que asigne un código único
     void ShowCard()
     {
+        productoRequest = new ProductoRequest
+        {
+            Codigo = GenerarCodigoUnico()
+        };
         showCard = true;
     }
 
