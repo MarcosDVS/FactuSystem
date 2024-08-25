@@ -70,11 +70,20 @@
                     </div>
                     <div class="form-group">
                         <label for="role" class="fw-bold">Role</label>
-                        <select class="form-select" required @bind="@request.Role">
-                            <option disabled selected>Seleccione un role</option>
-                            <option value="Admin">Admin</option>
-                            <option value="User">User</option>
-                        </select>
+                        @if(Role == "Admin")
+                        {
+                            <select class="form-select" required @bind="@request.Role">
+                                <option disabled selected>Seleccione un role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="User">User</option>
+                            </select>
+                        }
+                        else{
+                            <select class="form-select" required @bind="@request.Role">
+                                <option disabled selected>Seleccione un role</option>
+                                <option value="User">User</option>
+                            </select>
+                        }
                     </div>
                 </div>
 
@@ -147,11 +156,21 @@
                                         class="btn btn-outline-primary">
                                         <span class="oi oi-pencil"></span>
                                     </button>
-                                    <button @onclick="()=>Eliminar(item)"
-                                        class="btn btn-outline-danger">
-                                        <span class="oi oi-trash"></span>
-                                    </button>
+                                    @if(Role == "Admin")
+                                    {
+                                        <button @onclick="()=>Eliminar(item)"
+                                            class="btn btn-outline-danger ">
+                                            <span class="oi oi-trash"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                       <button class="btn btn-outline-danger ms-1">
+                                            <span class="oi oi-lock-locked"></span>
+                                        </button> 
+                                    }
                                 </td>
+                                
                             </tr>
                         }
                     </tbody>
@@ -172,6 +191,8 @@
     public UsuarioRequest request { get; set; } = new();
     public bool showCard { get; set; } = false;
     public string? Message { get; set; } = null;
+    public string Role { get; set; } = "";
+    public string UserId = "";
 
     void ShowCard()
     {
@@ -191,12 +212,45 @@
         await usuarioServices.Consultar(Filtro);
         if (resultado.Success)
         {
-            Usuarios = resultado.Data!;
+            int UserIdInt;
+            if (int.TryParse(UserId, out UserIdInt))
+            {
+                // Si la conversión es exitosa, continúa con el filtro
+                if (Role != "Admin")
+                {
+                    // Filtra por la propiedad Matricula si el rol es "Student"
+                    Usuarios = resultado.Data!
+                        .Where(u => u.Id == UserIdInt)
+                        .ToList();
+                }
+                else
+                {
+                    Usuarios = resultado.Data!;
+                }
+            }
+            else
+            {
+                // Maneja el caso donde la conversión falla, si es necesario
+                // Por ejemplo, puedes lanzar una excepción o mostrar un mensaje de error
+                throw new Exception("UserId no es un número válido.");
+            }
+
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
+        // Obtener el estado de autenticación
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        // Verifica si el usuario está autenticado
+        if (user.Identity.IsAuthenticated)
+        {
+            // Extrae los valores de los reclamos y asigna las propiedades
+            Role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+            UserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+        }
         await CargarContactos();
     }
 

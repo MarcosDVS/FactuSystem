@@ -286,16 +286,29 @@
                                         <strong>@($"${(item.MontoCuadrado - item.Monto):N2}")</strong>
                                     </td>
                                 }
-                                <td class="d-print-none">
-                                    <button @onclick="async ()=>{await Seleccionar(item.Id);}"
-                                        class="btn btn-outline-warning">
-                                        <span class="oi oi-pencil"></span>
-                                    </button>
-                                    <button @onclick="()=>Eliminar(item)"
-                                        class="btn btn-outline-danger">
-                                        <span class="oi oi-trash"></span>
-                                    </button>
-                                </td>
+                                @if(Role == "Admin")
+                                {
+                                    <td class="d-print-none">
+                                        <button @onclick="async ()=>{await Seleccionar(item.Id);}"
+                                            class="btn btn-outline-primary">
+                                            <span class="oi oi-pencil"></span>
+                                        </button>
+                                        <button @onclick="()=>Eliminar(item)"
+                                            class="btn btn-outline-danger">
+                                            <span class="oi oi-trash"></span>
+                                        </button>
+                                    </td>
+                                }
+                                else{
+                                    <td class="d-print-none">
+                                        <button class="btn btn-outline-primary">
+                                            <span class="oi oi-lock-locked"></span>
+                                        </button>
+                                        <button class="btn btn-outline-danger">
+                                            <span class="oi oi-lock-locked"></span>
+                                        </button>
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>
@@ -316,6 +329,7 @@
     public string Filtro { get; set; } = "";
     public string Cashier { get; set; } = "";
     public string UserId = "";
+    public string Role { get; set; } = "";
     public bool ShowForm { get; set; } = false;
     public bool showCard { get; set; } = false;
     public decimal DineroEnCaja = 0;
@@ -429,28 +443,24 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        // Obtener el estado de autenticación
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        // Verifica si el usuario está autenticado
+        if (user.Identity.IsAuthenticated)
+        {
+            // Extrae los valores de los reclamos y asigna las propiedades
+            Role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+            Cashier = user.FindFirst(ClaimTypes.GivenName)?.Value ?? "";
+            UserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+        }
         await Consultar();
         await CargarPagos();
         await CargarCajas();
         CashInBox();
         
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authenticationState.User;
 
-        if (user.Identity.IsAuthenticated)
-        {
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null)
-            {
-                UserId = userIdClaim.Value;
-            }
-
-            var userNameClaim = user.FindFirst(ClaimTypes.GivenName);
-            if (userNameClaim != null)
-            {
-                Cashier = userNameClaim.Value;
-            }
-        }
     }
 
     void Clear()

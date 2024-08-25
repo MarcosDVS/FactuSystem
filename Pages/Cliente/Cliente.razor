@@ -160,16 +160,29 @@
                                 <td>@Row.Direccion</td>
                                 <td>@FormatPhoneNumber(Row.Telefono)</td>
                                 <td>@Row.Correo</td>
-                                <td class="d-print-none">
-                                    <button @onclick="()=>Seleccionar(Row.Id)"
-                                        class="btn btn-outline-primary">
-                                        <span class="oi oi-pencil"></span>
-                                    </button>
-                                    <button @onclick="()=>Eliminar(Row)"
-                                        class="btn btn-outline-danger">
-                                        <span class="oi oi-trash"></span>
-                                    </button>
-                                </td>
+                                @if(Role == "Admin")
+                                {
+                                    <td class="d-print-none">
+                                        <button @onclick="()=>Seleccionar(Row.Id)"
+                                            class="btn btn-outline-primary">
+                                            <span class="oi oi-pencil"></span>
+                                        </button>
+                                        <button @onclick="()=>Eliminar(Row)"
+                                            class="btn btn-outline-danger">
+                                            <span class="oi oi-trash"></span>
+                                        </button>
+                                    </td>
+                                }
+                                else{
+                                    <td class="d-print-none">
+                                        <button class="btn btn-outline-primary">
+                                            <span class="oi oi-lock-locked"></span>
+                                        </button>
+                                        <button class="btn btn-outline-danger">
+                                            <span class="oi oi-lock-locked"></span>
+                                        </button>
+                                    </td>
+                                }
                             </tr>
                         }
                     </tbody>
@@ -190,6 +203,7 @@
     public ClienteRequest request { get; set; } = new();
     public bool showCard { get; set; } = false;
     public string Message { get; set; } = "";
+    public string Role { get; set; } = "";
 
     private string FormatPhoneNumber(string phoneNumber)
     {
@@ -242,6 +256,16 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Obtener el estado de autenticación
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authenticationState.User;
+
+        // Verifica si el usuario está autenticado
+        if (user.Identity.IsAuthenticated)
+        {
+            // Extrae los valores de los reclamos y asigna las propiedades
+            Role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
+        }
         await CargarContactos();
     }
 
