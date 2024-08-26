@@ -3,7 +3,8 @@ public class CuadrarCajaRequest
 {
     public int Id { get; set; }
     public DateTime Fecha { get; set; }
-    public string Cajero { get; set; } = null!;
+    // public string Cajero { get; set; } = null!;
+    public int CajeroId { get; set; }
     public decimal VentaCredito { get; set; }
     public decimal VentaContado { get; set; }
     public decimal Abonado { get; set; }

@@ -10,6 +10,7 @@ public class UsuarioResponse
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
     public string? Role { get; set; }
+    public virtual ICollection<CuadrarCajaResponse> Detalles { get; set; }
 
     public UsuarioRequest ToRequest()
     {

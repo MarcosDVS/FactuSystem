@@ -144,16 +144,24 @@
                         <span class="input-group-text bg-white text-black">
                             <span class="oi oi-dollar"><strong>Venta</strong></span>
                         </span>
-                        @if(Role == "Admin")
+                        @if(productoRequest.Id > 0)
                         {
-                            <input class="form-control" placeholder="Precio/Venta" id="precio" 
-                            @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
-                            title="Precio de venta"/>
+                            @if(Role == "Admin")
+                            {
+                                <input class="form-control" placeholder="Precio/Venta" id="precio" 
+                                @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
+                                title="Precio de venta"/>
+                            }
+                            else{
+                                <input class="form-control" placeholder="Precio/Venta" id="precio" 
+                                @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
+                                title="Precio de venta" readonly/>
+                            }
                         }
                         else{
                             <input class="form-control" placeholder="Precio/Venta" id="precio" 
-                            @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
-                            title="Precio de venta" readonly/>
+                                @bind-value="productoRequest.Precio" required min="0.01" step="0.01"
+                                title="Precio de venta"/>
                         }
                     </div>
                 </div>

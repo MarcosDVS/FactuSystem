@@ -83,9 +83,8 @@ namespace FactuSystem.Migrations
                     b.Property<decimal>("Abonado")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Cajero")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CajeroId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
@@ -133,6 +132,8 @@ namespace FactuSystem.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CajeroId");
 
                     b.ToTable("CuadrarCajas");
                 });
@@ -317,6 +318,17 @@ namespace FactuSystem.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("FactuSystem.Data.Model.CuadrarCaja", b =>
+                {
+                    b.HasOne("FactuSystem.Data.Model.Usuario", "Cashier")
+                        .WithMany("Detalles")
+                        .HasForeignKey("CajeroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cashier");
+                });
+
             modelBuilder.Entity("FactuSystem.Data.Model.Factura", b =>
                 {
                     b.HasOne("FactuSystem.Data.Model.Cliente", "Cliente")
@@ -374,6 +386,11 @@ namespace FactuSystem.Migrations
                     b.Navigation("Detalles");
 
                     b.Navigation("Pagos");
+                });
+
+            modelBuilder.Entity("FactuSystem.Data.Model.Usuario", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

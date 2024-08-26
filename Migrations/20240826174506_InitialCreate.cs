@@ -43,35 +43,6 @@ namespace FactuSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CuadrarCajas",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Cajero = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VentaCredito = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    VentaContado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Abonado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MontoCuadrado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    One = table.Column<int>(type: "int", nullable: false),
-                    Five = table.Column<int>(type: "int", nullable: false),
-                    Ten = table.Column<int>(type: "int", nullable: false),
-                    TwentyFive = table.Column<int>(type: "int", nullable: false),
-                    Fifty = table.Column<int>(type: "int", nullable: false),
-                    OneHundred = table.Column<int>(type: "int", nullable: false),
-                    TwoHundred = table.Column<int>(type: "int", nullable: false),
-                    FiveHundred = table.Column<int>(type: "int", nullable: false),
-                    OneThousand = table.Column<int>(type: "int", nullable: false),
-                    TwoThousand = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CuadrarCajas", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Proveedores",
                 columns: table => new
                 {
@@ -151,6 +122,41 @@ namespace FactuSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CuadrarCajas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CajeroId = table.Column<int>(type: "int", nullable: false),
+                    VentaCredito = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    VentaContado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Abonado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MontoCuadrado = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    One = table.Column<int>(type: "int", nullable: false),
+                    Five = table.Column<int>(type: "int", nullable: false),
+                    Ten = table.Column<int>(type: "int", nullable: false),
+                    TwentyFive = table.Column<int>(type: "int", nullable: false),
+                    Fifty = table.Column<int>(type: "int", nullable: false),
+                    OneHundred = table.Column<int>(type: "int", nullable: false),
+                    TwoHundred = table.Column<int>(type: "int", nullable: false),
+                    FiveHundred = table.Column<int>(type: "int", nullable: false),
+                    OneThousand = table.Column<int>(type: "int", nullable: false),
+                    TwoThousand = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CuadrarCajas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CuadrarCajas_Usuarios_CajeroId",
+                        column: x => x.CajeroId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FacturaDetalles",
                 columns: table => new
                 {
@@ -200,6 +206,11 @@ namespace FactuSystem.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CuadrarCajas_CajeroId",
+                table: "CuadrarCajas",
+                column: "CajeroId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FacturaDetalles_FacturaId",

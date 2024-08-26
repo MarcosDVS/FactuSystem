@@ -1,6 +1,7 @@
 using FactuSystem.Data.Response;
 using FactuSystem.Data.Request;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FactuSystem.Data.Model;
 
@@ -9,7 +10,8 @@ public class CuadrarCaja
     [Key]
     public int Id { get; set; }
     public DateTime Fecha { get; set; }
-    public string Cajero { get; set; }
+    // public string Cajero { get; set; } = null!;
+    public int CajeroId { get; set; }
     public decimal VentaCredito { get; set; }
     public decimal VentaContado { get; set; }
     public decimal Abonado { get; set; }
@@ -30,12 +32,18 @@ public class CuadrarCaja
     + (OneHundred * 100) + (TwoHundred * 200) + (FiveHundred * 500) 
     + (OneThousand * 1000) + (TwoThousand * 2000);
 
+     #region Relaciones
+    [ForeignKey(nameof(CajeroId))]
+    public virtual Usuario Cashier { get; set; } = null!;
+    #endregion
+
     public static CuadrarCaja Crear(CuadrarCajaRequest request)
     {
         return new CuadrarCaja()
         {
             Fecha = request.Fecha,
-            Cajero = request.Cajero,
+            // Cajero = request.Cajero,
+            CajeroId = request.CajeroId,
             VentaCredito = request.VentaCredito,
             VentaContado = request.VentaContado,
             Abonado = request.Abonado,
@@ -62,7 +70,9 @@ public class CuadrarCaja
         {
             Id = Id,
             Fecha = Fecha,
-            Cajero = Cajero,
+            // Cajero = Cajero,
+            CajeroId = CajeroId,
+            Cashier = Cashier?.ToResponse() ?? new UsuarioResponse { Nombre = "N/A" },  // Add null check here,
             VentaCredito = VentaCredito,
             VentaContado = VentaContado,
             Abonado = Abonado,

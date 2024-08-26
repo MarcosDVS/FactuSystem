@@ -44,9 +44,15 @@
                             <label for="nombreCompleto"><strong>Nombre del Cajero</strong></label>
                             @if(request.Id > 0)
                             {
-                                <span class="form-control">
-                                    @request.Cajero
-                                </span>
+                                <select class="form-select" placeholder="Categoria" required @bind="request.CajeroId" readonly>
+                                   <option disabled selected>Selecciona un cajero</option>
+                                    @foreach (var item in Cajeros)
+                                    {
+                                        <option value="@item.Id">
+                                            @item.Nombre @item.Apellidos
+                                        </option>
+                                    }
+                                </select>
                             }
                             else{
                                 <span class="form-control">
@@ -261,8 +267,8 @@
                         @foreach (var item in Cajas)
                         {
                             <tr>
-                                <td>@item.Fecha.ToString("dddd, dd MMMM yyyy hh:mm tt")</td>
-                                <td>@item.Cajero</td>
+                                <td>@item.Fecha.ToString("dd MMMM yyyy hh:mm tt")</td>
+                                <td>@item.Cashier.Nombre @item.Cashier.Apellidos</td>
                                 <td>$@item.VentaCredito.ToString("N2")</td>
                                 <td>$@item.VentaContado.ToString("N2")</td>
                                 <td>$@item.Abonado.ToString("N2")</td>
@@ -323,6 +329,7 @@
     "Cuadrar Caja" : "Modificar cuadre";
     
     public List<FacturaResponse> Facturas { get; set; } = new();
+    public List<UsuarioResponse> Cajeros { get; set; } = new();
     public List<PagoResponse> Pagos { get; set; } = new();
     public List<CuadrarCajaResponse> Cajas { get; set; } = new();
     public CuadrarCajaRequest request { get; set; } = new();
@@ -400,6 +407,15 @@
         request.Monto = DineroEnCaja;
     }
 
+    async Task ConsultarCashier()
+    {
+        var resultado = await usuarioServices.Consultar(Filtro);
+        if (resultado.Success)
+        {
+            Cajeros = resultado.Data!;
+        }
+        StateHasChanged();
+    }
     async Task Consultar()
     {
         var resultado = await facturaServices.Consultar(Filtro);
@@ -456,6 +472,7 @@
             UserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
         }
         await Consultar();
+        await ConsultarCashier();
         await CargarPagos();
         await CargarCajas();
         CashInBox();
@@ -473,7 +490,8 @@
     {
         request.Fecha = DateTime.Now;
         request.MontoCuadrado = request.Total;
-        request.Cajero = Cashier;
+        @* request.Cajero = Cashier; *@
+        request.CajeroId = Convert.ToInt32(UserId);
         
         if(request.Id == 0)
         {

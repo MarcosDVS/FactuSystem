@@ -13,6 +13,7 @@ public class Usuario
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
     public string? Role { get; set; }
+    public virtual ICollection<CuadrarCaja> Detalles { get; set; }
 
     public static Usuario Crear(UsuarioRequest user) => new()
     {

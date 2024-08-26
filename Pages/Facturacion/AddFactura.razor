@@ -300,8 +300,14 @@
 
     async Task UpdatePage()
     {
-        urlHelper.NavigateTo(urlHelper.Uri, forceLoad: true);
+        // Eliminar la información en facturaRequest.Detalles
+        facturaRequest.Detalles.Clear();
+
+        // Actualizar el valor de @ultimoIdFactura
+        await Consultar();
+        Chance = false;
     }
+    // Método para obtener el último Id de Factura
     void BuscarPercio(int idProducto)
     {
         Precio = Productos.FirstOrDefault(p => p.Id == idProducto)!.Precio;
@@ -447,11 +453,6 @@
         var result = await facturaServices.Crear(facturaRequest);
         Message = null;
 
-        if (!result.Success)
-        {
-            Message = "Estoy cansado de trabajar 😥";
-            return;
-        }
     }
 
     void CancelarPago()

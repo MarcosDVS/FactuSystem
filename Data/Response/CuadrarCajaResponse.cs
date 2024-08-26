@@ -7,7 +7,10 @@ public class CuadrarCajaResponse
 {
     public int Id { get; set; }
     public DateTime Fecha { get; set; } 
-    public string Cajero { get; set; }
+    // public string Cajero { get; set; }
+    public int CajeroId { get; set; }
+    public UsuarioResponse Cashier { get; set; } = null!;
+    public string NombreCashiertexto => Cashier != null ? Cashier.Nombre : "N/A";
     public decimal VentaCredito { get; set; }
     public decimal VentaContado { get; set; }
     public decimal Abonado { get; set; }
@@ -35,7 +38,8 @@ public class CuadrarCajaResponse
         {
             Id = Id,
             Fecha = Fecha,
-            Cajero = Cajero,
+            // Cajero = Cajero,
+            CajeroId = CajeroId,
             VentaCredito = VentaCredito,
             VentaContado = VentaContado,
             Abonado = Abonado,

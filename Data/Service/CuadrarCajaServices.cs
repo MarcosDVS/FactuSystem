@@ -20,8 +20,9 @@ public class CuadrarCajaServices : ICuadrarCajaServices
         try
         {
             var item = await dbContext.CuadrarCajas
+                .Include(c => c.Cashier)
                 .Where(c =>
-                    (c.Cajero)
+                    (c.Cashier.Nombre + "" + c.Cashier.Apellidos)
                     .ToLower()
                     .Contains(filtro.ToLower()
                     )
@@ -72,7 +73,7 @@ public class CuadrarCajaServices : ICuadrarCajaServices
                 return new Result<CuadrarCajaResponse>() { Message = "No se encontró la caja", Success = false };
 
             // Actualizar las propiedades de la caja según el request
-            caja.Cajero = request.Cajero;
+            caja.CajeroId = request.CajeroId;
             caja.Monto = request.Monto;
             caja.MontoCuadrado = request.MontoCuadrado;
 
