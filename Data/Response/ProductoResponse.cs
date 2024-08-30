@@ -18,7 +18,7 @@ public class ProductoResponse
     public string NombreProveedortexto => Proveedor != null ? Proveedor.NombreEmp : "N/A";
     public string NombreCategoriatexto => Categoria != null ? Categoria.Nombre : "N/A";
 
-    public string CodigoDescripcion => $"({Codigo}) {Nombre}";
+    public string CodigoDescripcion => $"({Codigo}) {Nombre} ${Precio}";
 
     public ProductoRequest ToRequest() 
     {

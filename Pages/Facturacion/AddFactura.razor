@@ -72,7 +72,7 @@
         </div>
         @if (Message != null)
         {
-            <div class="alert-warning">
+            <div class="alert alert-warning fw-bold">
                 <span class="text-dark">@Message</span>
             </div>
         }
@@ -117,10 +117,26 @@
                         </div>
                     </td>
                     <td class="col w-25">
-                        <span style="white-space: nowrap;">
-                            $@($"{(detalle.SubTotal * (detalle.Descuento / 100)):N2}")
-                        </span>
+                        <div class="row">
+                            <div class="col">
+                                <span style="white-space: nowrap;">
+                                    $@($"{(detalle.SubTotal * (detalle.Descuento / 100)):N2}")
+                                </span>
+                            </div>
+                            <div class="col">
+                                <details class="d-print-none">
+                                    <summary class="btn btn-outline-primary">Discount</summary>
+                                    <InputNumber class="form-control"
+                                                @bind-Value="@detalle.Descuento"
+                                                min="0"
+                                                max="30"
+                                                step="1"
+                                                aria-label="Discount Percentage" />
+                                </details>
+                            </div>
+                        </div>
                     </td>
+
 
                     <td class="col text-center">
                         $@($"{(detalle.SubTotal - detalle.TotalDesc):N2}")
@@ -300,12 +316,19 @@
 
     async Task UpdatePage()
     {
-        // Eliminar la información en facturaRequest.Detalles
-        facturaRequest.Detalles.Clear();
+        if(facturaRequest.Detalles.Any())
+        {
+            // Eliminar la información en facturaRequest.Detalles
+            facturaRequest.Detalles.Clear();
 
-        // Actualizar el valor de @ultimoIdFactura
-        await Consultar();
-        Chance = false;
+            // Actualizar el valor de @ultimoIdFactura
+            await Consultar();
+            Chance = false;
+        }
+        else{
+            await Consultar();
+            Message = "Everything is ok 👌🏼";
+        }
     }
     // Método para obtener el último Id de Factura
     void BuscarPercio(int idProducto)
