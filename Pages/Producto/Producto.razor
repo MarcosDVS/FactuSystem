@@ -197,7 +197,7 @@
                         <input type="text" class="form-control border-0 border-bottom" 
                         placeholder="Buscar por nombre" @bind="Filtro">
                         <button class="btn btn-outline input-group-text border-0 bg-white" 
-                            type="button" id="button-addon2" @onclick="()=>CargarContactos()">
+                            type="button" id="button-addon2" @onclick="()=>CargarDatos()">
                             <span class="oi oi-magnifying-glass text-black"></span>
                         </button>
                     </div>
@@ -311,13 +311,13 @@
         Stock = 0;
     }
 
-    async Task CargarContactos()
+    async Task CargarDatos()
     {
         var resultado =
         await productoServices.Consultar(Filtro);
         if (resultado.Success)
         {
-            Productos = resultado.Data!;
+            Productos = resultado.Data!.OrderByDescending(p => p.Id).ToList();
         }
     }
     async Task CargarProveedores()
@@ -351,7 +351,7 @@
             // Extrae los valores de los reclamos y asigna las propiedades
             Role = user.FindFirst(ClaimTypes.Role)?.Value ?? "";
         }
-        await CargarContactos();
+        await CargarDatos();
         await CargarProveedores();
         await CargarCategorias();
     }
@@ -379,7 +379,7 @@
                 if (r.Success)
                 {
                     Cancelar();
-                    await CargarContactos();
+                    await CargarDatos();
                     StateHasChanged();
                 }
                 else
@@ -398,7 +398,7 @@
                 if (r.Success)
                 {
                     Cancelar();
-                    await CargarContactos();
+                    await CargarDatos();
                     StateHasChanged();
                 }
                 else
@@ -428,7 +428,7 @@
         var resultado = await productoServices.Eliminar(item.ToRequest());
         if (resultado.Success)
         {
-            await CargarContactos();
+            await CargarDatos();
             StateHasChanged();
         }
     }
