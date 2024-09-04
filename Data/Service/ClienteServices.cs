@@ -84,6 +84,7 @@ namespace FactuSystem.Data.Services
             try
             {
                 var clientes = await dbContext.Clientes
+                    //.Include(c => c.Cashier)
                     .Where(c =>
                         (c.Nombre + " " + c.Apellidos + " " + c.Direccion + " " + c.Telefono + " " + c.Cedula + " " + c.Correo)
                         .ToLower()

@@ -567,7 +567,8 @@ else
         var resultado = await facturaServices.Consultar(FiltroInvoice);
         if (resultado.Success)
         {
-            Facturas = resultado.Data?.OrderByDescending(f => f.Fecha)
+            Facturas = resultado.Data?
+            .OrderByDescending(f => f.Fecha)
             .ToList() ?? new List<FacturaResponse>();
         }
         StateHasChanged();
