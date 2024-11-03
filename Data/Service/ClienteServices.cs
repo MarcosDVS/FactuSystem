@@ -4,7 +4,7 @@ using FactuSystem.Data.Context;
 using FactuSystem.Data.Model;
 using FactuSystem.Data.Request;
 using FactuSystem.Data.Response;
-using FactuSystem.Data.Services.Interfaces;
+using FactuSystem.Data.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

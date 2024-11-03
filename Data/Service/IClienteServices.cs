@@ -3,7 +3,7 @@ using FactuSystem.Data.Request;
 using FactuSystem.Data.Response;
 using FactuSystem.Data.Services;
 
-namespace FactuSystem.Data.Services.Interfaces
+namespace FactuSystem.Data.Services
 {
     public interface IClienteServices
     {

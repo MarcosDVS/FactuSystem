@@ -1,13 +1,12 @@
-using FactuSystem.Data;
-using FactuSystem.Data.Context;
-using FactuSystem.Data.Services;
-using FactuSystem.Data.Services.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using FactuSystem.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using Microsoft.AspNetCore.Components.Web;
-using static FactuSystem.Data.Services.CategoriaServices;
+using Microsoft.EntityFrameworkCore;
+using FactuSystem.Data;
+using FactuSystem.Data.Context;
+using FactuSystem.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-#region Configuracion de la base de datos SQLserver
-builder.Services.AddDbContext<MyDbContext>();
-builder.Services.AddScoped<IMyDbContext,MyDbContext>();
+
+#region Configuracion de la base de datos SQLite
+builder.Services.AddDbContext<MyDbContext>(options =>
+    options.UseSqlite("Data Source=MyDB.sqlite"));
+builder.Services.AddScoped<IMyDbContext, MyDbContext>();
 #endregion
+
 #region Servicios
 builder.Services.AddScoped<IFacturaServices,FacturaServices>();
 builder.Services.AddScoped<IProductoServices,ProductoServices>();
@@ -55,5 +57,23 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+using (var scope = scopeFactory.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+    try
+    {
+        if (db.Database.EnsureCreated())
+        {
+            // La base de datos se ha creado (o ya existe)
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al crear la base de datos: {ex.Message}");
+        // Puedes agregar más manejo de errores según tus necesidades
+    }
+}
 
 app.Run();

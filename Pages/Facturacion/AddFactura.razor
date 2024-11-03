@@ -50,7 +50,9 @@
             <datalist id="productos">
                 @foreach (var producto in Productos)
                 {
-                    <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)" />
+                    <option value="@producto.CodigoDescripcion" @onclick="()=>BuscarPercio(producto.Id)" >
+                        stock: @producto.Stock precio: $@producto.Precio
+                    </option>
                 }
             </datalist>
             <input @bind="detalleFacturaRequest.Descuento" type="number" 
@@ -60,10 +62,6 @@
         </div>
 
         <div class="input-group mb-3">
-            <label for="Descuento" class="input-group-text"><strong>Stock:</strong></label>
-            <span class="form-control ">
-                @Stock
-            </span>
             <label for="Descuento" class="input-group-text"><strong>Precio:</strong></label>
             <span class="form-control w-25">
                 $@Precio.ToString("N2")

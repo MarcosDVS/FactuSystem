@@ -5,12 +5,11 @@ namespace FactuSystem.Data.Context;
 
 public class MyDbContext : DbContext, IMyDbContext
 {
-    private readonly IConfiguration config;
-
-    public MyDbContext(IConfiguration config)
+    public MyDbContext(DbContextOptions options) : base(options)
     {
-        this.config = config;
+
     }
+
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Proveedor> Proveedores { get; set; }
     public DbSet<Producto> Productos { get; set; }
@@ -21,10 +20,6 @@ public class MyDbContext : DbContext, IMyDbContext
     public DbSet<Pago> Pagos { get; set; }
     public DbSet<Usuario> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(config.GetConnectionString("MSSQL"));
-    }
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return base.SaveChangesAsync(cancellationToken);
