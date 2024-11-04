@@ -103,7 +103,7 @@
                     <td class="col w-25 text-center">
                         <InputNumber 
                             class="form-control d-print-none" 
-                            @bind-Value="@detalle.Cantidad" />
+                            @bind-Value="@detalle.Cantidad" min="0" step="1"/>
                         <div class="d-none d-print-block">
                             @detalle.Cantidad
                         </div>
@@ -130,11 +130,9 @@
                                 <details class="d-print-none">
                                     <summary class="btn btn-outline-primary">Discount</summary>
                                     <InputNumber class="form-control"
-                                                @bind-Value="@detalle.Descuento"
-                                                min="0"
-                                                max="30"
-                                                step="1"
-                                                aria-label="Discount Percentage" />
+                                        @bind-Value="@detalle.Descuento"
+                                        min="0" max="30" step="1"
+                                        aria-label="Discount Percentage" />
                                 </details>
                             </div>
                         </div>
@@ -172,9 +170,9 @@
                             <span class="oi oi-loop"></span>
                         </button>
                         <select class="form-control" required @bind="@facturaRequest.TypePayment">
-                            <option disabled selected value="">Tipo de Venta</option>
-                            <option value="1">Contado 💲</option>
-                            <option value="2">Crédito 💳</option>
+                            <option disabled selected class="fw-bold">TIPO DE VENTA</option>
+                            <option value="1">CONTADO 💲</option>
+                            <option value="2">CRÉDITO 💳</option>
                         </select>
                         
                     </div>
